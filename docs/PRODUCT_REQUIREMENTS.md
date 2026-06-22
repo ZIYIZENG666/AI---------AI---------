@@ -1,0 +1,228 @@
+# Product Requirements
+
+## Purpose
+
+This document defines the main product requirements for the MVP.
+
+The product should help users build a company sales knowledge base, create product cards, run campaigns, discover leads, evaluate customer fit, and generate Gmail draft outreach emails.
+
+## Main User Journey
+
+The user should be able to:
+
+1. Create a company profile.
+2. Add company information.
+3. Let AI extract structured knowledge.
+4. Review and confirm the knowledge.
+5. Create product cards.
+6. Create a campaign based on a product card.
+7. Search for potential customer companies.
+8. Analyze candidate company websites.
+9. Score whether each company is a good customer match.
+10. Review recommended and non-recommended leads.
+11. Approve leads for outreach.
+12. Generate Gmail draft emails.
+13. Manually review and send emails in Gmail.
+
+## Core Features
+
+### 1. Company Profile
+
+The system should allow the user to create and manage basic company information.
+
+Company information may include:
+
+- Company name
+- Website
+- Industry
+- Description
+- Target market
+- Value proposition
+
+### 2. Company Information Input
+
+The system should support company information input through simple MVP-friendly methods.
+
+Supported input types may include:
+
+- Website URL
+- Plain text
+- Uploaded document
+- Manual form input
+
+The system should store source information for later reference.
+
+### 3. AI Knowledge Draft
+
+The system should use AI to extract structured knowledge from company materials.
+
+The draft should include useful sales knowledge such as:
+
+- What the company does
+- Main products or services
+- Target customers
+- Pain points solved
+- Key strengths
+- Differentiation
+- Use cases
+- Sales talking points
+
+The draft must be reviewed by the user before becoming confirmed knowledge.
+
+### 4. Confirmed Knowledge Base
+
+The user should be able to confirm, edit, or reject AI-generated knowledge.
+
+Only confirmed knowledge should be used as reliable input for product cards, campaigns, scoring, and outreach drafts.
+
+### 5. Product Card
+
+The system should allow the user to create product cards based on confirmed knowledge.
+
+A product card may include:
+
+- Product name
+- Product description
+- Target customer
+- Problems solved
+- Use cases
+- Key benefits
+- Differentiation
+- Proof points
+
+### 6. Campaign
+
+The system should allow the user to create a sales campaign.
+
+A campaign may include:
+
+- Selected product card
+- Target country or region
+- Target industry
+- Target company type
+- Target customer role
+- Search keywords
+- Qualification criteria
+- Number of leads to discover
+- Outreach angle
+
+The AI may suggest a campaign, but the user must be able to edit and confirm it.
+
+### 7. Lead Discovery
+
+The system should search for candidate companies based on the confirmed campaign.
+
+The MVP may use search APIs and crawler providers through abstraction.
+
+The system should collect basic lead information such as:
+
+- Company name
+- Website
+- Description
+- Country or region
+- Industry
+- Source URL
+
+### 8. Lead Validation
+
+Before AI scoring, the system should perform basic validation.
+
+Validation may include:
+
+- Company name normalization
+- Website normalization
+- Duplicate checking
+- Website availability check
+- Basic content sufficiency check
+- Obvious mismatch filtering
+
+Only valid leads should continue to AI scoring.
+
+### 9. Customer Matching Score
+
+The system should use AI to score whether a lead is a good match for the selected product and campaign.
+
+The score should include:
+
+- Fit score
+- Matching reasons
+- Evidence from website or source
+- Risk notes
+- Recommended action
+
+The score must not be a black box.
+
+### 10. Lead Review
+
+The user should be able to review leads before outreach.
+
+Lead status may include:
+
+- Recommended
+- Maybe
+- Not recommended
+- Approved
+- Rejected
+- Needs manual review
+
+The user decides which leads are approved for outreach.
+
+### 11. Outreach Draft
+
+For approved leads, the system should generate a Gmail draft.
+
+The email draft should be based on:
+
+- Confirmed company knowledge
+- Product card
+- Campaign
+- Lead information
+- Website evidence
+- Matching reasons
+
+The system must not automatically send emails.
+
+### 12. Task Tracking
+
+The system should record task execution status.
+
+Useful task information includes:
+
+- Task type
+- Task status
+- Started time
+- Finished time
+- Error message
+- Related campaign
+- Related lead
+
+## MVP UI Requirements
+
+The MVP should provide a simple web dashboard.
+
+The dashboard should support:
+
+- Company profile management
+- Knowledge review
+- Product card management
+- Campaign creation
+- Lead results page
+- Lead detail page
+- Outreach draft status
+
+The UI does not need to be highly complex, but it should be clear and usable.
+
+## Out of Scope for MVP
+
+The MVP should not include:
+
+- Full account registration and login system
+- Team permission management
+- Full CRM pipeline
+- Automatic email sending
+- Email reply tracking
+- LinkedIn API
+- Google Sheets integration
+- Complex analytics dashboard
+- Payment system
+- Multi-agent workflow

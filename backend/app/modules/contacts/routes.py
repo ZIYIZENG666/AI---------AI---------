@@ -1,0 +1,6 @@
+"""Route placeholders for the contacts module."""
+
+from fastapi import APIRouter
+
+
+router = APIRouter(prefix="/contacts", tags=["contacts"])
