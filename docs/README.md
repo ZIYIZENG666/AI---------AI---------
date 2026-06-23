@@ -66,10 +66,6 @@ Defines code organization, naming, layering, error handling, and configuration r
 
 Use this when writing or reviewing code.
 
-### `UI_REQUIREMENTS.md`
-
-Defines the frontend UI rules, Stitch-to-Codex workflow, dashboard page structure, and Chinese user-facing text requirements.
-
 ### `TESTING_STRATEGY.md`
 
 Defines what should be tested and how tests should be structured.
