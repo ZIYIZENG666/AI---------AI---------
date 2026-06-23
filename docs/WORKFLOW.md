@@ -230,6 +230,10 @@ The system records statuses such as:
 - Draft failed
 - User rejected
 
+## Frontend Implementation Workflow
+
+Major frontend pages should be designed in Stitch first when available, then implemented by Codex according to `docs/UI_REQUIREMENTS.md` and existing project rules.
+
 ## Workflow Rules
 
 1. AI-generated knowledge must be reviewed before becoming confirmed knowledge.

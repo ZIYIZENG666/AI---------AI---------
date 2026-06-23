@@ -37,6 +37,7 @@ Frontend standards:
 4. Make loading, empty, error, and review states explicit.
 5. Do not hardcode backend secrets or provider credentials in frontend code.
 6. All user-visible text must be Chinese, including page titles, buttons, form labels, dialogs, errors, empty states, status labels, menus, and confirmation prompts.
+7. Frontend layout and visual implementation should follow Stitch-generated UI designs when available.
 
 Product Card UI vocabulary and interaction rules:
 

@@ -69,6 +69,7 @@ When modifying code:
 14. Update `docs/DEVELOPMENT_PROGRESS.md` after every Codex development task.
 15. The progress update must include completed work, changed files, test results, known issues, and the next recommended step.
 16. Do not claim a module is complete unless it has working models, schemas, repository and service logic, routes, and tests where appropriate.
+17. When implementing frontend UI, Codex must follow `docs/UI_REQUIREMENTS.md` and use Stitch-generated design context when available. Codex must not freely redesign the UI unless explicitly requested.
 
 ## Architecture Rules
 

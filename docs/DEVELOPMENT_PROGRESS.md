@@ -27,6 +27,7 @@ The repository is no longer only a pure skeleton, but it is still far from a ful
 - Added Product Card API tests covering confirmed-knowledge eligibility, draft/rejected exclusion, company isolation, reads, transitions, and error responses.
 - Documented the Product Card company/workspace scope plan, ORM/migration constraint naming standard, and required PostgreSQL migration smoke-test boundary.
 - Finalized Product Card Phase 2 questions 3 and 5 across the project rule documents without changing backend, frontend, migrations, or tests.
+- Formalized the Stitch-to-Codex frontend workflow, Chinese user-facing text requirement, dashboard page expectations, and UI design handoff rules in project documentation only.
 
 ## Current Task
 
@@ -287,6 +288,9 @@ Exit Criteria:
 
 ## Recently Changed Files
 
+- `AGENTS.md`
+- `docs/README.md`
+- `docs/UI_REQUIREMENTS.md`
 - `docs/WORKFLOW.md`
 - `docs/MVP_SCOPE.md`
 - `docs/MODULE_BOUNDARIES.md`
@@ -319,6 +323,7 @@ Exit Criteria:
 - No real provider implementations exist yet for LLM, search, crawler, Gmail, storage, or task queue.
 - No RQ worker runtime is implemented yet, even though Redis and the task queue direction are documented.
 - Frontend is still a basic shell and has no business workflow pages.
+- Stitch UI screens and Stitch MCP design context have not yet been provided; this task defines the future frontend handoff workflow only.
 - Live PostgreSQL and Redis services were not exercised in this task.
 
 ## Next Recommended Step
@@ -328,6 +333,7 @@ Implement the finalized Product Card backend/frontend contract before starting `
 - replace Product Card reject/rejected behavior with delete and restrict status to `draft` / `confirmed`
 - add manual creation, `source_type`, PATCH editing, idempotent confirmation, and Campaign-protected deletion
 - update the Product Card UI with Chinese labels, details-dialog editing, and the permanent manual-add entry
+- before implementing major frontend pages, generate or provide the relevant Stitch UI design and let Codex implement the UI according to `docs/UI_REQUIREMENTS.md`
 - update the migration and automated tests to match the finalized contract, then verify against PostgreSQL
 - tighten Product Card get, patch, confirm, and delete lookups to company scope, without adding a full account system
 - audit and normalize ORM/migration check constraint names
