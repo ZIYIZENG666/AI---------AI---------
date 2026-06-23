@@ -272,6 +272,24 @@ Possible `status`:
 
 For MVP, Gmail draft generation should mainly use valid public email when available.
 
+`contact_type = linkedin` only represents a manually provided or manually reviewed public LinkedIn reference.
+
+It does not represent:
+
+- LinkedIn API integration
+- LinkedIn scraping
+- LinkedIn automation
+- a verified email contact
+- permission to generate Gmail Draft
+- permission to send LinkedIn messages
+
+For MVP, Gmail Draft must use a selected valid email contact:
+
+- `contacts.contact_type = email`
+- `contacts.status = valid`
+
+A lead with only a LinkedIn contact and no valid email contact is not eligible for Gmail Draft creation.
+
 ## outreach_drafts
 
 Stores generated outreach draft records.
@@ -306,6 +324,8 @@ Gmail draft eligibility should be evaluated from:
 - `lead.review_status`
 - the selected `contacts` record
 - the absence of an existing completed `outreach_drafts` record for the same lead, campaign, and contact
+
+LinkedIn references must not be used as Gmail Draft recipients. Gmail Draft eligibility requires a selected valid email contact.
 
 ## task_runs
 

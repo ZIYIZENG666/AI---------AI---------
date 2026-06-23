@@ -176,6 +176,15 @@ Rules:
 2. Do not change published response shapes silently.
 3. If a breaking contract change is needed later, introduce a new version instead of mutating the old one without notice.
 
+## LinkedIn API Boundary
+
+Rules:
+
+1. No API endpoint may trigger LinkedIn automation of any kind.
+2. Do not expose endpoints that scrape LinkedIn, log in to LinkedIn, send LinkedIn messages, send connection requests, download LinkedIn contacts, or automatically enrich leads from LinkedIn.
+3. Allowed endpoints may store a user-provided LinkedIn URL as a manual contact reference, return that LinkedIn URL for frontend human review, and mark `contact_type = linkedin`.
+4. LinkedIn references must not be used as Gmail Draft recipients or as Gmail Draft eligibility.
+
 ## Frontend / Backend Contract Rule
 
 Rules:

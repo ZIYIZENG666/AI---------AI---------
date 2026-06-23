@@ -127,6 +127,10 @@ The MVP must not include:
 - Automatic email sending
 - Bulk email sending
 - LinkedIn API
+- LinkedIn scraping
+- LinkedIn automation
+- LinkedIn browser-extension automation
+- Automatic LinkedIn messaging, connection requests, profile scraping, or contact downloading
 - Google Sheets workflow
 - Multi-agent architecture
 - LangGraph workflow
@@ -171,3 +175,13 @@ AI can suggest, draft, classify, score, and explain.
 AI cannot make final outreach decisions.
 
 The user must review and approve leads and email drafts.
+
+## LinkedIn Rule
+
+LinkedIn is out of scope for MVP automation.
+
+- The MVP must not use the LinkedIn API.
+- The MVP must not perform automated LinkedIn crawling or scraping.
+- The MVP must not use Playwright, Selenium, browser extensions, or bots to automatically access LinkedIn.
+- A LinkedIn URL may only be manually provided by the user or stored as a manual review reference.
+- A LinkedIn URL or LinkedIn contact reference must not be used as Gmail Draft eligibility or as a Gmail Draft recipient.

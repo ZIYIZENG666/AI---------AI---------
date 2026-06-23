@@ -225,6 +225,7 @@ It handles:
 - Contact person information if available
 - Contact source
 - Contact validation status
+- User-provided LinkedIn URL as a manual reference only
 
 ### Not Responsible For
 
@@ -253,6 +254,17 @@ It should not automatically send emails.
 It should not approve leads.
 
 It should not discover new leads.
+
+## LinkedIn Boundary
+
+The MVP must not contain a LinkedIn Provider, LinkedIn Adapter, LinkedIn Crawler, or LinkedIn Automation module.
+
+Discovery, intelligence (crawler behavior), contacts, outreach, and AI services must not automatically access LinkedIn.
+
+Allowed boundary:
+
+- Only the `contacts` module may store a user-provided LinkedIn URL as a manual reference.
+- Only the frontend may display a LinkedIn URL for human review.
 
 ## tasks
 
