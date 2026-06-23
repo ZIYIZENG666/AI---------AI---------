@@ -75,6 +75,8 @@ Draft 内容不能作为最终事实使用。
 
 Rejected 内容不能继续参与后续流程，除非用户重新编辑并确认。
 
+此通用状态不适用于 Product Card。Product Card 只使用 `draft` 和 `confirmed`；不需要的 Product Card 通过删除处理，不产生 `rejected` 状态。
+
 ---
 
 ## 3. Company Knowledge Rules
@@ -117,6 +119,9 @@ AI 生成 Product Card 时必须遵守：
 4. Product Card 必须方便后续 Campaign 和 Lead Scoring 使用。
 5. 不确定的卖点不能写成确定事实。
 6. Product Card 生成后必须由用户确认。
+7. AI 生成的 Product Card 必须设置 `source_type = ai_generated`、`status = draft`，AI 不得自动确认。
+8. 用户手动添加产品是长期保留的独立入口，使用 `source_type = manual`、`status = draft`，不能因提供 AI 生成功能而移除。
+9. 只有 `confirmed` Product Card 才能用于 Campaign；Product Card 不使用 reject/rejected 业务状态。
 
 Product Card 应包含：
 

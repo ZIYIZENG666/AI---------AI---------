@@ -41,13 +41,17 @@ The MVP must include the following:
 
 ### 5. Product Card
 
-- Create product card
+- Generate Product Cards from confirmed knowledge and allow users to add products manually
 - Link product card to company
 - Use confirmed knowledge as reference
+- Keep only `draft` and `confirmed` Product Card statuses; deletion does not create `rejected`
+- Allow draft cards to be edited, confirmed, or deleted
+- Allow confirmed cards to be edited, used by Campaign, or deleted only when no Campaign has referenced them
+- Keep edit-save behavior separate from `draft -> confirmed` confirmation
 
 ### 6. Campaign
 
-- Create campaign from product card
+- Create campaign from a confirmed product card
 - Define target market, target industry, target customer type, and search criteria
 - Allow AI to suggest campaign content
 - Allow user to edit and confirm campaign

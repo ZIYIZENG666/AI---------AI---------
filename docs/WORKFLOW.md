@@ -61,9 +61,9 @@ The user can:
 
 Only confirmed knowledge should be used in later steps.
 
-### Step 5: Create Product Card
+### Step 5: Create and Review Product Card
 
-The user creates a product card based on confirmed knowledge.
+A Product Card may be generated from confirmed knowledge or added manually by the user. The frontend must keep a permanent `手动添加产品` entry; AI generation is not the only creation path. Both sources start in `draft`, and only a `confirmed` Product Card may be used by a Campaign.
 
 The product card explains:
 
@@ -73,9 +73,28 @@ The product card explains:
 - Why customers may care
 - Key selling points
 
+Product Card lifecycle and editing rules:
+
+- A draft Product Card may be edited, confirmed, or deleted.
+- A confirmed Product Card may be edited, deleted when unreferenced, or used by a Campaign; it must not show a confirmation button.
+- Repeating the confirm request for an already confirmed Product Card is idempotent and leaves it confirmed.
+- Selecting a Product Card opens a details dialog where fields can be edited directly.
+- When fields have changed, the dialog shows `取消` and `保存修改`.
+- `取消` discards unsaved frontend state and does not call the save API.
+- `保存修改` calls `PATCH /api/v1/product-cards/{id}` and does not change Product Card status.
+- `确认产品卡片` means `draft -> confirmed`; it is separate from saving edited fields.
+- Deletion never creates a Product Card `rejected` status. A confirmed Product Card already referenced by a Campaign cannot be physically deleted and returns HTTP `409`.
+
+Product Card scope note:
+
+- The current MVP is a single-user prototype, and each Product Card belongs to a company.
+- Before Campaign and later downstream records rely on a Product Card, access should be hardened to preserve the same company boundary.
+- Future workspace or multi-tenant support must extend this boundary to workspace ownership.
+- This is planned hardening, not a claim that account or workspace authorization is already implemented.
+
 ### Step 6: Create Campaign
 
-The user selects a product card and creates a sales campaign.
+The user selects a confirmed product card and creates a sales campaign.
 
 The campaign defines:
 

@@ -51,23 +51,49 @@ Rules:
 
 ## Phase 2 Product Card Endpoints
 
-The Product Card vertical slice exposes:
+The target Product Card contract exposes:
 
-- `POST /api/v1/companies/{company_id}/product-cards`
-- `GET /api/v1/companies/{company_id}/product-cards`
+- `POST /api/v1/companies/{company_id}/product-cards` for generation from confirmed company knowledge
+- `POST /api/v1/product-cards` for user-created Product Cards
+- `GET /api/v1/product-cards`
 - `GET /api/v1/product-cards/{product_card_id}`
+- `PATCH /api/v1/product-cards/{product_card_id}`
 - `POST /api/v1/product-cards/{product_card_id}/confirm`
-- `POST /api/v1/product-cards/{product_card_id}/reject`
+- `DELETE /api/v1/product-cards/{product_card_id}`
 
 Rules:
 
-1. Product card creation is synchronous and deterministic; it must not call an LLM or external API.
-2. Creation uses every confirmed knowledge item for the company and ignores draft or rejected knowledge.
-3. Creation fails with HTTP `409` and `confirmed_knowledge_required` when the company has no confirmed knowledge.
-4. Generated cards start in `draft` and persist the exact confirmed knowledge IDs in `source_knowledge_item_ids`.
-5. Confirm and reject endpoints accept only product cards currently in `draft`; invalid transitions return HTTP `409` with `product_card_not_draft`.
-6. Missing product card IDs return HTTP `404` with `product_card_not_found`.
-7. Company product card lists use the standard `limit` and `offset` pagination contract.
+1. Product Cards have only `draft` and `confirmed` business statuses. `rejected` is not valid, and there is no Product Card reject endpoint.
+2. Generation uses confirmed knowledge only, sets `source_type = ai_generated` and `status = draft`, and persists the exact confirmed knowledge IDs in `source_knowledge_item_ids`.
+3. User-created Product Cards use `POST /api/v1/product-cards`, set `source_type = manual` and `status = draft`, and must belong to a company.
+4. The manual Product Card creation path must remain available even when AI generation is available.
+5. `GET /api/v1/product-cards` returns both `draft` and `confirmed` records by default, supports only `status=draft` or `status=confirmed`, and uses the standard `limit` and `offset` pagination contract. `status=rejected` is invalid.
+6. `PATCH /api/v1/product-cards/{product_card_id}` is allowed for both statuses, saves editable fields only, and must not change `status`.
+7. `POST /api/v1/product-cards/{product_card_id}/confirm` changes `draft` to `confirmed`. Repeating it for an already confirmed Product Card returns HTTP `200` with the current record and leaves the status unchanged.
+8. `DELETE /api/v1/product-cards/{product_card_id}` deletes a draft directly. It may delete a confirmed Product Card only when no Campaign has ever referenced it; otherwise it returns HTTP `409`.
+9. Only confirmed Product Cards may be selected by a Campaign.
+10. Missing Product Card IDs return HTTP `404` with `product_card_not_found` for get, patch, confirm, and delete operations.
+11. AI-backed generation may replace the current deterministic generator later, but it must preserve the same source, status, evidence, and human-confirmation rules.
+
+### Product Card Scope Hardening (Planned)
+
+The current MVP remains a single-user prototype. ID-only get, patch, confirm, and delete operations must not be treated as the final authorization model.
+
+Target repository/service query semantics:
+
+- get by `product_card_id + company_id`
+- patch by `product_card_id + company_id`
+- confirm by `product_card_id + company_id`
+- delete by `product_card_id + company_id`
+- later extend each lookup with `workspace_id`
+
+Rules:
+
+1. Product Cards must remain associated with their owning company.
+2. Company-scoped lookup hardening should be incorporated before or alongside Phase 3 Campaign work.
+3. Workspace-scoped lookup is a future multi-tenant constraint and is not implemented yet.
+4. Account or workspace authorization must not be claimed until the corresponding implementation and tests exist.
+5. Product Card deletion must check Campaign references before physical deletion and return HTTP `409` when the card is in use.
 
 ## Success Response Format
 

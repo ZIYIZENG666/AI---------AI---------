@@ -2,7 +2,7 @@
 
 ## Current Project Stage
 
-Foundation stabilization, Phase 1B, and the Phase 2 Product Card backend slice are complete.
+Foundation stabilization and Phase 1B are complete. A deterministic Phase 2 Product Card backend slice exists, but it still requires implementation updates to match the finalized Product Card contract below.
 
 The repository is no longer only a pure skeleton, but it is still far from a full MVP. The honest implemented backend slices are now `company`, `sources`, `knowledge`, and `products`. Most other backend modules remain placeholders.
 
@@ -22,17 +22,41 @@ The repository is no longer only a pure skeleton, but it is still far from a ful
 - Added the `company_sources` and `knowledge_items` tables through a new Alembic migration.
 - Added focused API tests for source ownership, source listing, draft generation, review transitions, status separation, invalid IDs, and invalid repeat review.
 - Implemented deterministic Product Card generation from confirmed company knowledge only.
-- Added product card create, list, get, confirm, and reject APIs with explicit review-state rules.
+- Added the legacy product card create, list, get, confirm, and reject APIs that predate the finalized Phase 2 contract.
 - Added the `product_cards` table through Alembic revision `20260623_0003`.
 - Added Product Card API tests covering confirmed-knowledge eligibility, draft/rejected exclusion, company isolation, reads, transitions, and error responses.
+- Documented the Product Card company/workspace scope plan, ORM/migration constraint naming standard, and required PostgreSQL migration smoke-test boundary.
+- Finalized Product Card Phase 2 questions 3 and 5 across the project rule documents without changing backend, frontend, migrations, or tests.
 
 ## Current Task
 
-`Phase 2: Product Card Module` is complete.
+Product Card Phase 2 question 3 is finalized:
 
-The next active implementation task is `Phase 3: Campaign Module`.
+- Product Cards use only `draft` and `confirmed`; lists never return a Product Card `rejected` state and `status=rejected` is unsupported.
+- Product Card reject/rejected behavior is replaced by delete.
+- Product Cards support both AI-generated (`ai_generated`) and user-created (`manual`) sources, and both start in `draft`.
 
-The completed Product Card slice uses deterministic category mapping and company-profile fallbacks. It does not call an LLM or external API, and draft or rejected knowledge is never used.
+Product Card Phase 2 question 5 is finalized:
+
+- Draft cards may be edited, confirmed, or deleted; confirmed cards may be edited, used by Campaign, or deleted when unreferenced.
+- Confirmed cards do not show a confirmation button, while repeated confirm API calls return HTTP `200` and keep the card confirmed.
+- Editing happens in a details dialog; cancel discards unsaved changes, while save calls PATCH without changing status.
+- Deleting a confirmed Product Card already referenced by a Campaign returns HTTP `409`.
+
+This task updates rule documents only. The backend, frontend, migration, and test changes required to implement the finalized contract remain pending.
+
+## Phase 3 Readiness Hardening
+
+These are planned constraints or pending verification, not completed implementation:
+
+1. Implement the finalized Product Card create/list/patch/confirm/delete contract and tighten repository/service lookups to `product_card_id + company_id`, then extend to `workspace_id` when multi-tenant support exists.
+2. Audit ORM and Alembic check constraints so status/type constraint names use the same `ck_<table_name>_<column_name>` name.
+3. Run the current migration chain against a real isolated PostgreSQL test database; SQLite migration cycling and PostgreSQL offline SQL generation are not sufficient proof.
+
+Resolved Product Card contract decisions:
+
+- Product Card lists include `draft` and `confirmed` only; rejected visibility is not a supported concept.
+- Confirm is idempotent for already confirmed cards, and removal uses delete with Campaign-reference protection.
 
 ## Long-Term Development Plan
 
@@ -58,7 +82,7 @@ Exit Criteria:
 
 ### Phase 2: Product Card Module
 
-Status: Completed for the deterministic confirmed-knowledge backend slice.
+Status: Legacy deterministic backend slice exists; finalized contract implementation is pending.
 
 Goal:
 
@@ -66,13 +90,13 @@ Goal:
 
 Scope:
 
-- Implement product card creation, listing, retrieval, confirmation, and rejection flows.
+- Implement AI-generated and manual product card creation, listing, retrieval, editing, confirmation, and deletion flows.
 - Define how product cards reference confirmed knowledge and evidence sources.
 - Add tests for confirmed-knowledge gating, product card review behavior, and invalid IDs.
 
 Exit Criteria:
 
-- Users can create, confirm, and reject product cards based on confirmed company knowledge.
+- Users can generate or manually create, edit, confirm, and delete product cards under the finalized lifecycle rules.
 - Product card state and evidence references are persisted and validated.
 - Product cards become usable downstream inputs for campaign creation.
 
@@ -86,6 +110,7 @@ Scope:
 
 - Implement campaign create, edit, confirm, and archive flows.
 - Store targeting criteria, search keywords, exclusion rules, scoring focus, and outreach angle.
+- Enforce that Campaign uses a Product Card from the same company; preserve a future workspace-scope path without claiming workspace authorization already exists.
 - Add tests for campaign lifecycle and product-card linkage.
 
 Exit Criteria:
@@ -230,6 +255,7 @@ Scope:
 
 - Implement background job execution for discovery, intelligence, scoring, and draft-generation workflows.
 - Add worker runtime, task status updates, operational docs, and deployment alignment for PostgreSQL and Redis.
+- Add required real-PostgreSQL migration smoke verification for the accumulated migration chain.
 - Add tests or smoke checks for task execution boundaries where practical.
 
 Exit Criteria:
@@ -237,6 +263,7 @@ Exit Criteria:
 - Long-running workflows can run through background jobs with explicit task states.
 - Deployment docs and runtime configuration match the code that actually exists.
 - PostgreSQL, Redis, API, and worker responsibilities are clearly verified.
+- The migration chain passes `upgrade head` on an isolated real PostgreSQL database.
 
 ### Phase 12: MVP Stabilization
 
@@ -249,40 +276,34 @@ Scope:
 - Close contract gaps, improve validation and error handling, expand automated tests, and fix workflow regressions.
 - Review documentation accuracy across architecture, API, data model, AI rules, and deployment.
 - Tighten observability, failure handling, and manual review safeguards.
+- Re-run real-PostgreSQL migration smoke checks as a required stabilization gate.
 
 Exit Criteria:
 
 - Core MVP workflows are covered by reliable automated tests and smoke checks.
 - Documentation, implementation, and runtime behavior are aligned.
 - The team can demo the end-to-end MVP without relying on placeholder behavior in critical paths.
+- Real PostgreSQL schema validation confirms JSON/JSONB, foreign keys, indexes, check constraints, names, and migration order.
 
 ## Recently Changed Files
 
-- `backend/alembic/versions/20260623_0003_create_product_cards.py`
-- `backend/app/main.py`
-- `backend/app/models.py`
-- `backend/app/modules/knowledge/repository.py`
-- `backend/app/modules/products/__init__.py`
-- `backend/app/modules/products/models.py`
-- `backend/app/modules/products/schemas.py`
-- `backend/app/modules/products/repository.py`
-- `backend/app/modules/products/service.py`
-- `backend/app/modules/products/routes.py`
-- `backend/tests/test_products.py`
-- `backend/README.md`
-- `docs/DEVELOPMENT_PROGRESS.md`
-- `docs/DATA_MODEL.md`
+- `docs/WORKFLOW.md`
+- `docs/MVP_SCOPE.md`
+- `docs/MODULE_BOUNDARIES.md`
 - `docs/API_CONTRACT.md`
+- `docs/DATA_MODEL.md`
+- `docs/AI_RULES.md`
+- `docs/CODING_STANDARDS.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
 
 ## Test Status
 
-- Focused Phase 2 tests: `python -m pytest -q tests/test_products.py` -> `9 passed, 1 warning`
-- Full backend tests: `python -m pytest -q` -> `31 passed, 1 warning`
-- Python compile smoke check: `python -m compileall -q app tests` -> passed
-- Backend import, OpenAPI generation, and Phase 2 route/method smoke check -> passed
-- Alembic upgrade/downgrade/upgrade cycle with an isolated SQLite database -> passed and preserved the Phase 1A/1B tables when revision `20260623_0003` was downgraded
-- PostgreSQL offline Alembic SQL generation through revision `20260623_0003` -> passed
-- The warning is a Starlette deprecation warning for its current `httpx` TestClient integration; it does not fail the tests.
+- This task changes documentation only, so backend/frontend automated tests were not rerun.
+- Last verified Phase 2 focused tests: `9 passed, 1 warning`.
+- Last verified full backend suite: `31 passed, 1 warning`.
+- Last verified compile and OpenAPI smoke checks: passed.
+- SQLite Alembic upgrade/downgrade/upgrade previously passed, but this is not PostgreSQL schema validation.
+- PostgreSQL offline Alembic SQL generation previously passed, but no live PostgreSQL migration smoke test has been completed.
 - Live PostgreSQL and live Redis verification remains pending.
 
 ## Known Issues
@@ -290,7 +311,10 @@ Exit Criteria:
 - Most backend modules other than `company`, `sources`, `knowledge`, and `products` are still placeholders.
 - Knowledge draft generation is deterministic and only copies supplied content or creates a manual-review URL note; it does not perform AI extraction.
 - Product Card generation is deterministic; fields without matching confirmed-knowledge categories remain empty lists or explicit `Not specified` values.
-- Product cards do not yet support manual editing; Phase 2 provides generation, reads, confirmation, and rejection only.
+- The current Product Card code still implements the legacy reject/rejected lifecycle and does not yet provide manual creation, PATCH editing, delete semantics, or `source_type`.
+- Current Product Card get, confirm, and reject operations use ID-only lookup; the finalized get, patch, confirm, and delete contract still needs company-scoped and later workspace-scoped hardening.
+- ORM/migration check constraint names still require a code-and-migration audit against the new naming standard.
+- The migration chain has not been executed against a live isolated PostgreSQL test database.
 - Source support is limited to text and URL. Document parsing, Word/PDF handling, image OCR, storage, and crawling are not implemented.
 - No real provider implementations exist yet for LLM, search, crawler, Gmail, storage, or task queue.
 - No RQ worker runtime is implemented yet, even though Redis and the task queue direction are documented.
@@ -299,10 +323,12 @@ Exit Criteria:
 
 ## Next Recommended Step
 
-Start `Phase 3: Campaign Module` as the next small backend vertical slice, including:
+Implement the finalized Product Card backend/frontend contract before starting `Phase 3: Campaign Module`:
 
-- a `campaigns` SQLAlchemy model and Alembic migration
-- creation from confirmed product cards only
-- explicit campaign targeting, search criteria, qualification criteria, outreach angle, and lifecycle status fields
-- schemas, repository, service, routes, and tests following the existing vertical-slice pattern
-- no lead discovery, crawler, search provider, or background worker implementation in the initial campaign slice
+- replace Product Card reject/rejected behavior with delete and restrict status to `draft` / `confirmed`
+- add manual creation, `source_type`, PATCH editing, idempotent confirmation, and Campaign-protected deletion
+- update the Product Card UI with Chinese labels, details-dialog editing, and the permanent manual-add entry
+- update the migration and automated tests to match the finalized contract, then verify against PostgreSQL
+- tighten Product Card get, patch, confirm, and delete lookups to company scope, without adding a full account system
+- audit and normalize ORM/migration check constraint names
+- after hardening, implement the minimal Campaign model, migration, schemas, repository, service, routes, and tests using confirmed same-company Product Cards only

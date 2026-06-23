@@ -304,6 +304,28 @@ Redis 要求：
 - migration 不会误删重要数据
 - model 与数据库结构一致
 
+### 7.1 PostgreSQL Migration Smoke Test
+
+SQLite migration tests and offline PostgreSQL SQL generation are useful prechecks, but neither proves that a migration runs successfully against a real PostgreSQL server.
+
+Required smoke-test flow:
+
+1. Start an isolated PostgreSQL test database.
+2. Configure the backend and Alembic to use that test database.
+3. Run `alembic upgrade head`.
+4. Inspect new tables, JSON/JSONB columns, foreign keys, indexes, check constraints, constraint names, and revision order.
+5. Optionally run `alembic downgrade -1` when the migration supports downgrade.
+6. Run `alembic upgrade head` again.
+7. Run the critical backend tests against the verified schema where practical.
+
+Release gates:
+
+- Before Phase 3: recommended foundation hardening for the current migrations.
+- Before Phase 11 deployment work is considered complete: required verification.
+- Before Phase 12 MVP stabilization exits: required verification.
+
+Full CI automation may be added later, but deployment readiness must not be claimed from SQLite-only checks.
+
 ---
 
 ## 8. Production Deployment Flow
@@ -624,6 +646,8 @@ Backend 使用 FastAPI。
 - [ ] frontend build 成功。
 - [ ] backend 可以启动。
 - [ ] Alembic migration 已检查。
+- [ ] 重要 migration 已在独立 PostgreSQL 测试数据库运行 smoke test。
+- [ ] ORM 与 migration 的 check constraint 名称一致。
 - [ ] PostgreSQL 已备份。
 - [ ] .env 已配置。
 - [ ] APP_DEBUG=false。
@@ -644,6 +668,8 @@ Backend 使用 FastAPI。
 
 - [ ] 是否仍然使用 PostgreSQL 作为主数据库？
 - [ ] 是否通过 Alembic 管理数据库结构？
+- [ ] 是否没有用 SQLite 测试代替真实 PostgreSQL migration smoke test？
+- [ ] 是否检查了 ORM/migration constraint 名称和 PostgreSQL 实际名称？
 - [ ] 是否没有把 .env 或 secret 提交进代码？
 - [ ] 是否没有写死 DATABASE_URL？
 - [ ] 是否没有写死 API Key？

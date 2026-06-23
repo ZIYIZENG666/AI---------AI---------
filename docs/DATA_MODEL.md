@@ -17,6 +17,19 @@ Use Alembic for all database migrations.
 5. Do not design around SQLite.
 6. Do not store secrets in the database without proper protection.
 
+## Constraint Naming and PostgreSQL Authority
+
+Database constraints are part of the stable schema contract.
+
+Rules:
+
+1. A SQLAlchemy `CheckConstraint` and the Alembic migration that creates it must resolve to the same database constraint name.
+2. Use `ck_<table_name>_<column_name>` for new status, type, and other enum-like checks, for example `ck_product_cards_status`.
+3. Do not use one constraint name in ORM metadata and another in migration code.
+4. Existing constraint declarations should be audited and normalized as Phase 3 foundation hardening; this documentation update does not claim the code audit is complete.
+5. PostgreSQL is authoritative for JSON/JSONB behavior, foreign keys, indexes, constraint names, and migration ordering.
+6. SQLite `Base.metadata.create_all()` or in-memory tests do not validate the real Alembic/PostgreSQL schema.
+
 ## Main Entities
 
 ## company_profiles
@@ -119,6 +132,7 @@ Main fields:
 - `use_cases`
 - `differentiators`
 - `source_knowledge_item_ids`
+- `source_type`
 - `status`
 - `created_at`
 - `updated_at`
@@ -127,7 +141,11 @@ Possible `status`:
 
 - `draft`
 - `confirmed`
-- `rejected`
+
+Allowed `source_type`:
+
+- `ai_generated`
+- `manual`
 
 `confirmed` 表示用户已确认，可用于后续 Campaign 与 Outreach。
 
@@ -137,9 +155,22 @@ Phase 2 product card rules:
 - Draft and rejected knowledge items must not appear in `source_knowledge_item_ids` or generated content.
 - `pain_points`, `use_cases`, `differentiators`, and `source_knowledge_item_ids` are stored as JSON lists.
 - The deterministic generator maps recognized knowledge categories into structured fields and does not call an LLM or external API.
-- A newly generated product card starts in `draft`.
-- Only a `draft` product card may transition to `confirmed` or `rejected`.
+- AI-generated Product Cards start with `source_type = ai_generated` and `status = draft`.
+- User-created Product Cards start with `source_type = manual` and `status = draft`.
+- A Product Card may transition only from `draft` to `confirmed`; repeating confirmation on `confirmed` leaves it unchanged.
+- Editing a Product Card does not change its status. Unsaved edits are frontend state and must not create database statuses such as `editing`, `modified`, or `pending_changes`.
+- Deleting a Product Card does not create a `rejected` record or status.
 - Only confirmed product cards should become inputs for the later campaign workflow.
+- A confirmed Product Card may be physically deleted only when no Campaign has ever referenced it.
+- `ck_product_cards_status` must allow only `draft` and `confirmed`; a source-type check constraint must allow only `ai_generated` and `manual`.
+
+Product Card scope plan:
+
+- The current Product Card model belongs to a company through `company_id` in the single-user MVP.
+- ID-only get, patch, confirm, and delete lookups are provisional and must not be treated as the final ownership model.
+- Planned repository/service lookups should require `product_card_id + company_id` before or alongside Phase 3.
+- Future workspace support should add and enforce `workspace_id`, producing `product_card_id + company_id + workspace_id` scope semantics.
+- No workspace ownership field or multi-tenant authorization is claimed as implemented yet.
 
 ## campaigns
 

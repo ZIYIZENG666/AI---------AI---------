@@ -352,6 +352,37 @@ Gmail 功能是高风险功能，必须严格测试。
 4. migration 名称应描述变更内容。
 5. 删除字段或表必须谨慎，MVP 阶段优先 soft delete 或保留兼容。
 
+### SQLite and PostgreSQL Boundary
+
+SQLite 可以继续用于快速 unit、service 和 route 行为测试，但不能替代 PostgreSQL schema validation。
+
+必须明确：
+
+- `Base.metadata.create_all()` 只验证当前 ORM metadata 可以创建表，不等于执行 Alembic migration。
+- SQLite in-memory tests 不能证明 migration 能在 PostgreSQL 上运行。
+- SQLite 不能作为 JSON/JSONB、foreign key、check constraint、index、constraint name 或 migration order 的最终依据。
+- PostgreSQL 是生产目标和数据库行为的最终标准。
+
+### PostgreSQL Migration Smoke Test
+
+每个包含 migration 的重要 backend phase 完成后，应使用独立 PostgreSQL 测试数据库执行 smoke test。
+
+最低验证流程：
+
+1. 启动或创建独立 PostgreSQL 测试数据库。
+2. 执行 `alembic upgrade head`。
+3. 检查新表、字段、foreign key、index、check constraint 和实际 constraint name。
+4. 如果 migration 支持 downgrade，可执行 `alembic downgrade -1`。
+5. 再次执行 `alembic upgrade head`。
+6. 运行关键 backend tests。
+
+阶段要求：
+
+- Phase 3 前：recommended foundation hardening。
+- Phase 11 deployment 前：required verification。
+- Phase 12 MVP stabilization：required exit check。
+- 当前可以暂不实现完整 CI，但不能用 SQLite 或 PostgreSQL offline SQL generation 代替真实 PostgreSQL smoke test。
+
 ---
 
 ## 14. Test Data Rules
@@ -453,6 +484,7 @@ CI 不能依赖真实第三方 API。
 9. 数据库 migration 已生成并测试。
 10. API schema 和前端调用一致。
 11. 文档如有必要已更新。
+12. 对包含重要 migration 的阶段，已记录或完成真实 PostgreSQL migration smoke test；未完成时必须明确列为 blocker 或 backlog。
 
 ---
 
@@ -469,6 +501,9 @@ CI 不能依赖真实第三方 API。
 - [ ] 是否测试了人工审核状态转换？
 - [ ] 是否测试了后台任务 failed 状态？
 - [ ] 是否检查了 Alembic migration？
+- [ ] ORM model 与 migration 的 check constraint 最终名称是否一致？
+- [ ] 如果新增重要 migration，是否运行了真实 PostgreSQL migration smoke test，或明确记录尚未完成？
+- [ ] 是否没有把 SQLite `create_all()` 或 in-memory tests 当作 PostgreSQL migration 验证？
 - [ ] 是否确认 frontend build 可以通过？
 - [ ] 是否确认 backend tests 可以通过？
 - [ ] 是否没有引入 Google Sheets？

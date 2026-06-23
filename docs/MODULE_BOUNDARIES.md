@@ -92,7 +92,10 @@ The products module manages product cards.
 
 It handles:
 
-- Product card creation
+- Product card generation from confirmed knowledge and manual creation
+- Product card ownership by company
+- Product card `draft -> confirmed` lifecycle
+- Product card editing and deletion rules
 - Product positioning
 - Target customer description
 - Pain points solved
@@ -104,6 +107,19 @@ It handles:
 It should not search leads directly.
 
 It should not send emails.
+
+### Scope Ownership
+
+The `products` module owns Product Card scope validation.
+
+- The current Phase 2 slice is single-user and stores `company_id` on every Product Card.
+- ID-only get, patch, confirm, and delete lookups are not the final authorization model.
+- Planned hardening should first require `product_card_id + company_id` in repository/service lookup semantics.
+- Future workspace support should extend this to `product_card_id + company_id + workspace_id`.
+- Campaign and later modules must not consume a Product Card from another company or workspace.
+- The `products` service must protect Campaign references before deletion; route handlers must not perform the reference query or deletion decision directly.
+- Product Card reject/rejected behavior is outside this module contract. Deletion is the only removal operation.
+- This boundary does not require implementing accounts or workspace permissions in the current documentation task.
 
 ## campaigns
 
