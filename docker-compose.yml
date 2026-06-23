@@ -9,8 +9,15 @@ services:
       - "${BACKEND_PORT:-8000}:8000"
     environment:
       APP_ENV: ${APP_ENV:-development}
-      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://postgres:postgres@postgres:5432/ai_b2b_sales}
-      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      APP_NAME: ${APP_NAME:-AI B2B Sales Knowledge Base & Lead Qualification System}
+      BACKEND_HOST: ${BACKEND_HOST:-0.0.0.0}
+      BACKEND_PORT: ${BACKEND_PORT:-8000}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      SECRET_KEY: ${SECRET_KEY}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173}
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
     depends_on:
       - postgres
       - redis
@@ -30,11 +37,11 @@ services:
     image: postgres:16-alpine
     container_name: ai-b2b-sales-postgres
     environment:
-      POSTGRES_DB: ai_b2b_sales
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

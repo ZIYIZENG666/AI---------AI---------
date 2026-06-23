@@ -62,6 +62,11 @@ Draft 内容不能作为最终事实使用。
 - Confirmed Product Card
 - Confirmed Campaign
 
+在数据模型中应明确映射为：
+
+- `product_cards.status = confirmed`
+- `campaigns.status = confirmed`
+
 后续 AI 评分和邮件生成只能基于 Confirmed 内容，而不是直接基于未确认 Draft。
 
 ### 2.3 Rejected
@@ -267,7 +272,7 @@ AI 必须为 Lead 输出风险提示。
 AI 可以生成开发信草稿，但必须遵守：
 
 1. 只能为 Approved Lead 生成邮件草稿。
-2. 必须有有效的 public_email。
+2. 必须基于已选定的有效联系人记录，而不是只依赖 Lead 级布尔字段。
 3. 必须有 Confirmed Product Card。
 4. 必须有 Confirmed Campaign。
 5. 必须有有效的 outreach angle。
@@ -283,14 +288,15 @@ AI 可以生成开发信草稿，但必须遵守：
 
 Gmail Draft eligibility：
 
-Lead 必须同时满足：
+Lead / Contact / Outreach Draft 必须同时满足：
 
-- status = Approved
-- has_public_email = true
-- public_email is valid
-- gmail_draft_created = false
-- outreach_subject is not empty
-- outreach_body is not empty
+- `lead.review_status = approved`
+- 存在已选定的联系人记录
+- `contact.contact_type = email`
+- `contact.status = valid`
+- `outreach_drafts.subject` is not empty
+- `outreach_drafts.body` is not empty
+- 不存在同一 `lead_id + campaign_id + contact_id` 且 `status = gmail_draft_created` 的重复草稿记录
 
 不符合条件的 Lead 不能创建 Gmail Draft。
 

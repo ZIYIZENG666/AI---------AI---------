@@ -66,6 +66,9 @@ When modifying code:
 11. Keep AI prompts and AI behavior centralized.
 12. Add or update tests when logic changes.
 13. Update documentation if architecture, API, workflow, or data model changes.
+14. Update `docs/DEVELOPMENT_PROGRESS.md` after every Codex development task.
+15. The progress update must include completed work, changed files, test results, known issues, and the next recommended step.
+16. Do not claim a module is complete unless it has working models, schemas, repository and service logic, routes, and tests where appropriate.
 
 ## Architecture Rules
 

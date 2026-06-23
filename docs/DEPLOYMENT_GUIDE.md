@@ -75,7 +75,8 @@
 - Backend: FastAPI
 - Database: PostgreSQL
 - Migration: Alembic
-- Queue: Redis + RQ
+- Queue foundation: Redis
+- Background worker: planned RQ worker, not yet wired into the current repository runtime
 - Storage: Local or external storage through StorageProvider
 - AI Provider: through LLM Provider interface
 - Search Provider: through Search Provider interface
@@ -175,16 +176,18 @@ Gmail scope 只能包含创建草稿所需权限，不允许添加 send / modify
 
 示例流程：
 
-    cp .env.example .env
+PowerShell example from the project root:
+
+    Copy-Item .env.example .env
 
     docker compose up -d postgres redis
 
-    cd backend
-    pip install -r requirements.txt
-    alembic upgrade head
-    uvicorn app.main:app --reload
+    Set-Location backend
+    python -m pip install -e .
+    python -m alembic -c alembic.ini upgrade head
+    python -m uvicorn app.main:app --reload
 
-    cd frontend
+    Set-Location ..\frontend
     npm install
     npm run dev
 
@@ -208,7 +211,7 @@ Gmail scope 只能包含创建草稿所需权限，不允许添加 send / modify
 - backend
 - postgres
 - redis
-- worker
+- worker（planned, not currently included in `docker-compose.yml`）
 
 ### 6.1 Backend Container
 
@@ -227,9 +230,11 @@ Backend container 不应该：
 - 自动发送邮件
 - 跳过 migration 检查
 
-### 6.2 Worker Container
+### 6.2 Worker Container (Future / Planned)
 
-Worker container 应负责：
+当前仓库尚未提供可运行的 worker service。
+
+当后续引入 worker 时，应负责：
 
 - 执行 RQ 后台任务
 - 调用 Provider 接口
@@ -308,15 +313,15 @@ Redis 要求：
 1. 拉取最新代码。
 2. 检查环境变量。
 3. 构建 Docker images。
-4. 停止旧 worker，避免旧任务继续写入。
-5. 备份 PostgreSQL 数据库。
-6. 运行 Alembic migration。
-7. 启动 backend。
-8. 启动 worker。
-9. 启动 frontend。
-10. 检查健康检查接口。
-11. 手动测试核心流程。
-12. 检查日志是否有错误。
+4. 备份 PostgreSQL 数据库。
+5. 运行 Alembic migration。
+6. 启动 backend。
+7. 启动 frontend。
+8. 检查健康检查接口。
+9. 手动测试核心流程。
+10. 检查日志是否有错误。
+
+如果后续引入 worker，再补充停止和重启 worker 的发布步骤。
 
 示例流程：
 
@@ -324,16 +329,13 @@ Redis 要求：
 
     docker compose build
 
-    docker compose stop worker
-
     backup database
 
     docker compose run --rm backend alembic upgrade head
 
-    docker compose up -d backend worker frontend
+    docker compose up -d backend frontend
 
     docker compose logs -f backend
-    docker compose logs -f worker
 
 ---
 
@@ -500,7 +502,11 @@ MVP 阶段至少应支持手动备份 PostgreSQL。
 
 ## 14. Background Worker Deployment Rules
 
-Worker 处理后台任务，部署时必须谨慎。
+本节是 future-facing 规则。
+
+当前仓库还没有在 `docker-compose.yml` 中提供 worker service。
+
+当 worker 落地后，部署时必须谨慎。
 
 规则：
 
@@ -623,12 +629,12 @@ Backend 使用 FastAPI。
 - [ ] APP_DEBUG=false。
 - [ ] CORS domain 正确。
 - [ ] Redis 可连接。
-- [ ] Worker 可启动。
 - [ ] Health check 正常。
 - [ ] 没有提交 API Key。
 - [ ] Gmail scope 没有 send / modify / delete。
 - [ ] 没有 Google Sheets 配置。
 - [ ] 没有 LinkedIn API 配置。
+- [ ] 如果已引入 worker，worker 可启动且不会绕过人工审核。
 
 ---
 
@@ -641,9 +647,9 @@ Backend 使用 FastAPI。
 - [ ] 是否没有把 .env 或 secret 提交进代码？
 - [ ] 是否没有写死 DATABASE_URL？
 - [ ] 是否没有写死 API Key？
-- [ ] 是否 Docker 配置包含 backend / frontend / postgres / redis / worker？
+- [ ] 是否 Docker 配置与当前仓库一致，例如 backend / frontend / postgres / redis？
 - [ ] 是否 backend 有 health check？
-- [ ] 是否 worker 不会自动发送邮件？
+- [ ] 如果 worker 已实现，是否 worker 不会自动发送邮件？
 - [ ] 是否 Gmail scope 只允许 Draft？
 - [ ] 是否生产环境关闭 debug？
 - [ ] 是否 CORS 配置安全？

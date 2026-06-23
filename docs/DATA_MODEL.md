@@ -115,8 +115,10 @@ Main fields:
 Possible `status`:
 
 - `draft`
-- `active`
+- `confirmed`
 - `archived`
+
+`confirmed` 表示用户已确认，可用于后续 Campaign 与 Outreach。
 
 ## campaigns
 
@@ -149,6 +151,8 @@ Possible `status`:
 - `completed`
 - `failed`
 - `archived`
+
+`confirmed` 表示用户已确认，可进入 lead discovery。
 
 ## leads
 
@@ -257,6 +261,15 @@ Possible `contact_type`:
 - `linkedin`
 - `manual`
 
+Possible `status`:
+
+- `unverified`
+- `valid`
+- `invalid`
+- `blocked`
+
+`contact_type = linkedin` 仅表示人工发现的公开联系人渠道或资料引用，不表示 LinkedIn API integration。
+
 For MVP, Gmail draft generation should mainly use valid public email when available.
 
 ## outreach_drafts
@@ -287,6 +300,12 @@ Possible `status`:
 Important rule:
 
 The system creates Gmail drafts only. It must not automatically send emails.
+
+Gmail draft eligibility should be evaluated from:
+
+- `lead.review_status`
+- the selected `contacts` record
+- the absence of an existing completed `outreach_drafts` record for the same lead, campaign, and contact
 
 ## task_runs
 
