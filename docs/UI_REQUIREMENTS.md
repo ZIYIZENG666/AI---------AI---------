@@ -1,33 +1,14 @@
 # UI Requirements
 
-This document defines frontend UI rules, Stitch-to-Codex workflow, dashboard page structure, and user-facing text requirements.
-
-## UI Development Source
-
 This project uses Stitch as the primary UI design source for the frontend dashboard.
 
-Stitch-generated screens define:
+## UI Source of Truth
 
-- Visual direction
-- Page layout
-- Component placement
-- Spacing intention
-- User flow
-- Overall frontend experience
+Stitch-generated screens define the visual direction, layout, component placement, spacing, and overall user experience of the frontend.
 
-However, Stitch does not define:
+However, Stitch does not define backend behavior, business rules, database rules, API contracts, or product workflow rules.
 
-- Backend behavior
-- Business rules
-- Database rules
-- API contracts
-- Product workflow rules
-- Permission rules
-- Data validation rules
-
-## Priority Order
-
-When there is a conflict, follow this priority order:
+When there is a conflict, the priority order is:
 
 1. API_CONTRACT.md
 2. DATA_MODEL.md
@@ -37,19 +18,17 @@ When there is a conflict, follow this priority order:
 6. UI_REQUIREMENTS.md
 7. Stitch-generated UI design and frontend code
 
-Codex must not blindly copy Stitch-generated code if it conflicts with project architecture or confirmed project rules.
-
-## Stitch-to-Codex Workflow
+## Stitch to Codex Workflow
 
 Frontend implementation should follow this workflow:
 
-1. Generate or update the relevant UI screens in Stitch.
-2. Provide the Stitch-generated design context to Codex through Stitch MCP when available.
-3. Ask Codex to implement the frontend based on both project rules and Stitch UI design.
-4. Codex must compare Stitch UI with existing project rules before coding.
-5. Codex must preserve the visual direction and interaction structure from Stitch when possible.
-6. Codex must keep API calls, state handling, validation, loading states, error states, and business logic consistent with backend contracts.
-7. After implementation, Codex must run frontend checks and report completed pages, changed files, connected APIs, and any mismatch between Stitch design and implemented UI.
+1. Generate or update the UI screens in Stitch.
+2. Connect Stitch context to Codex through MCP when available.
+3. Ask Codex to implement the frontend based on the Stitch UI.
+4. Codex must compare the Stitch design with existing project rules before coding.
+5. Codex must not blindly copy Stitch-generated code if it conflicts with project architecture.
+6. Codex must keep API calls, state handling, validation, and error handling consistent with backend contracts.
+7. After implementation, Codex must run frontend checks and provide a summary of completed pages.
 
 ## Language Requirement
 
@@ -68,19 +47,10 @@ This includes:
 - Table headers
 - Tooltips
 - Toast messages
-- Modal titles
-- Form validation messages
 
-English may only be used in:
+English may only be used in code, API fields, database fields, logs, and developer-facing documentation.
 
-- Code
-- API fields
-- Database fields
-- Logs
-- Developer-facing documentation
-- Internal variable names
-
-## Frontend Technology
+## Frontend Implementation Rules
 
 The frontend must use:
 
@@ -88,11 +58,9 @@ The frontend must use:
 - TypeScript
 - Vite
 
-Codex must preserve a modular frontend structure.
+Codex must preserve the modular frontend structure and must not put all page logic into a single file.
 
-Codex must not put all page logic into a single file.
-
-Each major dashboard area should have its own page, feature folder, reusable components, API client logic, and type definitions when appropriate.
+Each major dashboard area should have its own page or feature folder.
 
 ## MVP Dashboard Pages
 
@@ -126,43 +94,25 @@ Product Card status labels must be displayed in Chinese:
 
 The UI must not display rejected Product Cards because rejected is not a valid Product Card status.
 
-Recommended Product Card UI text:
-
-- 产品卡片
-- 产品
-- 待确认
-- 已确认
-- 手动添加产品
-- 编辑
-- 删除
-- 确认产品卡片
-- 保存修改
-- 取消
-- 已被获客任务使用
-
 ## Stitch Design Consistency
 
 When implementing a Stitch-generated screen, Codex must preserve:
 
 - Page layout
 - Main navigation structure
-- Card, table, dialog, and form structure
+- Card/table/dialog structure
 - Button placement
 - Visual hierarchy
 - Spacing intention
 - User flow
-- Empty state design
-- Error state design
-- Loading state design
 
 Codex may adjust implementation details only when required by:
 
 - API contract
 - TypeScript correctness
-- Accessibility
-- Responsive behavior
-- Existing project architecture
-- Project coding standards
+- accessibility
+- responsive behavior
+- project coding standards
 
 ## Completion Check
 
@@ -174,5 +124,3 @@ After frontend implementation, Codex must report:
 - Which UI text is shown in Chinese
 - Which checks or tests passed
 - Any mismatch between Stitch design and implemented UI
-- Any part still using mock data
-- Any part not yet connected to backend API
