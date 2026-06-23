@@ -1,5 +1,14 @@
 # Backend
 
+Current implemented backend slices:
+
+- `company`: company profile create, list, get, and update
+- `sources`: company-owned text/URL source create, list, and get
+- `knowledge`: deterministic source-to-draft creation, status-filtered listing, confirm, and reject
+- `products`: confirmed-knowledge-only deterministic product card generation, listing, get, confirm, and reject
+
+Phases 1B and 2 intentionally do not include document parsing, OCR, crawling, real LLM calls, external integrations, or frontend workflow pages.
+
 这是基于 FastAPI 的后端基础实现，当前提供：
 
 - 基础应用入口

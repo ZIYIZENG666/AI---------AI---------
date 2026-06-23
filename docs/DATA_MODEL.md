@@ -53,19 +53,22 @@ Main fields:
 - `source_type`
 - `title`
 - `url`
-- `raw_text`
-- `file_path`
+- `raw_content`
 - `status`
-- `error_message`
 - `created_at`
 - `updated_at`
 
-Possible `source_type`:
+Phase 1B supports these `source_type` values:
 
 - `url`
 - `text`
-- `document`
-- `manual`
+
+Source rules for Phase 1B:
+
+- Text sources require `raw_content` and do not use `url`.
+- URL sources require `url`; `raw_content` is optional because no crawler runs in this phase.
+- New source records use `status = ready`.
+- Document parsing, file storage, OCR, and crawler processing are deferred.
 
 ## knowledge_items
 
@@ -92,6 +95,14 @@ Possible `status`:
 
 Only confirmed knowledge should be used as reliable input for product cards, campaigns, scoring, and outreach.
 
+Phase 1B knowledge rules:
+
+- Drafts created from a source keep that source in `source_id`.
+- The current deterministic generator copies available source content without calling an LLM or crawler.
+- `confidence` remains null for deterministic drafts because no AI confidence is inferred.
+- Only a `draft` item may transition to `confirmed` or `rejected`.
+- Company knowledge lists may be filtered by status so confirmed knowledge remains separate from unreviewed drafts.
+
 ## product_cards
 
 Stores product or service cards.
@@ -104,10 +115,10 @@ Main fields:
 - `description`
 - `target_customer`
 - `pain_points`
-- `benefits`
-- `differentiation`
+- `value_proposition`
 - `use_cases`
-- `proof_points`
+- `differentiators`
+- `source_knowledge_item_ids`
 - `status`
 - `created_at`
 - `updated_at`
@@ -116,9 +127,19 @@ Possible `status`:
 
 - `draft`
 - `confirmed`
-- `archived`
+- `rejected`
 
 `confirmed` 表示用户已确认，可用于后续 Campaign 与 Outreach。
+
+Phase 2 product card rules:
+
+- Product cards are generated only from the company's confirmed knowledge items.
+- Draft and rejected knowledge items must not appear in `source_knowledge_item_ids` or generated content.
+- `pain_points`, `use_cases`, `differentiators`, and `source_knowledge_item_ids` are stored as JSON lists.
+- The deterministic generator maps recognized knowledge categories into structured fields and does not call an LLM or external API.
+- A newly generated product card starts in `draft`.
+- Only a `draft` product card may transition to `confirmed` or `rejected`.
+- Only confirmed product cards should become inputs for the later campaign workflow.
 
 ## campaigns
 

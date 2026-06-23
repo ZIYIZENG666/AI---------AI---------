@@ -2,9 +2,9 @@
 
 ## Current Project Stage
 
-Foundation stabilization completed for the first backend slice.
+Foundation stabilization, Phase 1B, and the Phase 2 Product Card backend slice are complete.
 
-The repository is no longer only a pure skeleton, but it is still far from a full MVP. The `company` module is the only honest implemented vertical slice. Most backend modules outside `company` remain placeholders.
+The repository is no longer only a pure skeleton, but it is still far from a full MVP. The honest implemented backend slices are now `company`, `sources`, `knowledge`, and `products`. Most other backend modules remain placeholders.
 
 ## Completed Work
 
@@ -16,18 +16,29 @@ The repository is no longer only a pure skeleton, but it is still far from a ful
 - Added `/health/db` and `/health/redis` checks with honest dependency probing.
 - Aligned `AI_RULES.md`, `DATA_MODEL.md`, and `DEPLOYMENT_GUIDE.md` terminology with the current repository state.
 - Updated the core planning and rule documents to add a phased long-term MVP plan and explicit LinkedIn boundaries.
+- Implemented company-owned text and URL source records with create, list, and get APIs.
+- Implemented deterministic source-to-knowledge draft creation without a crawler or LLM dependency.
+- Implemented knowledge review transitions for `draft`, `confirmed`, and `rejected`, including status-filtered company lists.
+- Added the `company_sources` and `knowledge_items` tables through a new Alembic migration.
+- Added focused API tests for source ownership, source listing, draft generation, review transitions, status separation, invalid IDs, and invalid repeat review.
+- Implemented deterministic Product Card generation from confirmed company knowledge only.
+- Added product card create, list, get, confirm, and reject APIs with explicit review-state rules.
+- Added the `product_cards` table through Alembic revision `20260623_0003`.
+- Added Product Card API tests covering confirmed-knowledge eligibility, draft/rejected exclusion, company isolation, reads, transitions, and error responses.
 
 ## Current Task
 
-The current stabilization pass is complete.
+`Phase 2: Product Card Module` is complete.
 
-The next active implementation task is `Phase 1: Sources + Knowledge Vertical Slice`.
+The next active implementation task is `Phase 3: Campaign Module`.
 
-This phase should implement the next honest vertical slice: `sources` plus the first `knowledge` draft workflow foundation.
+The completed Product Card slice uses deterministic category mapping and company-profile fallbacks. It does not call an LLM or external API, and draft or rejected knowledge is never used.
 
 ## Long-Term Development Plan
 
 ### Phase 1: Sources + Knowledge Vertical Slice
+
+Status: Completed for the MVP text/URL minimum slice.
 
 Goal:
 
@@ -35,7 +46,7 @@ Goal:
 
 Scope:
 
-- Implement `sources` persistence and input flows for URL, text, document metadata, and manual source records.
+- Implement `sources` persistence and input flows for simple URL and text source records.
 - Implement the first `knowledge` draft workflow with `draft`, `confirmed`, and `rejected` states.
 - Add the required models, migrations, schemas, repositories, services, routes, and tests for this slice.
 
@@ -47,19 +58,21 @@ Exit Criteria:
 
 ### Phase 2: Product Card Module
 
+Status: Completed for the deterministic confirmed-knowledge backend slice.
+
 Goal:
 
 - Turn confirmed company knowledge into structured, reusable product cards.
 
 Scope:
 
-- Implement product card creation, update, confirmation, and archive flows.
+- Implement product card creation, listing, retrieval, confirmation, and rejection flows.
 - Define how product cards reference confirmed knowledge and evidence sources.
-- Add tests for product card draft and confirmation behavior.
+- Add tests for confirmed-knowledge gating, product card review behavior, and invalid IDs.
 
 Exit Criteria:
 
-- Users can create and confirm product cards based on confirmed company knowledge.
+- Users can create, confirm, and reject product cards based on confirmed company knowledge.
 - Product card state and evidence references are persisted and validated.
 - Product cards become usable downstream inputs for campaign creation.
 
@@ -245,35 +258,51 @@ Exit Criteria:
 
 ## Recently Changed Files
 
+- `backend/alembic/versions/20260623_0003_create_product_cards.py`
+- `backend/app/main.py`
+- `backend/app/models.py`
+- `backend/app/modules/knowledge/repository.py`
+- `backend/app/modules/products/__init__.py`
+- `backend/app/modules/products/models.py`
+- `backend/app/modules/products/schemas.py`
+- `backend/app/modules/products/repository.py`
+- `backend/app/modules/products/service.py`
+- `backend/app/modules/products/routes.py`
+- `backend/tests/test_products.py`
+- `backend/README.md`
 - `docs/DEVELOPMENT_PROGRESS.md`
-- `docs/MVP_SCOPE.md`
-- `docs/AI_RULES.md`
 - `docs/DATA_MODEL.md`
 - `docs/API_CONTRACT.md`
-- `docs/MODULE_BOUNDARIES.md`
 
 ## Test Status
 
-- No code changes were made in this task, so no new automated tests were run.
-- Backend tests: `python -m pytest -q` -> `9 passed`
-- Backend import smoke check: `import app.main` -> passed
-- Alembic CLI smoke check: `python -m alembic -c alembic.ini upgrade head` with temporary SQLite settings -> passed
-- Additional verification still needed for live PostgreSQL and live Redis instances
+- Focused Phase 2 tests: `python -m pytest -q tests/test_products.py` -> `9 passed, 1 warning`
+- Full backend tests: `python -m pytest -q` -> `31 passed, 1 warning`
+- Python compile smoke check: `python -m compileall -q app tests` -> passed
+- Backend import, OpenAPI generation, and Phase 2 route/method smoke check -> passed
+- Alembic upgrade/downgrade/upgrade cycle with an isolated SQLite database -> passed and preserved the Phase 1A/1B tables when revision `20260623_0003` was downgraded
+- PostgreSQL offline Alembic SQL generation through revision `20260623_0003` -> passed
+- The warning is a Starlette deprecation warning for its current `httpx` TestClient integration; it does not fail the tests.
+- Live PostgreSQL and live Redis verification remains pending.
 
 ## Known Issues
 
-- Most backend modules other than `company` are still placeholders.
+- Most backend modules other than `company`, `sources`, `knowledge`, and `products` are still placeholders.
+- Knowledge draft generation is deterministic and only copies supplied content or creates a manual-review URL note; it does not perform AI extraction.
+- Product Card generation is deterministic; fields without matching confirmed-knowledge categories remain empty lists or explicit `Not specified` values.
+- Product cards do not yet support manual editing; Phase 2 provides generation, reads, confirmation, and rejection only.
+- Source support is limited to text and URL. Document parsing, Word/PDF handling, image OCR, storage, and crawling are not implemented.
 - No real provider implementations exist yet for LLM, search, crawler, Gmail, storage, or task queue.
 - No RQ worker runtime is implemented yet, even though Redis and the task queue direction are documented.
 - Frontend is still a basic shell and has no business workflow pages.
-- Automated tests currently focus only on backend foundation and the `company` slice.
+- Live PostgreSQL and Redis services were not exercised in this task.
 
 ## Next Recommended Step
 
-Start `Phase 1: Sources + Knowledge Vertical Slice` on top of the new company foundation, including:
+Start `Phase 3: Campaign Module` as the next small backend vertical slice, including:
 
-- source model and migrations
-- source input routes
-- knowledge draft data model
-- draft vs confirmed status handling
-- tests for the second vertical slice
+- a `campaigns` SQLAlchemy model and Alembic migration
+- creation from confirmed product cards only
+- explicit campaign targeting, search criteria, qualification criteria, outreach angle, and lifecycle status fields
+- schemas, repository, service, routes, and tests following the existing vertical-slice pattern
+- no lead discovery, crawler, search provider, or background worker implementation in the initial campaign slice

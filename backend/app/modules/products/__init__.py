@@ -1,1 +1,1 @@
-"""Products module."""
+"""Product card module."""

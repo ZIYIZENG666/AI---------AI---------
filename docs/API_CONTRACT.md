@@ -27,6 +27,48 @@ Operational endpoints such as health checks may stay outside versioned business 
 - `/health/db`
 - `/health/redis`
 
+## Phase 1B Resource Endpoints
+
+The minimum sources and knowledge slice exposes:
+
+- `POST /api/v1/companies/{company_id}/sources`
+- `GET /api/v1/companies/{company_id}/sources`
+- `GET /api/v1/sources/{source_id}`
+- `POST /api/v1/sources/{source_id}/knowledge-drafts`
+- `GET /api/v1/companies/{company_id}/knowledge`
+- `POST /api/v1/knowledge/{knowledge_id}/confirm`
+- `POST /api/v1/knowledge/{knowledge_id}/reject`
+
+Rules:
+
+1. Source creation supports only `source_type = text` and `source_type = url` in Phase 1B.
+2. Text sources require `raw_content`; URL sources require `url` and may omit `raw_content`.
+3. Knowledge draft creation is synchronous and deterministic in this phase. It must not imply that a crawler or LLM processed a URL.
+4. `GET /api/v1/companies/{company_id}/knowledge` accepts optional `status`, `limit`, and `offset` query parameters.
+5. The `status` filter accepts `draft`, `confirmed`, or `rejected`, allowing confirmed knowledge to be retrieved separately.
+6. Confirm and reject endpoints accept only knowledge items currently in `draft`; invalid transitions return HTTP `409` with `knowledge_not_draft`.
+7. Missing company, source, or knowledge IDs return HTTP `404` with stable resource-specific error codes.
+
+## Phase 2 Product Card Endpoints
+
+The Product Card vertical slice exposes:
+
+- `POST /api/v1/companies/{company_id}/product-cards`
+- `GET /api/v1/companies/{company_id}/product-cards`
+- `GET /api/v1/product-cards/{product_card_id}`
+- `POST /api/v1/product-cards/{product_card_id}/confirm`
+- `POST /api/v1/product-cards/{product_card_id}/reject`
+
+Rules:
+
+1. Product card creation is synchronous and deterministic; it must not call an LLM or external API.
+2. Creation uses every confirmed knowledge item for the company and ignores draft or rejected knowledge.
+3. Creation fails with HTTP `409` and `confirmed_knowledge_required` when the company has no confirmed knowledge.
+4. Generated cards start in `draft` and persist the exact confirmed knowledge IDs in `source_knowledge_item_ids`.
+5. Confirm and reject endpoints accept only product cards currently in `draft`; invalid transitions return HTTP `409` with `product_card_not_draft`.
+6. Missing product card IDs return HTTP `404` with `product_card_not_found`.
+7. Company product card lists use the standard `limit` and `offset` pagination contract.
+
 ## Success Response Format
 
 Business endpoints should return a consistent envelope:
