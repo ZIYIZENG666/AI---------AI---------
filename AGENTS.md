@@ -2,7 +2,8 @@
 
 ## Purpose
 
-This file defines the rules that AI coding assistants such as Codex must follow when working on this project.
+This file defines the rules that AI coding assistants such as Codex must follow
+when working on this project.
 
 The project is an AI Sales Knowledge Base + AI Customer Matching Judgment System.
 
@@ -20,8 +21,9 @@ When making development decisions, follow this priority order:
 6. `docs/API_CONTRACT.md`
 7. `docs/AI_RULES.md`
 8. `docs/CODING_STANDARDS.md`
-9. `docs/TESTING_STRATEGY.md`
-10. User's direct instruction
+9. `docs/UI_REQUIREMENTS.md`
+10. `docs/TESTING_STRATEGY.md`
+11. User's direct instruction
 
 If documents conflict, stop and report the conflict before changing code.
 
@@ -69,7 +71,9 @@ When modifying code:
 14. Update `docs/DEVELOPMENT_PROGRESS.md` after every Codex development task.
 15. The progress update must include completed work, changed files, test results, known issues, and the next recommended step.
 16. Do not claim a module is complete unless it has working models, schemas, repository and service logic, routes, and tests where appropriate.
-17. When implementing frontend UI, Codex must follow `docs/UI_REQUIREMENTS.md` and use Stitch-generated design context when available. Codex must not freely redesign the UI unless explicitly requested.
+17. When implementing frontend UI, Codex must follow `docs/UI_REQUIREMENTS.md`
+    and use Stitch-generated design context when available. Codex must not freely
+    redesign the UI unless explicitly requested.
 
 ## Architecture Rules
 
@@ -132,7 +136,8 @@ Do not reintroduce Google Sheets workflow.
 
 Do not require paid Google Cloud services for MVP.
 
-Search, crawler, LLM, email finder, and Gmail features must be implemented through provider interfaces so they can be replaced later.
+Search, crawler, LLM, email finder, and Gmail features must be implemented through
+provider interfaces so they can be replaced later.
 
 ## Database Rules
 
@@ -142,7 +147,8 @@ Use Alembic for database migrations.
 
 Do not use SQLite as the main database.
 
-The first version may be single-user, but the data model should keep future workspace / owner fields where appropriate.
+The first version may be single-user, but the data model should keep future
+workspace / owner fields where appropriate.
 
 ## Testing Rules
 

@@ -1,8 +1,11 @@
 # Documentation Index
 
-This folder contains the project rule documents for the AI Sales Knowledge Base + AI Customer Matching Judgment System.
+This folder contains the project rule documents for the AI Sales Knowledge
+Base + AI Customer Matching Judgment System.
 
-Codex and future developers should use this folder as the main reference for project direction, scope, architecture, data model, API rules, AI behavior, coding standards, testing, and deployment.
+Codex and future developers should use this folder as the main reference for
+project direction, scope, architecture, data model, API rules, AI behavior,
+coding standards, testing, and deployment.
 
 ## Documents
 
@@ -66,6 +69,13 @@ Defines code organization, naming, layering, error handling, and configuration r
 
 Use this when writing or reviewing code.
 
+### `UI_REQUIREMENTS.md`
+
+Defines frontend UI implementation rules, Stitch-generated design usage, the MVP
+dashboard page structure, and Chinese frontend copywriting requirements.
+
+Use this when implementing or changing frontend UI with Codex.
+
 ### `TESTING_STRATEGY.md`
 
 Defines what should be tested and how tests should be structured.
@@ -82,4 +92,5 @@ Use this when working on Docker, environment variables, database migration, serv
 
 Before making changes, always check the most relevant document.
 
-If a change affects architecture, workflow, data model, API behavior, AI behavior, or deployment, update the related document.
+If a change affects architecture, workflow, data model, API behavior, AI behavior,
+or deployment, update the related document.

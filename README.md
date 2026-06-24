@@ -4,9 +4,13 @@
 
 This project is an AI-powered B2B sales assistant.
 
-The system helps users turn company information into a structured sales knowledge base, create product cards, define sales campaigns, discover potential leads, score customer fit, explain matching reasons, and generate Gmail draft outreach emails for user review.
+The system helps users turn company information into a structured sales knowledge
+base, create product cards, define sales campaigns, discover potential leads,
+score customer fit, explain matching reasons, and generate Gmail draft outreach
+emails for user review.
 
-The first version focuses on a single-user MVP / prototype. It does not include a full account system, team permission system, CRM, or automatic email sending.
+The first version focuses on a single-user MVP / prototype. It does not include a
+full account system, team permission system, CRM, or automatic email sending.
 
 ## Core Goal
 
@@ -101,6 +105,8 @@ Important project rule documents:
 - `docs/API_CONTRACT.md`
 - `docs/AI_RULES.md`
 - `docs/CODING_STANDARDS.md`
+- `docs/UI_REQUIREMENTS.md` — Defines frontend UI rules, the Stitch-to-Codex
+  workflow, dashboard page structure, and Chinese user-facing text requirements.
 - `docs/TESTING_STRATEGY.md`
 - `docs/DEPLOYMENT_GUIDE.md`
 
