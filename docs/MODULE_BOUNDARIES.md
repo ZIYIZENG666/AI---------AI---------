@@ -236,7 +236,7 @@ The contacts module manages lead contact information.
 
 It handles:
 
-- Public email
+- Email contact records
 - Contact page URL
 - Contact person information if available
 - Contact source

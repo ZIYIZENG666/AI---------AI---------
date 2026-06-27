@@ -52,6 +52,12 @@ Supported input types may include:
 
 The system should store source information for later reference.
 
+Current implemented backend boundary:
+
+- The current source input backend slice supports text and URL only.
+- Uploaded document support is a later extension.
+- PDF, Word, image OCR, file storage, and crawling are not implemented in the current backend slice unless another project document explicitly says they are.
+
 ### 3. AI Knowledge Draft
 
 The system should use AI to extract structured knowledge from company materials.
@@ -222,7 +228,21 @@ The MVP should not include:
 - Automatic email sending
 - Email reply tracking
 - LinkedIn API
+- LinkedIn scraping
+- LinkedIn crawling
+- LinkedIn browser automation
+- LinkedIn browser-extension automation
+- Automated LinkedIn messaging
+- Automated connection requests
+- Automated LinkedIn profile extraction
+- Automated LinkedIn contact downloading
 - Google Sheets integration
 - Complex analytics dashboard
 - Payment system
 - Multi-agent workflow
+
+Allowed LinkedIn boundary:
+
+- A user may manually paste a public LinkedIn URL as a reference only.
+- The system may store that URL as a manual reference.
+- The system must not access, scrape, automate, enrich, or extract data from LinkedIn.

@@ -322,7 +322,14 @@ Possible `status`:
 
 `contact_type = linkedin` 仅表示人工发现的公开联系人渠道或资料引用，不表示 LinkedIn API integration。
 
-For MVP, Gmail draft generation should mainly use valid public email when available.
+Gmail Draft generation must not rely on a lead-level public email field. It must
+use a selected contact record with:
+
+- `contacts.contact_type = email`
+- `contacts.status = valid`
+
+Contact form, LinkedIn, manual review, invalid email, unselected contact, or
+missing contact records must not be treated as eligible Gmail Draft recipients.
 
 `contact_type = linkedin` only represents a manually provided or manually reviewed public LinkedIn reference.
 

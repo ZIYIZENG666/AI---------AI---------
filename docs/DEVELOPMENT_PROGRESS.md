@@ -44,24 +44,26 @@ The repository is no longer only a pure skeleton, but it is still far from a ful
 
 ## Current Task
 
-Completed: Documentation consistency repair for project document indexes, Codex handoff reporting, Gmail Draft eligibility, and related deployment troubleshooting notes.
+Date: 2026-06-27
+
+Completed: Small documentation consistency cleanup for Gmail Draft contact eligibility, contacts wording, uploaded document implementation status, and LinkedIn out-of-scope wording.
 
 What changed:
 
-- Updated README guidance so Codex must read `docs/DEVELOPMENT_PROGRESS.md` before development.
-- Updated documentation indexes so `docs/DEVELOPMENT_PROGRESS.md` is listed with its current purpose.
-- Updated the Codex completion report format to require tests added or updated, how to verify, risks, commit/push status, and truthful reporting when no commit or push happened.
-- Replaced the old direct email-field Gmail Draft eligibility wording with selected valid email contact rules.
-- Updated Gmail Draft testing rules so LinkedIn contacts, contact forms, and manual review contacts cannot be used as Gmail Draft recipients.
-- Updated Gmail Draft deployment troubleshooting notes to use selected valid email contact checks.
-- Reconfirmed that LinkedIn references are manual references only and cannot be Gmail Draft recipients or Gmail Draft eligibility.
+- Clarified in `docs/DATA_MODEL.md` that Gmail Draft generation must not rely on an old lead-level email field and must use a selected valid email contact.
+- Clarified that contact form, LinkedIn, manual review, invalid email, unselected contact, or missing contact records are not eligible Gmail Draft recipients.
+- Changed the contacts module responsibility wording to "Email contact records".
+- Clarified in `docs/PRODUCT_REQUIREMENTS.md` that uploaded document support remains a later extension and the current backend source slice supports text and URL only.
+- Expanded `docs/PRODUCT_REQUIREMENTS.md` LinkedIn out-of-scope wording to include API, scraping, crawling, browser automation, browser-extension automation, automated messaging, connection requests, profile extraction, and contact downloading.
 
 Not changed in this task:
 
 - No backend or frontend business code was changed.
 - No tests were changed.
 - No migrations were changed.
-- No Campaign, Lead Discovery, Contacts, Outreach, Gmail Provider, or frontend workflow implementation was added.
+- No configuration, package, or dependency files were changed.
+- No Product Card backend contract, LinkedIn boundary, Stitch-to-Codex workflow, or Chinese UI rule was changed.
+- No Campaign, Lead Discovery, Contacts, Outreach, Gmail Provider, document parsing, file storage, OCR, crawling, or frontend workflow implementation was added.
 - No LinkedIn automation, Google Sheets workflow, automatic email sending, multi-agent system, or LangGraph workflow was introduced.
 
 ## Phase 3 Readiness Hardening
@@ -306,24 +308,20 @@ Exit Criteria:
 
 ## Recently Changed Files
 
-- `AGENTS.md`
-- `README.md`
-- `docs/DEPLOYMENT_GUIDE.md`
+- `docs/DATA_MODEL.md`
 - `docs/DEVELOPMENT_PROGRESS.md`
-- `docs/README.md`
-- `docs/TESTING_STRATEGY.md`
+- `docs/MODULE_BOUNDARIES.md`
+- `docs/PRODUCT_REQUIREMENTS.md`
 
 ## Test Status
 
-- Documentation-only task; backend tests, frontend tests, compile checks, and migrations were not run because no business code, tests, or migration files were changed.
-- `git diff --name-only` confirmed the changed files are Markdown documentation files only: `AGENTS.md`, `README.md`, `docs/DEPLOYMENT_GUIDE.md`, `docs/DEVELOPMENT_PROGRESS.md`, `docs/README.md`, and `docs/TESTING_STRATEGY.md`.
-- `rg -n "DEVELOPMENT_PROGRESS\.md" README.md docs\README.md` confirmed both documentation indexes include `docs/DEVELOPMENT_PROGRESS.md`.
-- `rg -n "public_email" -g "*.md"` returned no matches, confirming the old direct email-field wording is gone from Markdown docs.
-- `rg` verification confirmed `AGENTS.md` includes `Commit / push status` and the required truthful commit/push reporting rules.
-- Product Card `reject` / `rejected` search returned only rules that reject/rejected is invalid or removed for Product Cards; no Product Card reject API path was introduced.
-- LinkedIn search confirmed the existing boundary remains manual URL reference only, with API, scraping, crawler, bot, browser automation, automated login/search/profile extraction/contact downloading/messaging, and connection requests prohibited.
-- Chinese UI search confirmed frontend user-visible text must remain Chinese in `docs/UI_REQUIREMENTS.md` and `docs/CODING_STANDARDS.md`.
-- `git diff --check` passed with no whitespace errors; Git emitted line-ending normalization warnings for the touched Markdown files.
+- Documentation-only task; backend tests, frontend tests, compile checks, and migrations were not run because no business code, tests, migrations, configuration, or package files were changed.
+- `git diff --name-only` confirmed the changed files are Markdown documentation files only.
+- `git diff --check` passed with no whitespace errors.
+- The old lead-level email wording search showed the only remaining direct wording is an explicit denial in `docs/DATA_MODEL.md`.
+- LinkedIn search confirmed the stricter LinkedIn boundary remains consistent across product requirements, AI rules, and module boundaries.
+- Gmail Draft eligibility search confirmed `selected valid email contact`, `contact_type = email`, and `status = valid` are documented in the data model and supporting docs.
+- `rg -n "DEVELOPMENT_PROGRESS" README.md docs/README.md` confirmed the progress document remains indexed.
 
 ## Known Issues
 
