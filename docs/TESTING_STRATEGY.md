@@ -125,7 +125,7 @@ Unit Test 应测试单个函数或单个类的行为。
 - test_should_create_knowledge_draft_from_valid_input
 - test_should_not_confirm_ai_draft_without_user_action
 - test_should_reject_lead_when_required_fields_missing
-- test_should_not_create_gmail_draft_without_public_email
+- test_should_not_create_gmail_draft_without_selected_valid_email_contact
 
 ---
 
@@ -279,18 +279,29 @@ Mock Provider 应覆盖：
 
 Gmail 功能是高风险功能，必须严格测试。
 
+Gmail Draft eligibility 必须基于 selected valid email contact：
+
+- `lead.review_status = approved`
+- selected contact exists
+- `contact.contact_type = email`
+- `contact.status = valid`
+- outreach draft subject/body 非空
+- 不存在同一 `lead_id + campaign_id + contact_id` 已创建的 `gmail_draft_created` 记录
+
 必须测试：
 
-1. Approved Lead + valid email 可以创建 Draft。
-2. 没有 public_email 不能创建 Draft。
-3. public_email 无效不能创建 Draft。
-4. Lead 未 Approved 不能创建 Draft。
-5. 已创建过 Draft 的 Lead 不能重复创建。
-6. subject 为空不能创建 Draft。
-7. body 为空不能创建 Draft。
-8. Gmail Provider 失败时任务进入 failed。
-9. 创建 Draft 后必须记录 gmail_draft_id。
-10. 系统中不存在 send email 的调用。
+1. Approved Lead + selected valid email contact 可以创建 Gmail Draft。
+2. Lead 未 approved 不能创建 Gmail Draft。
+3. 没有 selected contact 不能创建 Gmail Draft。
+4. selected contact 不是 email 不能创建 Gmail Draft。
+5. selected email contact 不是 valid 不能创建 Gmail Draft。
+6. subject 为空不能创建 Gmail Draft。
+7. body 为空不能创建 Gmail Draft。
+8. 同一 `lead_id + campaign_id + contact_id` 已有 `gmail_draft_created` 记录时不能重复创建 Gmail Draft。
+9. LinkedIn-only contact 不能创建 Gmail Draft。
+10. Gmail Provider 失败时任务进入 failed。
+11. 创建 Draft 后必须记录 `gmail_draft_id`。
+12. 系统中不存在 Gmail send / modify / delete 调用。
 
 禁止测试中调用真实 Gmail。
 

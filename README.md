@@ -109,6 +109,8 @@ Important project rule documents:
   workflow, dashboard page structure, and Chinese user-facing text requirements.
 - `docs/TESTING_STRATEGY.md`
 - `docs/DEPLOYMENT_GUIDE.md`
+- `docs/DEVELOPMENT_PROGRESS.md` — Records the current completed phase, test
+  status, known issues, and next recommended step after each Codex task.
 
 ## Development Principle
 

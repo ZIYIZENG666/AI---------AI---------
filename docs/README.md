@@ -82,6 +82,13 @@ Defines what should be tested and how tests should be structured.
 
 Use this when adding or modifying business logic.
 
+### `DEVELOPMENT_PROGRESS.md`
+
+Records the current completed phase, changed files, test status, known issues,
+and next recommended step after each Codex development task.
+
+Use this when checking the current project state or handing off work.
+
 ### `DEPLOYMENT_GUIDE.md`
 
 Defines deployment requirements and production-readiness expectations.

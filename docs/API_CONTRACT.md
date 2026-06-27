@@ -51,11 +51,12 @@ Rules:
 
 ## Phase 2 Product Card Endpoints
 
-The target Product Card contract exposes:
+The current Product Card contract exposes:
 
 - `POST /api/v1/companies/{company_id}/product-cards` for generation from confirmed company knowledge
 - `POST /api/v1/product-cards` for user-created Product Cards
 - `GET /api/v1/product-cards`
+- `GET /api/v1/companies/{company_id}/product-cards`
 - `GET /api/v1/product-cards/{product_card_id}`
 - `PATCH /api/v1/product-cards/{product_card_id}`
 - `POST /api/v1/product-cards/{product_card_id}/confirm`
@@ -67,13 +68,16 @@ Rules:
 2. Generation uses confirmed knowledge only, sets `source_type = ai_generated` and `status = draft`, and persists the exact confirmed knowledge IDs in `source_knowledge_item_ids`.
 3. User-created Product Cards use `POST /api/v1/product-cards`, set `source_type = manual` and `status = draft`, and must belong to a company.
 4. The manual Product Card creation path must remain available even when AI generation is available.
-5. `GET /api/v1/product-cards` returns both `draft` and `confirmed` records by default, supports only `status=draft` or `status=confirmed`, and uses the standard `limit` and `offset` pagination contract. `status=rejected` is invalid.
-6. `PATCH /api/v1/product-cards/{product_card_id}` is allowed for both statuses, saves editable fields only, and must not change `status`.
-7. `POST /api/v1/product-cards/{product_card_id}/confirm` changes `draft` to `confirmed`. Repeating it for an already confirmed Product Card returns HTTP `200` with the current record and leaves the status unchanged.
-8. `DELETE /api/v1/product-cards/{product_card_id}` deletes a draft directly. It may delete a confirmed Product Card only when no Campaign has ever referenced it; otherwise it returns HTTP `409`.
-9. Only confirmed Product Cards may be selected by a Campaign.
-10. Missing Product Card IDs return HTTP `404` with `product_card_not_found` for get, patch, confirm, and delete operations.
-11. AI-backed generation may replace the current deterministic generator later, but it must preserve the same source, status, evidence, and human-confirmation rules.
+5. Product Card list has two read entry points:
+   - `GET /api/v1/product-cards`: global MVP list across Product Cards. It returns both `draft` and `confirmed` records by default.
+   - `GET /api/v1/companies/{company_id}/product-cards`: company-scoped list for Product Cards belonging to the specified company. It returns both `draft` and `confirmed` records by default.
+6. Both Product Card list endpoints support only `status=draft` or `status=confirmed`, and use the standard `limit` and `offset` pagination contract. `status=rejected` is invalid.
+7. `PATCH /api/v1/product-cards/{product_card_id}` is allowed for both statuses, saves editable fields only, and must not change `status`, `source_type`, `source_knowledge_item_ids`, or company ownership.
+8. `POST /api/v1/product-cards/{product_card_id}/confirm` changes `draft` to `confirmed`. Repeating it for an already confirmed Product Card returns HTTP `200` with the current record and leaves the status unchanged.
+9. `DELETE /api/v1/product-cards/{product_card_id}` deletes a draft directly. It may delete a confirmed Product Card only when no Campaign has ever referenced it; otherwise it returns HTTP `409`.
+10. Only confirmed Product Cards may be selected by a Campaign.
+11. Missing Product Card IDs return HTTP `404` with `product_card_not_found` for get, patch, confirm, and delete operations.
+12. AI-backed generation may replace the current deterministic generator later, but it must preserve the same source, status, evidence, and human-confirmation rules.
 
 ### Product Card Scope Hardening (Planned)
 

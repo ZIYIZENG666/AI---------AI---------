@@ -44,22 +44,27 @@ The repository is no longer only a pure skeleton, but it is still far from a ful
 
 ## Current Task
 
-Completed: Phase 2 repository hygiene and verification handoff for the finalized Product Card backend contract.
+Completed: Documentation consistency repair for the finalized Product Card, LinkedIn, Gmail Draft eligibility, and Codex handoff rules.
 
 What changed:
 
-- Updated backend-facing documentation so Product Card current behavior is create/list/get/patch/confirm/delete only.
-- Clarified that Product Card `reject` / `rejected` wording is legacy behavior removed by the finalized Phase 2 contract.
-- Re-checked `docs/API_CONTRACT.md` and `docs/DATA_MODEL.md`; no changes were needed because both already match the finalized Product Card contract.
-- Re-ran the backend Product Card, full test, compile, and Alembic offline SQL verification commands.
-- Confirmed this task did not change Product Card runtime behavior.
+- Updated backend-facing documentation so the current implemented backend slices are `company`, `sources`, `knowledge`, and `products`.
+- Clarified that Campaign, Lead Discovery, Contacts, Outreach, and frontend workflow pages are still not implemented.
+- Updated the Product Card API contract to include both list entry points: `GET /api/v1/product-cards` and `GET /api/v1/companies/{company_id}/product-cards`.
+- Kept the Product Card lifecycle aligned to create/list/get/patch/confirm/delete with `draft` and `confirmed` only, no `rejected`, and no reject endpoint.
+- Clarified that Product Card PATCH must not change status, source type, source knowledge, or company ownership.
+- Updated the Codex completion report format to require commit/push status and truthful reporting when no commit or push happened.
+- Replaced the old direct email-field Gmail Draft eligibility wording with selected valid email contact rules.
+- Reconfirmed that LinkedIn references are manual references only and cannot be Gmail Draft recipients or Gmail Draft eligibility.
+- Added `docs/DEVELOPMENT_PROGRESS.md` to the documentation indexes.
 
 Not changed in this task:
 
-- No Campaign module was implemented.
-- No Lead Discovery, Outreach, or Dashboard frontend work was implemented.
-- No account or workspace authorization was implemented or claimed.
-- No Product Card API, schema, service, repository, model, migration, or test behavior was changed.
+- No backend or frontend business code was changed.
+- No tests were changed.
+- No migrations were changed.
+- No Campaign, Lead Discovery, Contacts, Outreach, Gmail Provider, or frontend workflow implementation was added.
+- No LinkedIn automation, Google Sheets workflow, automatic email sending, multi-agent system, or LangGraph workflow was introduced.
 
 ## Phase 3 Readiness Hardening
 
@@ -303,19 +308,21 @@ Exit Criteria:
 
 ## Recently Changed Files
 
+- `AGENTS.md`
+- `README.md`
 - `backend/README.md`
+- `docs/API_CONTRACT.md`
 - `docs/DEVELOPMENT_PROGRESS.md`
+- `docs/README.md`
+- `docs/TESTING_STRATEGY.md`
 
 ## Test Status
 
-- Bare `python -m pytest tests/test_products.py` from `backend` failed before pytest started because the shell `python.exe` resolves to an unusable Microsoft Store app alias in this session. The project `.venv` Python was used for successful verification.
-- Product Card focused tests: `.\.venv\Scripts\python.exe -m pytest tests/test_products.py` from `backend` passed with `19 passed, 1 warning`.
-- Full backend suite: `.\.venv\Scripts\python.exe -m pytest` from `backend` passed with `41 passed, 1 warning`.
-- Compile check: `.\.venv\Scripts\python.exe -m compileall app tests` from `backend` passed.
-- PostgreSQL offline Alembic SQL generation first failed without configuration because `DATABASE_URL` and `REDIS_URL` were not set. Re-running `.\.venv\Scripts\python.exe -m alembic upgrade head --sql` from `backend` with temporary local placeholder `DATABASE_URL` and `REDIS_URL` values passed, and generated final Product Card constraints named `ck_product_cards_status` and `ck_product_cards_source_type`.
-- SQLite Alembic upgrade/downgrade/upgrade was not run for this task and is not PostgreSQL schema validation.
-- Live PostgreSQL migration smoke test was not run because DATABASE_URL/PostgreSQL was not available.
-- Live PostgreSQL and live Redis verification remains pending.
+- Documentation-only task; backend tests, frontend tests, compile checks, and migrations were not run because no business code, tests, or migration files were changed.
+- `rg` verification confirmed the target docs no longer use the old direct email-field wording for Gmail Draft eligibility.
+- `rg` verification confirmed the Product Card company-scoped list endpoint, selected valid email contact wording, Gmail send / modify / delete prohibition, `DEVELOPMENT_PROGRESS.md` index entry, and commit/push status reporting text are present.
+- `git diff --name-only` confirmed the changed files are Markdown documentation files only.
+- `git diff --check` passed with no whitespace errors; Git emitted line-ending normalization warnings for the touched Markdown files.
 
 ## Known Issues
 

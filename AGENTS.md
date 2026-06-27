@@ -170,10 +170,23 @@ After each development task, reply with:
 
 1. What was changed
 2. Files modified
-3. Tests added or updated
-4. How to run or verify
-5. Any known limitations
+3. Tests/checks run and results
+4. Known limitations or risks
+5. Commit / push status
 6. Recommended next step
+
+The completion report must clearly include:
+
+- Changed files
+- Summary of changes
+- Tests/checks run and results
+- Known limitations or risks
+- Commit/push status
+- Recommended next step
+
+If no commit was created or no push was performed, state that explicitly. Do not
+claim that changes were committed, pushed, or pushed to `main` unless that
+actually happened.
 
 ## Do Not Do
 
