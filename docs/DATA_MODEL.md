@@ -23,12 +23,18 @@ Database constraints are part of the stable schema contract.
 
 Rules:
 
-1. A SQLAlchemy `CheckConstraint` and the Alembic migration that creates it must resolve to the same database constraint name.
-2. Use `ck_<table_name>_<column_name>` for new status, type, and other enum-like checks, for example `ck_product_cards_status`.
+1. A SQLAlchemy `CheckConstraint` and the Alembic migration that creates it must
+   resolve to the same database constraint name.
+2. Use `ck_<table_name>_<column_name>` for new status, type, and other enum-like
+   checks, for example `ck_product_cards_status`.
 3. Do not use one constraint name in ORM metadata and another in migration code.
-4. Existing constraint declarations should be audited and normalized as Phase 3 foundation hardening; this documentation update does not claim the code audit is complete.
-5. PostgreSQL is authoritative for JSON/JSONB behavior, foreign keys, indexes, constraint names, and migration ordering.
-6. SQLite `Base.metadata.create_all()` or in-memory tests do not validate the real Alembic/PostgreSQL schema.
+4. Existing constraint declarations should be audited and normalized as Phase 3
+   foundation hardening; this documentation update does not claim the code audit
+   is complete.
+5. PostgreSQL is authoritative for JSON/JSONB behavior, foreign keys, indexes,
+   constraint names, and migration ordering.
+6. SQLite `Base.metadata.create_all()` or in-memory tests do not validate the
+   real Alembic/PostgreSQL schema.
 
 ## Main Entities
 
@@ -81,7 +87,10 @@ Source rules for Phase 1B:
 - Text sources require `raw_content` and do not use `url`.
 - URL sources require `url`; `raw_content` is optional because no crawler runs in this phase.
 - New source records use `status = ready`.
-- Document parsing, file storage, OCR, and crawler processing are deferred.
+- Uploaded documents, PDF parsing, Word parsing, image OCR, file storage,
+  document parsing, and crawler processing are deferred.
+- The current backend does not define document, PDF, Word, image, or uploaded
+  file `source_type` values.
 
 ## knowledge_items
 
@@ -106,7 +115,8 @@ Possible `status`:
 - `confirmed`
 - `rejected`
 
-Only confirmed knowledge should be used as reliable input for product cards, campaigns, scoring, and outreach.
+Only confirmed knowledge should be used as reliable input for product cards,
+campaigns, scoring, and outreach.
 
 Phase 1B knowledge rules:
 
@@ -152,24 +162,36 @@ Allowed `source_type`:
 Phase 2 product card rules:
 
 - Product cards are generated only from the company's confirmed knowledge items.
-- Draft and rejected knowledge items must not appear in `source_knowledge_item_ids` or generated content.
-- `pain_points`, `use_cases`, `differentiators`, and `source_knowledge_item_ids` are stored as JSON lists.
-- The deterministic generator maps recognized knowledge categories into structured fields and does not call an LLM or external API.
+- Draft and rejected knowledge items must not appear in
+  `source_knowledge_item_ids` or generated content.
+- `pain_points`, `use_cases`, `differentiators`, and
+  `source_knowledge_item_ids` are stored as JSON lists.
+- The deterministic generator maps recognized knowledge categories into
+  structured fields and does not call an LLM or external API.
 - AI-generated Product Cards start with `source_type = ai_generated` and `status = draft`.
 - User-created Product Cards start with `source_type = manual` and `status = draft`.
-- A Product Card may transition only from `draft` to `confirmed`; repeating confirmation on `confirmed` leaves it unchanged.
-- Editing a Product Card does not change its status. Unsaved edits are frontend state and must not create database statuses such as `editing`, `modified`, or `pending_changes`.
+- A Product Card may transition only from `draft` to `confirmed`; repeating
+  confirmation on `confirmed` leaves it unchanged.
+- Editing a Product Card does not change its status. Unsaved edits are frontend
+  state and must not create database statuses such as `editing`, `modified`, or
+  `pending_changes`.
 - Deleting a Product Card does not create a `rejected` record or status.
 - Only confirmed product cards should become inputs for the later campaign workflow.
-- A confirmed Product Card may be physically deleted only when no Campaign has ever referenced it.
-- `ck_product_cards_status` must allow only `draft` and `confirmed`; a source-type check constraint must allow only `ai_generated` and `manual`.
+- A confirmed Product Card may be physically deleted only when no Campaign has
+  ever referenced it.
+- `ck_product_cards_status` must allow only `draft` and `confirmed`; a
+  source-type check constraint must allow only `ai_generated` and `manual`.
 
 Product Card scope plan:
 
-- The current Product Card model belongs to a company through `company_id` in the single-user MVP.
-- ID-only get, patch, confirm, and delete lookups are provisional and must not be treated as the final ownership model.
-- Planned repository/service lookups should require `product_card_id + company_id` before or alongside Phase 3.
-- Future workspace support should add and enforce `workspace_id`, producing `product_card_id + company_id + workspace_id` scope semantics.
+- The current Product Card model belongs to a company through `company_id` in
+  the single-user MVP.
+- ID-only get, patch, confirm, and delete lookups are provisional and must not be
+  treated as the final ownership model.
+- Planned repository/service lookups should require
+  `product_card_id + company_id` before or alongside Phase 3.
+- Future workspace support should add and enforce `workspace_id`, producing
+  `product_card_id + company_id + workspace_id` scope semantics.
 - No workspace ownership field or multi-tenant authorization is claimed as implemented yet.
 
 ## campaigns
@@ -320,24 +342,29 @@ Possible `status`:
 - `invalid`
 - `blocked`
 
-`contact_type = linkedin` 仅表示人工发现的公开联系人渠道或资料引用，不表示 LinkedIn API integration。
+`contact_type = linkedin` 仅表示人工发现的公开联系人渠道或资料引用，不表示
+LinkedIn API integration。
 
-Gmail Draft generation must not rely on a lead-level public email field. It must
-use a selected contact record with:
+Gmail Draft generation must not rely on a lead-level public email field or any
+lead-level email-like field. It must use a selected contact record with:
 
 - `contacts.contact_type = email`
 - `contacts.status = valid`
 
-Contact form, LinkedIn, manual review, invalid email, unselected contact, or
-missing contact records must not be treated as eligible Gmail Draft recipients.
+Contact form, phone, LinkedIn, manual review, invalid email, unselected contact,
+or missing contact records must not be treated as eligible Gmail Draft
+recipients.
 
-`contact_type = linkedin` only represents a manually provided or manually reviewed public LinkedIn reference.
+`contact_type = linkedin` only represents a manually provided or manually
+reviewed public LinkedIn reference.
 
 It does not represent:
 
 - LinkedIn API integration
 - LinkedIn scraping
-- LinkedIn automation
+- LinkedIn crawler, bot, browser automation, or browser extension automation
+- automated LinkedIn login, search, profile extraction, contact downloading,
+  messaging, or connection requests
 - a verified email contact
 - permission to generate Gmail Draft
 - permission to send LinkedIn messages
@@ -347,7 +374,8 @@ For MVP, Gmail Draft must use a selected valid email contact:
 - `contacts.contact_type = email`
 - `contacts.status = valid`
 
-A lead with only a LinkedIn contact and no valid email contact is not eligible for Gmail Draft creation.
+A lead with only a LinkedIn contact and no valid email contact is not eligible
+for Gmail Draft creation.
 
 ## outreach_drafts
 
@@ -382,9 +410,11 @@ Gmail draft eligibility should be evaluated from:
 
 - `lead.review_status`
 - the selected `contacts` record
-- the absence of an existing completed `outreach_drafts` record for the same lead, campaign, and contact
+- the absence of an existing completed `outreach_drafts` record for the same
+  lead, campaign, and contact
 
-LinkedIn references must not be used as Gmail Draft recipients. Gmail Draft eligibility requires a selected valid email contact.
+LinkedIn references must not be used as Gmail Draft recipients. Gmail Draft
+eligibility requires a selected valid email contact.
 
 ## task_runs
 

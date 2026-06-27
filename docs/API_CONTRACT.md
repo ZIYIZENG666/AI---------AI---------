@@ -4,7 +4,8 @@
 
 This document defines the API contract between frontend and backend.
 
-It focuses on response shape, error shape, pagination, task responses, naming, versioning, and contract stability.
+It focuses on response shape, error shape, pagination, task responses, naming,
+versioning, and contract stability.
 
 ## General Rules
 
@@ -43,11 +44,17 @@ Rules:
 
 1. Source creation supports only `source_type = text` and `source_type = url` in Phase 1B.
 2. Text sources require `raw_content`; URL sources require `url` and may omit `raw_content`.
-3. Knowledge draft creation is synchronous and deterministic in this phase. It must not imply that a crawler or LLM processed a URL.
+3. Knowledge draft creation is synchronous and deterministic in this phase. It
+   must not imply that a crawler or LLM processed a URL.
 4. `GET /api/v1/companies/{company_id}/knowledge` accepts optional `status`, `limit`, and `offset` query parameters.
 5. The `status` filter accepts `draft`, `confirmed`, or `rejected`, allowing confirmed knowledge to be retrieved separately.
-6. Confirm and reject endpoints accept only knowledge items currently in `draft`; invalid transitions return HTTP `409` with `knowledge_not_draft`.
-7. Missing company, source, or knowledge IDs return HTTP `404` with stable resource-specific error codes.
+6. Confirm and reject endpoints accept only knowledge items currently in `draft`;
+   invalid transitions return HTTP `409` with `knowledge_not_draft`.
+7. Missing company, source, or knowledge IDs return HTTP `404` with stable
+   resource-specific error codes.
+8. No current source endpoint accepts uploaded documents, PDF files, Word files,
+   image OCR input, file storage payloads, document parsing jobs, or crawler
+   processing requests.
 
 ## Phase 2 Product Card Endpoints
 
@@ -64,24 +71,42 @@ The current Product Card contract exposes:
 
 Rules:
 
-1. Product Cards have only `draft` and `confirmed` business statuses. `rejected` is not valid, and there is no Product Card reject endpoint.
-2. Generation uses confirmed knowledge only, sets `source_type = ai_generated` and `status = draft`, and persists the exact confirmed knowledge IDs in `source_knowledge_item_ids`.
-3. User-created Product Cards use `POST /api/v1/product-cards`, set `source_type = manual` and `status = draft`, and must belong to a company.
+1. Product Cards have only `draft` and `confirmed` business statuses.
+   `rejected` is not valid, and there is no Product Card reject endpoint.
+2. Generation uses confirmed knowledge only, sets
+   `source_type = ai_generated` and `status = draft`, and persists the exact
+   confirmed knowledge IDs in `source_knowledge_item_ids`.
+3. User-created Product Cards use `POST /api/v1/product-cards`, set
+   `source_type = manual` and `status = draft`, and must belong to a company.
 4. The manual Product Card creation path must remain available even when AI generation is available.
 5. Product Card list has two read entry points:
-   - `GET /api/v1/product-cards`: global MVP list across Product Cards. It returns both `draft` and `confirmed` records by default.
-   - `GET /api/v1/companies/{company_id}/product-cards`: company-scoped list for Product Cards belonging to the specified company. It returns both `draft` and `confirmed` records by default.
-6. Both Product Card list endpoints support only `status=draft` or `status=confirmed`, and use the standard `limit` and `offset` pagination contract. `status=rejected` is invalid.
-7. `PATCH /api/v1/product-cards/{product_card_id}` is allowed for both statuses, saves editable fields only, and must not change `status`, `source_type`, `source_knowledge_item_ids`, or company ownership.
-8. `POST /api/v1/product-cards/{product_card_id}/confirm` changes `draft` to `confirmed`. Repeating it for an already confirmed Product Card returns HTTP `200` with the current record and leaves the status unchanged.
-9. `DELETE /api/v1/product-cards/{product_card_id}` deletes a draft directly. It may delete a confirmed Product Card only when no Campaign has ever referenced it; otherwise it returns HTTP `409`.
+   - `GET /api/v1/product-cards`: global MVP list across Product Cards. It
+     returns both `draft` and `confirmed` records by default.
+   - `GET /api/v1/companies/{company_id}/product-cards`: company-scoped list for
+     Product Cards belonging to the specified company. It returns both `draft`
+     and `confirmed` records by default.
+6. Both Product Card list endpoints support only `status=draft` or
+   `status=confirmed`, and use the standard `limit` and `offset` pagination
+   contract. `status=rejected` is invalid.
+7. `PATCH /api/v1/product-cards/{product_card_id}` is allowed for both statuses,
+   saves editable fields only, and must not change `status`, `source_type`,
+   `source_knowledge_item_ids`, or company ownership.
+8. `POST /api/v1/product-cards/{product_card_id}/confirm` changes `draft` to
+   `confirmed`. Repeating it for an already confirmed Product Card returns HTTP
+   `200` with the current record and leaves the status unchanged.
+9. `DELETE /api/v1/product-cards/{product_card_id}` deletes a draft directly. It
+   may delete a confirmed Product Card only when no Campaign has ever referenced
+   it; otherwise it returns HTTP `409`.
 10. Only confirmed Product Cards may be selected by a Campaign.
 11. Missing Product Card IDs return HTTP `404` with `product_card_not_found` for get, patch, confirm, and delete operations.
-12. AI-backed generation may replace the current deterministic generator later, but it must preserve the same source, status, evidence, and human-confirmation rules.
+12. AI-backed generation may replace the current deterministic generator later,
+    but it must preserve the same source, status, evidence, and
+    human-confirmation rules.
 
 ### Product Card Scope Hardening (Planned)
 
-The current MVP remains a single-user prototype. ID-only get, patch, confirm, and delete operations must not be treated as the final authorization model.
+The current MVP remains a single-user prototype. ID-only get, patch, confirm,
+and delete operations must not be treated as the final authorization model.
 
 Target repository/service query semantics:
 
@@ -253,9 +278,19 @@ Rules:
 Rules:
 
 1. No API endpoint may trigger LinkedIn automation of any kind.
-2. Do not expose endpoints that scrape LinkedIn, log in to LinkedIn, send LinkedIn messages, send connection requests, download LinkedIn contacts, or automatically enrich leads from LinkedIn.
-3. Allowed endpoints may store a user-provided LinkedIn URL as a manual contact reference, return that LinkedIn URL for frontend human review, and mark `contact_type = linkedin`.
-4. LinkedIn references must not be used as Gmail Draft recipients or as Gmail Draft eligibility.
+2. Do not expose endpoints for LinkedIn scraping, LinkedIn crawler behavior,
+   LinkedIn bot behavior, LinkedIn browser automation, LinkedIn browser
+   extension automation, automated LinkedIn login, automated LinkedIn search,
+   automated LinkedIn profile extraction, automated LinkedIn contact
+   downloading, automated LinkedIn messaging, automated LinkedIn connection
+   requests, or automatic lead enrichment from LinkedIn.
+3. Allowed endpoints may store a user-provided LinkedIn URL as a manual contact
+   reference, return that LinkedIn URL for frontend human review, and mark
+   `contact_type = linkedin`.
+4. LinkedIn references must not be used as Gmail Draft recipients or as Gmail
+   Draft eligibility.
+5. Gmail Draft eligibility must be based on a selected contact with
+   `contacts.contact_type = email` and `contacts.status = valid`.
 
 ## Frontend / Backend Contract Rule
 

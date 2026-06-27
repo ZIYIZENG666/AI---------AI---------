@@ -10,7 +10,8 @@ The goal is to keep the codebase modular, understandable, and easy to change.
 
 Each module should own its own business logic.
 
-A module should not directly modify another module's internal data unless done through a service or clear interface.
+A module should not directly modify another module's internal data unless done
+through a service or clear interface.
 
 Routes should call services.
 
@@ -51,18 +52,28 @@ It should not handle:
 
 The sources module manages raw company input materials.
 
-It handles:
+Current implemented backend scope:
 
 - Source text
 - Source URL
-- Uploaded document metadata
 - Source processing status
+
+Future scope unless explicitly requested later:
+
+- Uploaded document metadata
+- PDF or Word document parsing
+- Image OCR
+- File storage
+- Crawler processing of URL contents
 
 ### Not Responsible For
 
 It should not decide final knowledge.
 
 It should not run customer scoring.
+
+It should not parse uploaded files, run OCR, store file blobs, or crawl URLs in
+the current backend slice.
 
 ## knowledge
 
@@ -114,10 +125,12 @@ The `products` module owns Product Card scope validation.
 
 - The current Phase 2 slice is single-user and stores `company_id` on every Product Card.
 - ID-only get, patch, confirm, and delete lookups are not the final authorization model.
-- Planned hardening should first require `product_card_id + company_id` in repository/service lookup semantics.
+- Planned hardening should first require `product_card_id + company_id` in
+  repository/service lookup semantics.
 - Future workspace support should extend this to `product_card_id + company_id + workspace_id`.
 - Campaign and later modules must not consume a Product Card from another company or workspace.
-- The `products` service must protect Campaign references before deletion; route handlers must not perform the reference query or deletion decision directly.
+- The `products` service must protect Campaign references before deletion; route
+  handlers must not perform the reference query or deletion decision directly.
 - Product Card reject/rejected behavior is outside this module contract. Deletion is the only removal operation.
 - This boundary does not require implementing accounts or workspace permissions in the current documentation task.
 
@@ -243,11 +256,25 @@ It handles:
 - Contact validation status
 - User-provided LinkedIn URL as a manual reference only
 
+Gmail Draft eligibility must be based on a selected valid email contact:
+
+- `contacts.contact_type = email`
+- `contacts.status = valid`
+
+Contact forms, phone numbers, LinkedIn references, manual review contacts,
+invalid email contacts, unselected contacts, and lead-level email-like fields
+must not be treated as Gmail Draft recipients.
+
 ### Not Responsible For
 
 It should not send emails.
 
 It should not score leads.
+
+It should not use LinkedIn API, scraping, crawler, bot, browser automation,
+browser extension automation, automated login, automated search, automated
+profile extraction, automated contact downloading, automated messaging, or
+automated connection requests.
 
 ## outreach
 
@@ -263,6 +290,9 @@ It handles:
 - Draft subject and body
 - Gmail draft ID
 
+It may create Gmail drafts only for approved leads with a selected valid email
+contact.
+
 ### Not Responsible For
 
 It should not automatically send emails.
@@ -271,16 +301,39 @@ It should not approve leads.
 
 It should not discover new leads.
 
+It should not use a LinkedIn reference, contact form, phone number, manual
+review contact, invalid email contact, unselected contact, or lead-level
+email-like field as Gmail Draft eligibility.
+
 ## LinkedIn Boundary
 
-The MVP must not contain a LinkedIn Provider, LinkedIn Adapter, LinkedIn Crawler, or LinkedIn Automation module.
+The MVP must not contain a LinkedIn Provider, LinkedIn Adapter, LinkedIn
+Crawler, LinkedIn Scraper, LinkedIn Bot, or LinkedIn Automation module.
 
-Discovery, intelligence (crawler behavior), contacts, outreach, and AI services must not automatically access LinkedIn.
+Discovery, intelligence (crawler behavior), contacts, outreach, and AI services
+must not automatically access LinkedIn.
+
+The MVP must not perform:
+
+- LinkedIn API access
+- LinkedIn scraping
+- LinkedIn crawler behavior
+- LinkedIn bot behavior
+- LinkedIn browser automation
+- LinkedIn browser extension automation
+- Automated LinkedIn login
+- Automated LinkedIn search
+- Automated LinkedIn profile extraction
+- Automated LinkedIn contact downloading
+- Automated LinkedIn messaging
+- Automated LinkedIn connection requests
 
 Allowed boundary:
 
 - Only the `contacts` module may store a user-provided LinkedIn URL as a manual reference.
 - Only the frontend may display a LinkedIn URL for human review.
+- A LinkedIn URL must not be used as a Gmail Draft recipient or as Gmail Draft
+  eligibility.
 
 ## tasks
 

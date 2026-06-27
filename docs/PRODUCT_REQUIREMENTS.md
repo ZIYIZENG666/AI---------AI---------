@@ -4,7 +4,9 @@
 
 This document defines the main product requirements for the MVP.
 
-The product should help users build a company sales knowledge base, create product cards, run campaigns, discover leads, evaluate customer fit, and generate Gmail draft outreach emails.
+The product should help users build a company sales knowledge base, create
+product cards, run campaigns, discover leads, evaluate customer fit, and
+generate Gmail draft outreach emails.
 
 ## Main User Journey
 
@@ -41,22 +43,25 @@ Company information may include:
 
 ### 2. Company Information Input
 
-The system should support company information input through simple MVP-friendly methods.
+The system should support company information input through simple MVP-friendly
+methods.
 
-Supported input types may include:
+Current implemented backend scope:
 
 - Website URL
 - Plain text
-- Uploaded document
-- Manual form input
+- Manual form input saved as text
 
 The system should store source information for later reference.
 
-Current implemented backend boundary:
+Current backend boundary:
 
-- The current source input backend slice supports text and URL only.
-- Uploaded document support is a later extension.
-- PDF, Word, image OCR, file storage, and crawling are not implemented in the current backend slice unless another project document explicitly says they are.
+- The current source input backend slice stores text and URL source records only.
+- A URL source records the URL and optional user-provided content; it does not
+  mean a crawler has fetched or processed the page.
+- Uploaded documents, PDF parsing, Word parsing, image OCR, file storage,
+  document parsing, and crawler processing are future scope unless explicitly
+  requested later.
 
 ### 3. AI Knowledge Draft
 
@@ -79,7 +84,8 @@ The draft must be reviewed by the user before becoming confirmed knowledge.
 
 The user should be able to confirm, edit, or reject AI-generated knowledge.
 
-Only confirmed knowledge should be used as reliable input for product cards, campaigns, scoring, and outreach drafts.
+Only confirmed knowledge should be used as reliable input for product cards,
+campaigns, scoring, and outreach drafts.
 
 ### 5. Product Card
 
@@ -177,6 +183,14 @@ The user decides which leads are approved for outreach.
 
 For approved leads, the system should generate a Gmail draft.
 
+Gmail Draft eligibility must be based on a selected valid email contact:
+
+- `contacts.contact_type = email`
+- `contacts.status = valid`
+
+A LinkedIn reference, contact form, phone, manual review contact, or lead-level
+email-like field must not be used as Gmail Draft eligibility.
+
 The email draft should be based on:
 
 - Confirmed company knowledge
@@ -229,13 +243,16 @@ The MVP should not include:
 - Email reply tracking
 - LinkedIn API
 - LinkedIn scraping
-- LinkedIn crawling
+- LinkedIn crawler
+- LinkedIn bot
 - LinkedIn browser automation
-- LinkedIn browser-extension automation
-- Automated LinkedIn messaging
-- Automated connection requests
+- LinkedIn browser extension automation
+- Automated LinkedIn login
+- Automated LinkedIn search
 - Automated LinkedIn profile extraction
 - Automated LinkedIn contact downloading
+- Automated LinkedIn messaging
+- Automated LinkedIn connection requests
 - Google Sheets integration
 - Complex analytics dashboard
 - Payment system
@@ -246,3 +263,5 @@ Allowed LinkedIn boundary:
 - A user may manually paste a public LinkedIn URL as a reference only.
 - The system may store that URL as a manual reference.
 - The system must not access, scrape, automate, enrich, or extract data from LinkedIn.
+- A LinkedIn URL must not be used as a Gmail Draft recipient or as Gmail Draft
+  eligibility.

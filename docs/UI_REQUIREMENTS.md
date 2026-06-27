@@ -1,21 +1,29 @@
 # UI Requirements
 
-This project uses Stitch as the primary UI design source for the frontend dashboard.
+This project uses Stitch as the primary UI design source for the frontend
+dashboard.
 
 ## UI Source of Truth
 
-Stitch-generated screens define the visual direction, layout, component placement, spacing, and overall user experience of the frontend.
+Stitch-generated screens define the visual direction, layout, component
+placement, spacing, and overall user experience of the frontend.
 
-However, Stitch does not define backend behavior, business rules, database rules, API contracts, or product workflow rules.
+However, Stitch does not define backend behavior, business rules, database
+rules, API contracts, or product workflow rules.
 
-When there is a conflict, the priority order is:
+`AGENTS.md` remains the top-level authority for all Codex work. The priority
+order below applies only to frontend UI implementation details after `AGENTS.md`
+and project-level rules have already been applied.
 
-1. API_CONTRACT.md
-2. DATA_MODEL.md
-3. WORKFLOW.md
-4. MVP_SCOPE.md
-5. CODING_STANDARDS.md
-6. UI_REQUIREMENTS.md
+For frontend UI implementation details, when there is a conflict, the priority
+order is:
+
+1. `docs/API_CONTRACT.md`
+2. `docs/DATA_MODEL.md`
+3. `docs/WORKFLOW.md`
+4. `docs/MVP_SCOPE.md`
+5. `docs/CODING_STANDARDS.md`
+6. `docs/UI_REQUIREMENTS.md`
 7. Stitch-generated UI design and frontend code
 
 ## Stitch to Codex Workflow
@@ -27,8 +35,10 @@ Frontend implementation should follow this workflow:
 3. Ask Codex to implement the frontend based on the Stitch UI.
 4. Codex must compare the Stitch design with existing project rules before coding.
 5. Codex must not blindly copy Stitch-generated code if it conflicts with project architecture.
-6. Codex must keep API calls, state handling, validation, and error handling consistent with backend contracts.
-7. After implementation, Codex must run frontend checks and provide a summary of completed pages.
+6. Codex must keep API calls, state handling, validation, and error handling
+   consistent with backend contracts.
+7. After implementation, Codex must run frontend checks and provide a summary of
+   completed pages.
 
 ## Language Requirement
 
@@ -67,7 +77,7 @@ Each major dashboard area should have its own page or feature folder.
 The MVP dashboard should include UI screens for:
 
 1. Company Profile
-2. Source Upload / Source Input
+2. Source Input for current text and URL backend scope
 3. Knowledge Review
 4. Product Card Management
 5. Campaign Creation

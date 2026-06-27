@@ -12,7 +12,9 @@ AI Sales Knowledge Base + AI Customer Matching Judgment System
 
 This project is an AI-powered B2B sales assistant.
 
-It helps users organize company and product information into a structured sales knowledge base, then uses that knowledge to find, analyze, score, and explain potential B2B leads.
+It helps users organize company and product information into a structured sales
+knowledge base, then uses that knowledge to find, analyze, score, and explain
+potential B2B leads.
 
 The system is not a full CRM and not a fully automated email platform.
 
@@ -22,7 +24,9 @@ The first version focuses on helping users make better sales development decisio
 
 The initial target users are B2B companies that want to find new customers more efficiently.
 
-The first market entry can focus on Chinese companies selling to overseas markets, but the system itself should be designed as a global B2B sales assistant.
+The first market entry can focus on Chinese companies selling to overseas
+markets, but the system itself should be designed as a global B2B sales
+assistant.
 
 Target users may include:
 
@@ -61,7 +65,9 @@ This system helps users:
 
 The MVP should complete one clear workflow:
 
-Company information input → AI knowledge draft → user confirmation → product card → campaign → lead discovery → customer analysis → AI scoring → user review → Gmail draft.
+Company information input → AI knowledge draft → user confirmation → product
+card → campaign → lead discovery → customer analysis → AI scoring → user
+review → Gmail draft.
 
 The MVP should be useful even as a single-user prototype.
 

@@ -178,18 +178,20 @@ Gmail scope 只能包含创建草稿所需权限，不允许添加 send / modify
 
 PowerShell example from the project root:
 
-    Copy-Item .env.example .env
+```powershell
+Copy-Item .env.example .env
 
-    docker compose up -d postgres redis
+docker compose up -d postgres redis
 
-    Set-Location backend
-    python -m pip install -e .
-    python -m alembic -c alembic.ini upgrade head
-    python -m uvicorn app.main:app --reload
+Set-Location backend
+python -m pip install -e .
+python -m alembic -c alembic.ini upgrade head
+python -m uvicorn app.main:app --reload
 
-    Set-Location ..\frontend
-    npm install
-    npm run dev
+Set-Location ..\frontend
+npm install
+npm run dev
+```
 
 本地开发注意事项：
 
@@ -293,9 +295,11 @@ Redis 要求：
 
 常用命令：
 
-    alembic revision --autogenerate -m "describe change"
-    alembic upgrade head
-    alembic downgrade -1
+```bash
+alembic revision --autogenerate -m "describe change"
+alembic upgrade head
+alembic downgrade -1
+```
 
 部署前必须确认：
 
@@ -306,7 +310,9 @@ Redis 要求：
 
 ### 7.1 PostgreSQL Migration Smoke Test
 
-SQLite migration tests and offline PostgreSQL SQL generation are useful prechecks, but neither proves that a migration runs successfully against a real PostgreSQL server.
+SQLite migration tests and offline PostgreSQL SQL generation are useful
+prechecks, but neither proves that a migration runs successfully against a real
+PostgreSQL server.
 
 Required smoke-test flow:
 
@@ -347,17 +353,19 @@ Full CI automation may be added later, but deployment readiness must not be clai
 
 示例流程：
 
-    git pull
+```bash
+git pull
 
-    docker compose build
+docker compose build
 
-    backup database
+backup database
 
-    docker compose run --rm backend alembic upgrade head
+docker compose run --rm backend alembic upgrade head
 
-    docker compose up -d backend frontend
+docker compose up -d backend frontend
 
-    docker compose logs -f backend
+docker compose logs -f backend
+```
 
 ---
 
@@ -377,10 +385,12 @@ Backend 必须提供健康检查接口。
 
 返回示例：
 
-    {
-      "status": "ok",
-      "service": "backend"
-    }
+```json
+{
+  "status": "ok",
+  "service": "backend"
+}
+```
 
 ### 9.2 /health/db
 
@@ -388,10 +398,12 @@ Backend 必须提供健康检查接口。
 
 返回示例：
 
-    {
-      "status": "ok",
-      "database": "connected"
-    }
+```json
+{
+  "status": "ok",
+  "database": "connected"
+}
+```
 
 ### 9.3 /health/redis
 
@@ -399,10 +411,12 @@ Backend 必须提供健康检查接口。
 
 返回示例：
 
-    {
-      "status": "ok",
-      "redis": "connected"
-    }
+```json
+{
+  "status": "ok",
+  "redis": "connected"
+}
+```
 
 健康检查不能暴露敏感信息。
 
@@ -559,8 +573,10 @@ Frontend 使用 React + TypeScript + Vite。
 
 常用命令：
 
-    npm install
-    npm run build
+```bash
+npm install
+npm run build
+```
 
 ---
 

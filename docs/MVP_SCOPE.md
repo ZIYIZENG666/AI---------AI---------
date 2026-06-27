@@ -10,7 +10,9 @@ The goal is to keep the MVP focused, buildable, testable, and deployable.
 
 The MVP should prove one core value:
 
-A user can provide company information, create a product-based campaign, discover potential B2B leads, receive AI customer-fit judgments with reasons, approve leads, and generate Gmail draft outreach emails.
+A user can provide company information, create a product-based campaign,
+discover potential B2B leads, receive AI customer-fit judgments with reasons,
+approve leads, and generate Gmail draft outreach emails.
 
 ## Must Have
 
@@ -27,6 +29,9 @@ The MVP must include the following:
 - Add company source information
 - Support simple text or URL input
 - Store source records
+- Treat uploaded documents, PDF parsing, Word parsing, image OCR, file storage,
+  document parsing, and crawler processing as future scope unless explicitly
+  requested later
 
 ### 3. AI Knowledge Draft
 
@@ -41,7 +46,8 @@ The MVP must include the following:
 
 ### 5. Product Card
 
-- Generate Product Cards from confirmed knowledge and allow users to add products manually
+- Generate Product Cards from confirmed knowledge and allow users to add
+  products manually
 - Link product card to company
 - Use confirmed knowledge as reference
 - Keep only `draft` and `confirmed` Product Card statuses; deletion does not create `rejected`
@@ -132,9 +138,16 @@ The MVP must not include:
 - Bulk email sending
 - LinkedIn API
 - LinkedIn scraping
-- LinkedIn automation
-- LinkedIn browser-extension automation
-- Automatic LinkedIn messaging, connection requests, profile scraping, or contact downloading
+- LinkedIn crawler
+- LinkedIn bot
+- LinkedIn browser automation
+- LinkedIn browser extension automation
+- Automated LinkedIn login
+- Automated LinkedIn search
+- Automated LinkedIn profile extraction
+- Automated LinkedIn contact downloading
+- Automated LinkedIn messaging
+- Automated LinkedIn connection requests
 - Google Sheets workflow
 - Multi-agent architecture
 - LangGraph workflow
@@ -185,7 +198,13 @@ The user must review and approve leads and email drafts.
 LinkedIn is out of scope for MVP automation.
 
 - The MVP must not use the LinkedIn API.
-- The MVP must not perform automated LinkedIn crawling or scraping.
-- The MVP must not use Playwright, Selenium, browser extensions, or bots to automatically access LinkedIn.
-- A LinkedIn URL may only be manually provided by the user or stored as a manual review reference.
-- A LinkedIn URL or LinkedIn contact reference must not be used as Gmail Draft eligibility or as a Gmail Draft recipient.
+- The MVP must not perform LinkedIn scraping, LinkedIn crawling, LinkedIn bot
+  behavior, LinkedIn browser automation, or LinkedIn browser extension
+  automation.
+- The MVP must not perform automated LinkedIn login, automated LinkedIn search,
+  automated LinkedIn profile extraction, automated LinkedIn contact downloading,
+  automated LinkedIn messaging, or automated LinkedIn connection requests.
+- A LinkedIn URL may only be manually provided by the user or stored as a manual
+  review reference.
+- A LinkedIn URL or LinkedIn contact reference must not be used as Gmail Draft
+  eligibility or as a Gmail Draft recipient.

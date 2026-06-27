@@ -24,14 +24,24 @@ The company profile stores basic information such as:
 
 The user adds company information.
 
-Possible inputs:
+Current implemented backend inputs:
 
 - Website URL
 - Text description
-- Uploaded document
-- Manual notes
+- Manual notes saved as text
+
+Future source-input scope unless explicitly requested later:
+
+- Uploaded documents
+- PDF or Word document parsing
+- Image OCR
+- File storage
+- Crawler processing of URL contents
 
 The system stores the input as source data.
+
+The current backend source slice stores text and URL records only. A stored URL
+does not imply that a crawler has fetched or parsed the website.
 
 ### Step 3: Generate AI Knowledge Draft
 
@@ -63,7 +73,12 @@ Only confirmed knowledge should be used in later steps.
 
 ### Step 5: Create and Review Product Card
 
-A Product Card may be generated from confirmed knowledge or added manually by the user. The frontend must keep a permanent `手动添加产品` entry; AI generation is not the only creation path. Both sources start in `draft`, and only a `confirmed` Product Card may be used by a Campaign.
+A Product Card may be generated from confirmed knowledge or added manually by
+the user.
+
+The frontend must keep a permanent `手动添加产品` entry; AI generation is not the
+only creation path. Both sources start in `draft`, and only a `confirmed`
+Product Card may be used by a Campaign.
 
 The product card explains:
 
@@ -76,14 +91,17 @@ The product card explains:
 Product Card lifecycle and editing rules:
 
 - A draft Product Card may be edited, confirmed, or deleted.
-- A confirmed Product Card may be edited, deleted when unreferenced, or used by a Campaign; it must not show a confirmation button.
+- A confirmed Product Card may be edited, deleted when unreferenced, or used by a
+  Campaign; it must not show a confirmation button.
 - Repeating the confirm request for an already confirmed Product Card is idempotent and leaves it confirmed.
 - Selecting a Product Card opens a details dialog where fields can be edited directly.
 - When fields have changed, the dialog shows `取消` and `保存修改`.
 - `取消` discards unsaved frontend state and does not call the save API.
 - `保存修改` calls `PATCH /api/v1/product-cards/{id}` and does not change Product Card status.
 - `确认产品卡片` means `draft -> confirmed`; it is separate from saving edited fields.
-- Deletion never creates a Product Card `rejected` status. A confirmed Product Card already referenced by a Campaign cannot be physically deleted and returns HTTP `409`.
+- Deletion never creates a Product Card `rejected` status.
+- A confirmed Product Card already referenced by a Campaign cannot be physically
+  deleted and returns HTTP `409`.
 
 Product Card scope note:
 
@@ -200,6 +218,14 @@ Only approved leads can generate Gmail drafts.
 
 For approved leads, the system generates an outreach email draft.
 
+Gmail Draft eligibility must use a selected valid email contact:
+
+- `contacts.contact_type = email`
+- `contacts.status = valid`
+
+A LinkedIn reference, contact form, phone, manual review contact, or lead-level
+email-like field must not make a lead eligible for Gmail Draft creation.
+
 The draft should be based on:
 
 - Product card
@@ -232,7 +258,9 @@ The system records statuses such as:
 
 ## Frontend Implementation Workflow
 
-Major frontend pages should be designed in Stitch first when available, then implemented by Codex according to `docs/UI_REQUIREMENTS.md` and existing project rules.
+Major frontend pages should be designed in Stitch first when available, then
+implemented by Codex according to `docs/UI_REQUIREMENTS.md` and existing project
+rules.
 
 ## Workflow Rules
 
@@ -240,6 +268,7 @@ Major frontend pages should be designed in Stitch first when available, then imp
 2. Campaigns must be based on product cards.
 3. Lead scoring must be based on confirmed campaign and product information.
 4. Invalid leads should not be scored by AI.
-5. Email drafts can only be generated for approved leads.
+5. Email drafts can only be generated for approved leads with a selected valid
+   email contact.
 6. Gmail draft creation must not automatically send email.
 7. All major steps should store status and error information.

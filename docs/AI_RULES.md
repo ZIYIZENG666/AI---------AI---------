@@ -186,10 +186,20 @@ AI 必须遵守：
 ### LinkedIn Rules
 
 - 禁止使用 LinkedIn API。
-- 禁止使用 LinkedIn scraping、LinkedIn crawler、LinkedIn bot、LinkedIn browser automation、LinkedIn browser extension automation。
-- 禁止 automated LinkedIn login、automated LinkedIn search、automated LinkedIn profile extraction、automated LinkedIn contact downloading、automated LinkedIn messaging、automated LinkedIn connection requests。
+- 禁止使用 LinkedIn scraping。
+- 禁止使用 LinkedIn crawler。
+- 禁止使用 LinkedIn bot。
+- 禁止使用 LinkedIn browser automation。
+- 禁止使用 LinkedIn browser extension automation。
+- 禁止 automated LinkedIn login。
+- 禁止 automated LinkedIn search。
+- 禁止 automated LinkedIn profile extraction。
+- 禁止 automated LinkedIn contact downloading。
+- 禁止 automated LinkedIn messaging。
+- 禁止 automated LinkedIn connection requests。
 - 允许用户手动粘贴公开 LinkedIn URL。
 - 系统只允许把该 URL 作为 manual reference 保存，并在前端展示给用户人工审核。
+- LinkedIn URL 不能作为 Gmail Draft recipient 或 Gmail Draft eligibility。
 - AI 不能要求 system、crawler、provider 或 browser 自动访问 LinkedIn。
 
 ---

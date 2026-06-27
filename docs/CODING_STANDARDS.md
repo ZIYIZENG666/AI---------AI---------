@@ -36,16 +36,25 @@ Frontend standards:
 3. Keep API access logic separated from presentational components.
 4. Make loading, empty, error, and review states explicit.
 5. Do not hardcode backend secrets or provider credentials in frontend code.
-6. All user-visible text must be Chinese, including page titles, buttons, form labels, dialogs, errors, empty states, status labels, menus, and confirmation prompts.
-7. Frontend layout and visual implementation should follow Stitch-generated UI designs when available.
+6. All user-visible text must be Chinese, including page titles, buttons, form
+   labels, dialogs, errors, empty states, status labels, menus, and confirmation
+   prompts.
+7. Frontend layout and visual implementation should follow Stitch-generated UI
+   designs when available.
 
 Product Card UI vocabulary and interaction rules:
 
-- Use `产品卡片`, `产品`, `待确认`, `已确认`, `手动添加产品`, `编辑`, `删除`, `确认产品卡片`, `保存修改`, `取消`, and `已被获客任务使用` for the corresponding user-visible concepts.
-- Draft cards may show `编辑`, `确认产品卡片`, and `删除`; confirmed cards may show `编辑` and `删除`, but not `确认产品卡片`.
-- A Product Card details dialog owns unsaved field state. Show `取消` and `保存修改` after a field changes.
-- Cancelling restores the saved values without an API call. Saving calls PATCH and must not change Product Card status.
-- Do not persist UI-only states such as `editing`, `modified`, or `pending_changes` as business or database statuses.
+- Use `产品卡片`, `产品`, `待确认`, `已确认`, `手动添加产品`, `编辑`, `删除`,
+  `确认产品卡片`, `保存修改`, `取消`, and `已被获客任务使用` for the
+  corresponding user-visible concepts.
+- Draft cards may show `编辑`, `确认产品卡片`, and `删除`; confirmed cards may
+  show `编辑` and `删除`, but not `确认产品卡片`.
+- A Product Card details dialog owns unsaved field state. Show `取消` and
+  `保存修改` after a field changes.
+- Cancelling restores the saved values without an API call. Saving calls PATCH
+  and must not change Product Card status.
+- Do not persist UI-only states such as `editing`, `modified`, or
+  `pending_changes` as business or database statuses.
 
 ## Module Structure Rules
 
@@ -77,18 +86,24 @@ Rules:
 3. Use `PascalCase` for Python classes and Pydantic models.
 4. Use stable plural resource names for API endpoints.
 5. Use consistent domain vocabulary across docs, schemas, models, and tests.
-6. For Product Cards, use confirm only for `draft -> confirmed` and delete for removal. Do not use reject/rejected as Product Card API or business vocabulary.
+6. For Product Cards, use confirm only for `draft -> confirmed` and delete for
+   removal. Do not use reject/rejected as Product Card API or business
+   vocabulary.
 
 ## Database Constraint Naming Rules
 
 Rules:
 
-1. SQLAlchemy ORM `CheckConstraint` names must match the constraint names created by Alembic migrations.
+1. SQLAlchemy ORM `CheckConstraint` names must match the constraint names
+   created by Alembic migrations.
 2. Use `ck_<table_name>_<column_name>` for new status, type, and enum-like checks.
-3. For example, a Product Card status constraint should use `ck_product_cards_status` in both the ORM model and migration.
-4. Do not rely on different local names that resolve to different database names through naming conventions.
+3. For example, a Product Card status constraint should use
+   `ck_product_cards_status` in both the ORM model and migration.
+4. Do not rely on different local names that resolve to different database names
+   through naming conventions.
 5. Review the final PostgreSQL constraint name when generating or reviewing a migration.
-6. A model and migration naming mismatch must be treated as a schema defect because it can cause false Alembic diffs and unsafe later enum changes.
+6. A model and migration naming mismatch must be treated as a schema defect
+   because it can cause false Alembic diffs and unsafe later enum changes.
 7. New modules must verify naming consistency before their migration is accepted.
 
 ## Configuration Rules
@@ -151,4 +166,5 @@ Do not:
 4. Put database queries in frontend code.
 5. Hardcode credentials or real secrets in code.
 6. Introduce fake “completed” modules that only expose placeholder endpoints.
-7. Reintroduce Google Sheets, LinkedIn API integration, automatic email sending, or microservice splitting without explicit direction.
+7. Reintroduce Google Sheets, LinkedIn API integration, automatic email sending,
+   or microservice splitting without explicit direction.
