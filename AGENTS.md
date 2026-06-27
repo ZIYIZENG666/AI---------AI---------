@@ -170,23 +170,26 @@ After each development task, reply with:
 
 1. What was changed
 2. Files modified
-3. Tests/checks run and results
-4. Known limitations or risks
-5. Commit / push status
-6. Recommended next step
+3. Tests added or updated
+4. How to run or verify
+5. Any known limitations or risks
+6. Commit / push status
+7. Recommended next step
 
 The completion report must clearly include:
 
 - Changed files
 - Summary of changes
-- Tests/checks run and results
+- Tests added or updated
+- How to run or verify
 - Known limitations or risks
 - Commit/push status
 - Recommended next step
 
-If no commit was created or no push was performed, state that explicitly. Do not
-claim that changes were committed, pushed, or pushed to `main` unless that
-actually happened.
+Codex must report whether it committed changes. Codex must report whether it
+pushed changes to GitHub. If Codex did not commit or did not push, it must state
+that clearly. Codex must not imply that changes are on GitHub unless they were
+actually committed and pushed.
 
 ## Do Not Do
 

@@ -44,19 +44,17 @@ The repository is no longer only a pure skeleton, but it is still far from a ful
 
 ## Current Task
 
-Completed: Documentation consistency repair for the finalized Product Card, LinkedIn, Gmail Draft eligibility, and Codex handoff rules.
+Completed: Documentation consistency repair for project document indexes, Codex handoff reporting, Gmail Draft eligibility, and related deployment troubleshooting notes.
 
 What changed:
 
-- Updated backend-facing documentation so the current implemented backend slices are `company`, `sources`, `knowledge`, and `products`.
-- Clarified that Campaign, Lead Discovery, Contacts, Outreach, and frontend workflow pages are still not implemented.
-- Updated the Product Card API contract to include both list entry points: `GET /api/v1/product-cards` and `GET /api/v1/companies/{company_id}/product-cards`.
-- Kept the Product Card lifecycle aligned to create/list/get/patch/confirm/delete with `draft` and `confirmed` only, no `rejected`, and no reject endpoint.
-- Clarified that Product Card PATCH must not change status, source type, source knowledge, or company ownership.
-- Updated the Codex completion report format to require commit/push status and truthful reporting when no commit or push happened.
+- Updated README guidance so Codex must read `docs/DEVELOPMENT_PROGRESS.md` before development.
+- Updated documentation indexes so `docs/DEVELOPMENT_PROGRESS.md` is listed with its current purpose.
+- Updated the Codex completion report format to require tests added or updated, how to verify, risks, commit/push status, and truthful reporting when no commit or push happened.
 - Replaced the old direct email-field Gmail Draft eligibility wording with selected valid email contact rules.
+- Updated Gmail Draft testing rules so LinkedIn contacts, contact forms, and manual review contacts cannot be used as Gmail Draft recipients.
+- Updated Gmail Draft deployment troubleshooting notes to use selected valid email contact checks.
 - Reconfirmed that LinkedIn references are manual references only and cannot be Gmail Draft recipients or Gmail Draft eligibility.
-- Added `docs/DEVELOPMENT_PROGRESS.md` to the documentation indexes.
 
 Not changed in this task:
 
@@ -310,8 +308,7 @@ Exit Criteria:
 
 - `AGENTS.md`
 - `README.md`
-- `backend/README.md`
-- `docs/API_CONTRACT.md`
+- `docs/DEPLOYMENT_GUIDE.md`
 - `docs/DEVELOPMENT_PROGRESS.md`
 - `docs/README.md`
 - `docs/TESTING_STRATEGY.md`
@@ -319,9 +316,13 @@ Exit Criteria:
 ## Test Status
 
 - Documentation-only task; backend tests, frontend tests, compile checks, and migrations were not run because no business code, tests, or migration files were changed.
-- `rg` verification confirmed the target docs no longer use the old direct email-field wording for Gmail Draft eligibility.
-- `rg` verification confirmed the Product Card company-scoped list endpoint, selected valid email contact wording, Gmail send / modify / delete prohibition, `DEVELOPMENT_PROGRESS.md` index entry, and commit/push status reporting text are present.
-- `git diff --name-only` confirmed the changed files are Markdown documentation files only.
+- `git diff --name-only` confirmed the changed files are Markdown documentation files only: `AGENTS.md`, `README.md`, `docs/DEPLOYMENT_GUIDE.md`, `docs/DEVELOPMENT_PROGRESS.md`, `docs/README.md`, and `docs/TESTING_STRATEGY.md`.
+- `rg -n "DEVELOPMENT_PROGRESS\.md" README.md docs\README.md` confirmed both documentation indexes include `docs/DEVELOPMENT_PROGRESS.md`.
+- `rg -n "public_email" -g "*.md"` returned no matches, confirming the old direct email-field wording is gone from Markdown docs.
+- `rg` verification confirmed `AGENTS.md` includes `Commit / push status` and the required truthful commit/push reporting rules.
+- Product Card `reject` / `rejected` search returned only rules that reject/rejected is invalid or removed for Product Cards; no Product Card reject API path was introduced.
+- LinkedIn search confirmed the existing boundary remains manual URL reference only, with API, scraping, crawler, bot, browser automation, automated login/search/profile extraction/contact downloading/messaging, and connection requests prohibited.
+- Chinese UI search confirmed frontend user-visible text must remain Chinese in `docs/UI_REQUIREMENTS.md` and `docs/CODING_STANDARDS.md`.
 - `git diff --check` passed with no whitespace errors; Git emitted line-ending normalization warnings for the touched Markdown files.
 
 ## Known Issues

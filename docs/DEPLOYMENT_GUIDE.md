@@ -632,9 +632,11 @@ Backend 使用 FastAPI。
 - Gmail scope 是否正确
 - 是否只使用 draft 权限
 - Lead 是否 Approved
-- public_email 是否有效
+- selected contact 是否存在
+- selected contact 是否 `contact_type = email`
+- selected email contact 是否 `status = valid`
 - subject/body 是否为空
-- 是否已经创建过 draft
+- 是否已经存在同一 `lead_id + campaign_id + contact_id` 的 `gmail_draft_created` 记录
 
 ---
 

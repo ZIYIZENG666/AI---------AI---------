@@ -279,7 +279,7 @@ Mock Provider 应覆盖：
 
 Gmail 功能是高风险功能，必须严格测试。
 
-Gmail Draft eligibility 必须基于 selected valid email contact：
+Gmail Draft eligibility must be based on a selected valid email contact.
 
 - `lead.review_status = approved`
 - selected contact exists
@@ -290,18 +290,17 @@ Gmail Draft eligibility 必须基于 selected valid email contact：
 
 必须测试：
 
-1. Approved Lead + selected valid email contact 可以创建 Gmail Draft。
-2. Lead 未 approved 不能创建 Gmail Draft。
-3. 没有 selected contact 不能创建 Gmail Draft。
-4. selected contact 不是 email 不能创建 Gmail Draft。
-5. selected email contact 不是 valid 不能创建 Gmail Draft。
-6. subject 为空不能创建 Gmail Draft。
-7. body 为空不能创建 Gmail Draft。
-8. 同一 `lead_id + campaign_id + contact_id` 已有 `gmail_draft_created` 记录时不能重复创建 Gmail Draft。
-9. LinkedIn-only contact 不能创建 Gmail Draft。
-10. Gmail Provider 失败时任务进入 failed。
-11. 创建 Draft 后必须记录 `gmail_draft_id`。
-12. 系统中不存在 Gmail send / modify / delete 调用。
+1. Approved Lead + selected valid email contact can create a Gmail Draft.
+2. No selected contact cannot create a Gmail Draft.
+3. Selected contact is not `contact_type = email` cannot create a Gmail Draft.
+4. Selected email contact is not `status = valid` cannot create a Gmail Draft.
+5. Lead not approved cannot create a Gmail Draft.
+6. Existing `gmail_draft_created` record for the same `lead_id + campaign_id + contact_id` cannot create a duplicate Draft.
+7. Empty subject cannot create a Gmail Draft.
+8. Empty body cannot create a Gmail Draft.
+9. Gmail Provider failure moves the task or draft status to failed.
+10. The system must not contain or call Gmail send / modify / delete behavior.
+11. LinkedIn contact, contact form, or manual review contact cannot be used as a Gmail Draft recipient.
 
 禁止测试中调用真实 Gmail。
 
