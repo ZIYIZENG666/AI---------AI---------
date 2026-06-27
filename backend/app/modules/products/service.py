@@ -1,6 +1,7 @@
 """Service logic for the product card module."""
 
 from app.core.errors import AppError
+from app.modules.campaigns.repository import CampaignRepository
 from app.modules.company.models import CompanyProfile
 from app.modules.company.repository import CompanyRepository
 from app.modules.knowledge.models import KnowledgeItem
@@ -83,6 +84,7 @@ class DeterministicProductCardGenerator:
                 "differentiation",
             ),
             "source_knowledge_item_ids": [item.id for item in knowledge_items],
+            "source_type": "ai_generated",
             "status": "draft",
         }
 
@@ -112,11 +114,13 @@ class ProductService:
         repository: ProductRepository,
         company_repository: CompanyRepository,
         knowledge_repository: KnowledgeRepository,
+        campaign_repository: CampaignRepository,
         generator: DeterministicProductCardGenerator | None = None,
     ) -> None:
         self.repository = repository
         self.company_repository = company_repository
         self.knowledge_repository = knowledge_repository
+        self.campaign_repository = campaign_repository
         self.generator = generator or DeterministicProductCardGenerator()
 
     def create_product_card(self, company_id: str):
@@ -135,10 +139,29 @@ class ProductService:
             self.generator.generate(company, confirmed_knowledge)
         )
 
-    def list_product_cards(self, company_id: str, limit: int, offset: int) -> dict:
-        self._get_company(company_id)
-        items, total = self.repository.list_by_company(
+    def create_manual_product_card(self, data: dict):
+        self._get_company(data["company_id"])
+        create_data = {
+            **data,
+            "source_type": "manual",
+            "status": "draft",
+            "source_knowledge_item_ids": [],
+        }
+        return self.repository.create(create_data)
+
+    def list_product_cards(
+        self,
+        limit: int,
+        offset: int,
+        status_filter: str | None = None,
+        company_id: str | None = None,
+    ) -> dict:
+        if company_id is not None:
+            self._get_company(company_id)
+
+        items, total = self.repository.list_product_cards(
             company_id=company_id,
+            status_filter=status_filter,
             limit=limit,
             offset=offset,
         )
@@ -149,8 +172,15 @@ class ProductService:
             "offset": offset,
         }
 
-    def get_product_card(self, product_card_id: str):
-        product_card = self.repository.get_by_id(product_card_id)
+    def get_product_card(self, product_card_id: str, company_id: str | None = None):
+        if company_id is not None:
+            product_card = self.repository.get_by_id_and_company(
+                product_card_id,
+                company_id,
+            )
+        else:
+            product_card = self.repository.get_by_id(product_card_id)
+
         if product_card is None:
             raise AppError(
                 message="Product card not found.",
@@ -159,15 +189,58 @@ class ProductService:
             )
         return product_card
 
-    def confirm_product_card(self, product_card_id: str):
-        product_card = self.get_product_card(product_card_id)
-        self._require_draft(product_card.status)
+    def update_product_card(
+        self,
+        product_card_id: str,
+        data: dict,
+        company_id: str | None = None,
+    ):
+        product_card = self.get_product_card(product_card_id, company_id=company_id)
+        editable_data = {
+            field_name: value
+            for field_name, value in data.items()
+            if field_name
+            in {
+                "name",
+                "description",
+                "target_customer",
+                "pain_points",
+                "value_proposition",
+                "use_cases",
+                "differentiators",
+            }
+        }
+        if not editable_data:
+            return product_card
+
+        return self.repository.update(product_card, editable_data)
+
+    def confirm_product_card(self, product_card_id: str, company_id: str | None = None):
+        product_card = self.get_product_card(product_card_id, company_id=company_id)
+        if product_card.status == "confirmed":
+            return product_card
+
         return self.repository.update_status(product_card, "confirmed")
 
-    def reject_product_card(self, product_card_id: str):
-        product_card = self.get_product_card(product_card_id)
-        self._require_draft(product_card.status)
-        return self.repository.update_status(product_card, "rejected")
+    def delete_product_card(
+        self,
+        product_card_id: str,
+        company_id: str | None = None,
+    ) -> str:
+        product_card = self.get_product_card(product_card_id, company_id=company_id)
+        deleted_id = product_card.id
+
+        if product_card.status == "confirmed" and (
+            self.campaign_repository.is_product_card_referenced(product_card.id)
+        ):
+            raise AppError(
+                message="Product card is already referenced by a campaign.",
+                status_code=409,
+                code="product_card_in_use",
+            )
+
+        self.repository.delete(product_card)
+        return deleted_id
 
     def _get_company(self, company_id: str):
         company = self.company_repository.get_by_id(company_id)
@@ -178,12 +251,3 @@ class ProductService:
                 code="company_not_found",
             )
         return company
-
-    @staticmethod
-    def _require_draft(current_status: str) -> None:
-        if current_status != "draft":
-            raise AppError(
-                message="Only draft product cards can be reviewed.",
-                status_code=409,
-                code="product_card_not_draft",
-            )

@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from sqlalchemy import CheckConstraint, DateTime, ForeignKey, JSON, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.schema import conv
 
 from app.core.database import Base
 
@@ -21,8 +22,12 @@ class ProductCard(Base):
     __tablename__ = "product_cards"
     __table_args__ = (
         CheckConstraint(
-            "status IN ('draft', 'confirmed', 'rejected')",
-            name="status_allowed",
+            "status IN ('draft', 'confirmed')",
+            name=conv("ck_product_cards_status"),
+        ),
+        CheckConstraint(
+            "source_type IN ('ai_generated', 'manual')",
+            name=conv("ck_product_cards_source_type"),
         ),
     )
 
@@ -52,6 +57,12 @@ class ProductCard(Base):
         JSON,
         nullable=False,
         default=list,
+    )
+    source_type: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default="ai_generated",
+        index=True,
     )
     status: Mapped[str] = mapped_column(
         String(20),

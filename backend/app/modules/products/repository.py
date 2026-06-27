@@ -19,13 +19,19 @@ class ProductRepository:
         self.session.refresh(product_card)
         return product_card
 
-    def list_by_company(
+    def list_product_cards(
         self,
-        company_id: str,
         limit: int,
         offset: int,
+        status_filter: str | None = None,
+        company_id: str | None = None,
     ) -> tuple[list[ProductCard], int]:
-        filters = (ProductCard.company_id == company_id,)
+        filters = [ProductCard.status.in_(("draft", "confirmed"))]
+        if status_filter is not None:
+            filters.append(ProductCard.status == status_filter)
+        if company_id is not None:
+            filters.append(ProductCard.company_id == company_id)
+
         total = self.session.scalar(
             select(func.count()).select_from(ProductCard).where(*filters)
         ) or 0
@@ -40,8 +46,49 @@ class ProductRepository:
         )
         return items, total
 
+    def list_by_company(
+        self,
+        company_id: str,
+        limit: int,
+        offset: int,
+        status_filter: str | None = None,
+    ) -> tuple[list[ProductCard], int]:
+        return self.list_product_cards(
+            company_id=company_id,
+            limit=limit,
+            offset=offset,
+            status_filter=status_filter,
+        )
+
     def get_by_id(self, product_card_id: str) -> ProductCard | None:
-        return self.session.get(ProductCard, product_card_id)
+        return self.session.scalar(
+            select(ProductCard).where(
+                ProductCard.id == product_card_id,
+                ProductCard.status.in_(("draft", "confirmed")),
+            )
+        )
+
+    def get_by_id_and_company(
+        self,
+        product_card_id: str,
+        company_id: str,
+    ) -> ProductCard | None:
+        return self.session.scalar(
+            select(ProductCard).where(
+                ProductCard.id == product_card_id,
+                ProductCard.company_id == company_id,
+                ProductCard.status.in_(("draft", "confirmed")),
+            )
+        )
+
+    def update(self, product_card: ProductCard, data: dict) -> ProductCard:
+        for field_name, value in data.items():
+            setattr(product_card, field_name, value)
+
+        self.session.add(product_card)
+        self.session.commit()
+        self.session.refresh(product_card)
+        return product_card
 
     def update_status(
         self,
@@ -53,3 +100,7 @@ class ProductRepository:
         self.session.commit()
         self.session.refresh(product_card)
         return product_card
+
+    def delete(self, product_card: ProductCard) -> None:
+        self.session.delete(product_card)
+        self.session.commit()
