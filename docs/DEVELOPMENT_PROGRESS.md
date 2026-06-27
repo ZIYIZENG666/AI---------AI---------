@@ -22,9 +22,9 @@ The repository is no longer only a pure skeleton, but it is still far from a ful
 - Added the `company_sources` and `knowledge_items` tables through a new Alembic migration.
 - Added focused API tests for source ownership, source listing, draft generation, review transitions, status separation, invalid IDs, and invalid repeat review.
 - Implemented deterministic Product Card generation from confirmed company knowledge only.
-- Added the legacy product card create, list, get, confirm, and reject APIs that predate the finalized Phase 2 contract.
+- Initially added a legacy Product Card API that included reject/rejected behavior; that lifecycle has since been removed by the finalized Phase 2 contract and must not be treated as current behavior.
 - Added the `product_cards` table through Alembic revision `20260623_0003`.
-- Added Product Card API tests covering confirmed-knowledge eligibility, draft/rejected exclusion, company isolation, reads, transitions, and error responses.
+- Added Product Card API tests covering confirmed-knowledge eligibility, exclusion of draft/rejected knowledge from AI-generated cards, company isolation, reads, transitions, and error responses.
 - Documented the Product Card company/workspace scope plan, ORM/migration constraint naming standard, and required PostgreSQL migration smoke-test boundary.
 - Finalized Product Card Phase 2 questions 3 and 5 across the project rule documents without changing backend, frontend, migrations, or tests.
 - Formalized the Stitch-to-Codex frontend workflow, Chinese user-facing text requirement, dashboard page expectations, and UI design handoff rules in project documentation only.
@@ -44,22 +44,22 @@ The repository is no longer only a pure skeleton, but it is still far from a ful
 
 ## Current Task
 
-Completed: finalized Product Card Phase 2 backend contract.
+Completed: Phase 2 repository hygiene and verification handoff for the finalized Product Card backend contract.
 
 What changed:
 
-- Product Cards use only `draft` and `confirmed`; `status=rejected` is unsupported by request schemas and list filters.
-- Product Card reject/rejected behavior is replaced by delete.
-- Product Cards support both AI-generated (`ai_generated`) and user-created (`manual`) sources, and both start in `draft`.
-- Draft and confirmed Product Cards can be patched without changing status.
-- Repeated confirm calls return HTTP `200` and keep `status = confirmed`.
-- Deletion checks a Campaign reference boundary before deleting confirmed cards.
+- Updated backend-facing documentation so Product Card current behavior is create/list/get/patch/confirm/delete only.
+- Clarified that Product Card `reject` / `rejected` wording is legacy behavior removed by the finalized Phase 2 contract.
+- Re-checked `docs/API_CONTRACT.md` and `docs/DATA_MODEL.md`; no changes were needed because both already match the finalized Product Card contract.
+- Re-ran the backend Product Card, full test, compile, and Alembic offline SQL verification commands.
+- Confirmed this task did not change Product Card runtime behavior.
 
 Not changed in this task:
 
 - No Campaign module was implemented.
 - No Lead Discovery, Outreach, or Dashboard frontend work was implemented.
 - No account or workspace authorization was implemented or claimed.
+- No Product Card API, schema, service, repository, model, migration, or test behavior was changed.
 
 ## Phase 3 Readiness Hardening
 
@@ -303,25 +303,18 @@ Exit Criteria:
 
 ## Recently Changed Files
 
-- `backend/app/modules/products/models.py`
-- `backend/app/modules/products/schemas.py`
-- `backend/app/modules/products/repository.py`
-- `backend/app/modules/products/service.py`
-- `backend/app/modules/products/routes.py`
-- `backend/app/modules/campaigns/repository.py`
-- `backend/alembic/versions/20260627_0004_finalize_product_card_contract.py`
-- `backend/tests/test_products.py`
+- `backend/README.md`
 - `docs/DEVELOPMENT_PROGRESS.md`
 
 ## Test Status
 
+- Bare `python -m pytest tests/test_products.py` from `backend` failed before pytest started because the shell `python.exe` resolves to an unusable Microsoft Store app alias in this session. The project `.venv` Python was used for successful verification.
 - Product Card focused tests: `.\.venv\Scripts\python.exe -m pytest tests/test_products.py` from `backend` passed with `19 passed, 1 warning`.
 - Full backend suite: `.\.venv\Scripts\python.exe -m pytest` from `backend` passed with `41 passed, 1 warning`.
 - Compile check: `.\.venv\Scripts\python.exe -m compileall app tests` from `backend` passed.
-- PostgreSQL offline Alembic SQL generation: `.\.venv\Scripts\python.exe -m alembic upgrade head --sql` from `backend` passed with temporary environment variables, and generated final Product Card constraints named `ck_product_cards_status` and `ck_product_cards_source_type`.
-- Plain `pytest` was not available on PATH in the shell; the project `.venv` Python was used for successful verification.
+- PostgreSQL offline Alembic SQL generation first failed without configuration because `DATABASE_URL` and `REDIS_URL` were not set. Re-running `.\.venv\Scripts\python.exe -m alembic upgrade head --sql` from `backend` with temporary local placeholder `DATABASE_URL` and `REDIS_URL` values passed, and generated final Product Card constraints named `ck_product_cards_status` and `ck_product_cards_source_type`.
 - SQLite Alembic upgrade/downgrade/upgrade was not run for this task and is not PostgreSQL schema validation.
-- No live PostgreSQL migration smoke test has been completed for this task because no local `.env` or live test database URL is configured.
+- Live PostgreSQL migration smoke test was not run because DATABASE_URL/PostgreSQL was not available.
 - Live PostgreSQL and live Redis verification remains pending.
 
 ## Known Issues
@@ -343,10 +336,16 @@ Exit Criteria:
 
 ## Next Recommended Step
 
-Run a live isolated PostgreSQL migration smoke test for the accumulated migration chain, then implement the Product Card frontend UI from Stitch context before starting `Phase 3: Campaign Module`.
+Begin `Phase 3: Campaign Module` as a backend vertical slice, starting with the minimal Campaign model, migration, schemas, repository, service, routes, and tests. Campaign must select only confirmed Product Cards from the same company.
 
-After that:
+Before or during Phase 3, if an isolated live PostgreSQL database becomes available:
+
+- run `alembic upgrade head`
+- run `alembic downgrade -1`
+- run `alembic upgrade head`
+
+Additional recommended hardening:
 
 - tighten route-level Product Card scoping when the API accepts company or future workspace context, without adding a full account system
 - audit and normalize remaining non-Product-Card ORM/migration check constraint names
-- implement the minimal Campaign model, migration, schemas, repository, service, routes, and tests using confirmed same-company Product Cards only
+- implement the Product Card frontend UI from Stitch context when frontend work resumes
