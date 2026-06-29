@@ -84,8 +84,9 @@ Use this when adding or modifying business logic.
 
 ### `DEVELOPMENT_PROGRESS.md`
 
-Records completed phases, changed files, verification results, known limitations,
-and the next recommended development step.
+Records completed phases, the three most recent task records, changed files,
+verification results, known limitations, and the next recommended development
+step.
 
 Use this when checking the current project state or handing off work.
 

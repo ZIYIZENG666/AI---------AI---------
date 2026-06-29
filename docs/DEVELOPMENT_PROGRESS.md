@@ -6,11 +6,12 @@ Foundation stabilization and Phase 1B are complete. The finalized Phase 2
 Product Card backend contract is now implemented for the modular monolith
 backend.
 
-Project rule documents have also been refreshed through the latest checked local
-HEAD commit dated 2026-06-29. Those rule updates clarify Phase 3 Campaign
-planning, Product Card AI output mapping, lead recommendation versus human
-review status, selected-contact Gmail Draft eligibility, and Gmail Draft-only
-OAuth / mailbox-access boundaries.
+Project rule documents and progress-log retention rules have also been refreshed
+through local documentation work on 2026-06-29. Those rule updates clarify Phase
+3 Campaign planning, Product Card AI output mapping, lead recommendation versus
+human review status, selected-contact Gmail Draft eligibility, Gmail Draft-only
+OAuth / mailbox-access boundaries, and retention of only the three most recent
+Codex task records.
 
 The repository is no longer only a pure skeleton, but it is still far from a
 full MVP. The honest implemented backend slices are now `company`, `sources`,
@@ -75,8 +76,68 @@ full MVP. The honest implemented backend slices are now `company`, `sources`,
   `rejected` Product Cards, replace the status check constraint with
   `ck_product_cards_status`, and add `ck_product_cards_source_type`.
 - Rewrote Product Card API tests for the finalized backend contract.
+- Set `docs/DEVELOPMENT_PROGRESS.md` task-record retention to the three most
+  recent Codex development tasks.
 
-## Current Task
+## Recent Task Records
+
+This section keeps only the three most recent Codex development task records.
+When a new task record is added, remove older task records beyond the latest
+three while keeping the project-stage summary, completed-work summary, long-term
+plan, current known issues, and next recommended step up to date.
+
+### 2026-06-29 - Development Progress Retention Cleanup
+
+Completed: Documentation-only cleanup to keep this progress log to the latest
+three Codex task records.
+
+What changed:
+
+- Added project rule wording that `docs/DEVELOPMENT_PROGRESS.md` should retain
+  only the three most recent Codex task records.
+- Updated `README.md` and `docs/README.md` descriptions to match the
+  three-record retention policy.
+- Removed older task records beyond the latest three from this file.
+- Kept the current project stage, completed-work summary, long-term development
+  plan, known issues, and next recommended step sections.
+
+Files modified:
+
+- `AGENTS.md`
+- `README.md`
+- `docs/README.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+
+Verification commands:
+
+- `git status --short`
+- `rg -n "^### [0-9]{4}-[0-9]{2}-[0-9]{2} -" docs/DEVELOPMENT_PROGRESS.md`
+- `git diff --check`
+- `rg -n "three most recent|latest three|three task records" AGENTS.md README.md docs/README.md docs/DEVELOPMENT_PROGRESS.md`
+
+Test status:
+
+- Documentation-only task; backend tests, frontend tests, migrations, compile
+  checks, package checks, and runtime checks were not run.
+- Task-record heading search confirmed `docs/DEVELOPMENT_PROGRESS.md` keeps
+  exactly three recent task records after this update.
+- Retention wording search confirmed the three-record rule appears in
+  `AGENTS.md`, `README.md`, `docs/README.md`, and this file.
+- `git diff --check` passed with no whitespace errors.
+
+Known limitations:
+
+- This task intentionally removes older task-level detail from
+  `docs/DEVELOPMENT_PROGRESS.md`; Git history remains the source for older
+  detailed records.
+- This task did not change backend code, frontend code, tests, migrations,
+  package files, runtime configuration, or API behavior.
+
+Next recommended step:
+
+- Commit this documentation-only retention cleanup if accepted.
+- After the cleanup is committed, begin `Phase 3: Campaign Module` as the next
+  backend vertical slice.
 
 ### 2026-06-29 - Gmail Draft Only Scope Wording Repair
 
@@ -244,128 +305,6 @@ Next recommended step:
   accepted.
 - After the progress log is committed, begin `Phase 3: Campaign Module` as the
   next backend vertical slice.
-
-### 2026-06-27 - Documentation Consistency Repair Only
-
-Completed: Documentation-only consistency and readability repair across project
-rule Markdown files.
-
-What changed:
-
-- Reformatted Markdown rule documents for readability, including long paragraph
-  wrapping, clearer bullet structure, and fenced code blocks where appropriate.
-- Clarified that the current implemented backend source input scope is text and
-  URL source records only.
-- Marked uploaded documents, PDF parsing, Word parsing, image OCR, file storage,
-  document parsing, and crawler processing as future scope unless explicitly
-  requested later.
-- Replaced old lead-level email eligibility wording with the current selected
-  valid email contact rule:
-  - `contacts.contact_type = email`
-  - `contacts.status = valid`
-- Clarified that LinkedIn references, contact forms, phone numbers, manual
-  review contacts, invalid email contacts, unselected contacts, and lead-level
-  email-like fields must not be used as Gmail Draft eligibility.
-- Expanded Product Requirements and supporting docs to include the strict
-  LinkedIn exclusions for API use, scraping, crawler behavior, bots, browser
-  automation, browser extension automation, automated login, automated search,
-  profile extraction, contact downloading, messaging, and connection requests.
-- Clarified in `docs/UI_REQUIREMENTS.md` that `AGENTS.md` remains the top-level
-  authority and the UI priority order only applies to frontend UI details after
-  project-level rules.
-
-Files modified:
-
-- `AGENTS.md`
-- `docs/AI_RULES.md`
-- `docs/API_CONTRACT.md`
-- `docs/CODING_STANDARDS.md`
-- `docs/DATA_MODEL.md`
-- `docs/DEPLOYMENT_GUIDE.md`
-- `docs/DEVELOPMENT_PROGRESS.md`
-- `docs/MODULE_BOUNDARIES.md`
-- `docs/MVP_SCOPE.md`
-- `docs/PRODUCT_REQUIREMENTS.md`
-- `docs/PROJECT_OVERVIEW.md`
-- `docs/TESTING_STRATEGY.md`
-- `docs/UI_REQUIREMENTS.md`
-- `docs/WORKFLOW.md`
-
-Verification commands:
-
-- `git diff --name-only`
-- `git diff --check`
-- `rg -n "public[_]email|public[ ]email|Public[ ]email" -g "*.md" .`
-- `rg -n "LinkedIn" docs/PRODUCT_REQUIREMENTS.md docs/MVP_SCOPE.md docs/AI_RULES.md docs/MODULE_BOUNDARIES.md docs/API_CONTRACT.md`
-- `rg -n "Uploaded document|PDF|Word|OCR|file storage|document parsing" docs`
-
-Test status:
-
-- Documentation-only task; backend tests, frontend tests, migrations, compile
-  checks, and package checks were not run because no code, tests, migrations,
-  package files, or runtime configuration files were changed.
-- `git diff --name-only` confirmed only Markdown documentation files changed.
-- `git diff --check` passed with no whitespace errors.
-- The lead-level email wording search has no old eligibility rule; the remaining
-  direct wording explicitly says not to rely on a lead-level email-like field.
-- LinkedIn search confirmed the stricter LinkedIn restrictions are consistent
-  across Product Requirements, MVP Scope, AI Rules, Module Boundaries, and API
-  Contract.
-- Source-scope search confirmed current text/URL scope is separated from future
-  uploaded document, PDF, Word, OCR, file storage, document parsing, and crawler
-  processing scope.
-
-Known limitations:
-
-- This task did not change backend code, frontend code, tests, migrations,
-  package files, or runtime configuration.
-- Uploaded document handling, PDF/Word parsing, OCR, file storage, crawler
-  processing, Campaign, Lead Discovery, Contacts, Outreach, Gmail Provider, and
-  Product Card frontend work remain unimplemented unless already noted
-  elsewhere.
-
-Next recommended step:
-
-- Begin `Phase 3: Campaign Module` as the next backend vertical slice.
-- Product Card frontend remains pending if frontend work resumes.
-
-### 2026-06-27 - Previous Documentation Consistency Cleanup
-
-Date: 2026-06-27
-
-Completed: Small documentation consistency cleanup for Gmail Draft contact
-eligibility, contacts wording, uploaded document implementation status, and
-LinkedIn out-of-scope wording.
-
-What changed:
-
-- Clarified in `docs/DATA_MODEL.md` that Gmail Draft generation must not rely on
-  an old lead-level email field and must use a selected valid email contact.
-- Clarified that contact form, LinkedIn, manual review, invalid email,
-  unselected contact, or missing contact records are not eligible Gmail Draft
-  recipients.
-- Changed the contacts module responsibility wording to "Email contact records".
-- Clarified in `docs/PRODUCT_REQUIREMENTS.md` that uploaded document support
-  remains a later extension and the current backend source slice supports text
-  and URL only.
-- Expanded `docs/PRODUCT_REQUIREMENTS.md` LinkedIn out-of-scope wording to
-  include API, scraping, crawling, browser automation, browser extension
-  automation, automated messaging, connection requests, profile extraction, and
-  contact downloading.
-
-Not changed in this task:
-
-- No backend or frontend business code was changed.
-- No tests were changed.
-- No migrations were changed.
-- No configuration, package, or dependency files were changed.
-- No Product Card backend contract, LinkedIn boundary, Stitch-to-Codex workflow,
-  or Chinese UI rule was changed.
-- No Campaign, Lead Discovery, Contacts, Outreach, Gmail Provider, document
-  parsing, file storage, OCR, crawling, or frontend workflow implementation was
-  added.
-- No LinkedIn automation, Google Sheets workflow, automatic email sending,
-  multi-agent system, or LangGraph workflow was introduced.
 
 ## Phase 3 Readiness Hardening
 
@@ -627,36 +566,22 @@ Exit Criteria:
 
 - `AGENTS.md`
 - `README.md`
-- `docs/AI_RULES.md`
-- `docs/API_CONTRACT.md`
-- `docs/CODING_STANDARDS.md`
-- `docs/DATA_MODEL.md`
-- `docs/DEPLOYMENT_GUIDE.md`
+- `docs/README.md`
 - `docs/DEVELOPMENT_PROGRESS.md`
-- `docs/MODULE_BOUNDARIES.md`
-- `docs/MVP_SCOPE.md`
-- `docs/PRODUCT_REQUIREMENTS.md`
-- `docs/SYSTEM_ARCHITECTURE.md`
-- `docs/TESTING_STRATEGY.md`
-- `docs/WORKFLOW.md`
 
 ## Test Status
 
-- Documentation-only wording repair; backend tests, frontend tests, compile
+- Documentation-only retention cleanup; backend tests, frontend tests, compile
   checks, migrations, package checks, and runtime checks were not run because no
   code, tests, migrations, dependencies, package files, or runtime configuration
   files were changed.
-- `git diff --name-only` confirmed that only Markdown documentation files were
-  changed.
+- `git diff --name-only` confirmed that only Markdown documentation files were changed.
+- Task-record heading search confirmed `docs/DEVELOPMENT_PROGRESS.md` now keeps
+  exactly three recent task records.
+- Retention wording search confirmed the three-record rule appears in
+  `AGENTS.md`, `README.md`, `docs/README.md`, and
+  `docs/DEVELOPMENT_PROGRESS.md`.
 - `git diff --check` passed with no whitespace errors.
-- Gmail scope search confirmed `gmail.compose` is now documented as the example
-  minimum draft-creation scope, while `gmail.send` and `gmail.modify` appear
-  only in prohibition wording.
-- Reply-tracking search confirmed the old ambiguous reply-tracking wording is no
-  longer present.
-- Eligibility search confirmed `contact_id`, backend ownership verification,
-  `outreach_drafts.contact_id`, selected valid email contact wording, and
-  denial-only lead-level email wording remain documented.
 
 ## Known Issues
 
@@ -687,9 +612,9 @@ Exit Criteria:
 
 ## Next Recommended Step
 
-Commit this documentation-only Gmail Draft scope wording repair if accepted,
-then begin `Phase 3: Campaign Module` as a backend vertical slice, starting with
-the minimal Campaign model, migration, schemas, repository, service, routes, and
+Commit this documentation-only retention cleanup if accepted, then begin
+`Phase 3: Campaign Module` as a backend vertical slice, starting with the
+minimal Campaign model, migration, schemas, repository, service, routes, and
 tests. Campaign must select only confirmed Product Cards from the same company.
 
 Before or during Phase 3, if an isolated live PostgreSQL database becomes available:

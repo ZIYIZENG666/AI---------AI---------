@@ -69,11 +69,14 @@ When modifying code:
 12. Add or update tests when logic changes.
 13. Update documentation if architecture, API, workflow, or data model changes.
 14. Update `docs/DEVELOPMENT_PROGRESS.md` after every Codex development task.
-15. The progress update must include completed work, changed files, test
+15. Keep only the three most recent Codex task records in
+    `docs/DEVELOPMENT_PROGRESS.md`; remove older task records when adding a new
+    one.
+16. The progress update must include completed work, changed files, test
     results, known issues, and the next recommended step.
-16. Do not claim a module is complete unless it has working models, schemas,
+17. Do not claim a module is complete unless it has working models, schemas,
     repository and service logic, routes, and tests where appropriate.
-17. When implementing frontend UI, Codex must follow `docs/UI_REQUIREMENTS.md`
+18. When implementing frontend UI, Codex must follow `docs/UI_REQUIREMENTS.md`
     and use Stitch-generated design context when available. Codex must not freely
     redesign the UI unless explicitly requested.
 

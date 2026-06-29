@@ -95,8 +95,8 @@ Before developing, always read:
 4. The relevant document under `docs/`
 
 Codex must read `docs/DEVELOPMENT_PROGRESS.md` before development to understand
-the current completed work, verification status, known limitations, and next
-recommended task.
+the current completed work, the three most recent task records, verification
+status, known limitations, and next recommended task.
 
 Important project rule documents:
 
@@ -114,9 +114,9 @@ Important project rule documents:
   workflow, dashboard page structure, and Chinese user-facing text requirements.
 - `docs/TESTING_STRATEGY.md`
 - `docs/DEPLOYMENT_GUIDE.md`
-- `docs/DEVELOPMENT_PROGRESS.md`: Records completed phases, changed files,
-  verification results, known limitations, and the next recommended development
-  step.
+- `docs/DEVELOPMENT_PROGRESS.md`: Records completed phases, the three most
+  recent task records, changed files, verification results, known limitations,
+  and the next recommended development step.
 
 ## Development Principle
 
