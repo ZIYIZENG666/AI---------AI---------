@@ -170,11 +170,16 @@ Phase 2 product card rules:
   structured fields and does not call an LLM or external API.
 - AI-generated Product Cards start with `source_type = ai_generated` and `status = draft`.
 - User-created Product Cards start with `source_type = manual` and `status = draft`.
+- User-created Product Cards must include `company_id`, and the backend must
+  verify that the company exists. Product Cards must not exist without a
+  company.
 - A Product Card may transition only from `draft` to `confirmed`; repeating
   confirmation on `confirmed` leaves it unchanged.
 - Editing a Product Card does not change its status. Unsaved edits are frontend
   state and must not create database statuses such as `editing`, `modified`, or
   `pending_changes`.
+- Editing a Product Card must not change `company_id`, `source_type`, `status`,
+  or `source_knowledge_item_ids`.
 - Deleting a Product Card does not create a `rejected` record or status.
 - Only confirmed product cards should become inputs for the later campaign workflow.
 - A confirmed Product Card may be physically deleted only when no Campaign has
@@ -193,6 +198,17 @@ Product Card scope plan:
 - Future workspace support should add and enforce `workspace_id`, producing
   `product_card_id + company_id + workspace_id` scope semantics.
 - No workspace ownership field or multi-tenant authorization is claimed as implemented yet.
+
+Product Card AI output mapping note:
+
+- AI output may include fields such as `product_name`, `unsuitable_customers`,
+  `keywords`, or `evidence_sources`.
+- Those fields describe the AI output schema, not direct database columns unless
+  they are listed in this `product_cards` section.
+- Service logic must map AI output into the Product Card draft fields before
+  persistence.
+- The persisted Product Card status remains only `draft` or `confirmed`; there
+  is no `rejected` Product Card status and no Product Card reject endpoint.
 
 ## campaigns
 
@@ -227,6 +243,26 @@ Possible `status`:
 - `archived`
 
 `confirmed` 表示用户已确认，可进入 lead discovery。
+
+Campaign field rules:
+
+- `product_card_id` is the required Product Card link.
+- `target_country` and `target_region` are separate fields. Do not use
+  `target_country_or_region` as a database field.
+- AI suggestion fields such as `campaign_goal`,
+  `target_customer_profile`, `exclusion_rules`, and `scoring_focus` are not
+  database columns unless a later migration explicitly adds them. They must be
+  mapped into the Campaign draft fields by service logic.
+- Campaign creation must verify that the referenced Product Card belongs to the
+  same company and has `status = confirmed`.
+- A Campaign must not be created from a draft, deleted, or rejected Product
+  Card. Product Cards do not have a current `rejected` status.
+- Planned status transitions are `draft -> confirmed`,
+  `confirmed -> running`, `running -> completed`, `running -> failed`,
+  `confirmed -> archived`, and `completed -> archived`.
+- Only a `confirmed` Campaign may enter Lead Discovery.
+- Campaign is not a CRM sequence and must not perform automatic follow-up, bulk
+  sending, or automatic email sending.
 
 ## leads
 
@@ -264,6 +300,13 @@ Possible `review_status`:
 - `approved`
 - `rejected`
 - `needs_manual_review`
+
+Review status rules:
+
+- `review_status` is a human review workflow state.
+- AI scoring must not set `review_status` directly.
+- Only `review_status = approved` can proceed to Outreach Draft or Gmail Draft
+  creation.
 
 ## lead_intelligence
 
@@ -311,6 +354,14 @@ Possible `recommendation`:
 - `not_recommended`
 - `needs_manual_review`
 
+Recommendation rules:
+
+- `recommendation` is produced by AI scoring.
+- `recommended`, `maybe`, and `not_recommended` must not be mixed with human
+  approval states.
+- `needs_manual_review` may appear here as an AI uncertainty signal, while
+  `leads.review_status = needs_manual_review` is a human workflow state.
+
 ## contacts
 
 Stores lead contact information.
@@ -351,9 +402,20 @@ lead-level email-like field. It must use a selected contact record with:
 - `contacts.contact_type = email`
 - `contacts.status = valid`
 
-Contact form, phone, LinkedIn, manual review, invalid email, unselected contact,
-or missing contact records must not be treated as eligible Gmail Draft
-recipients.
+Contact form, phone, LinkedIn, manual review, invalid email, unverified email,
+blocked email, unselected contact, or missing contact records must not be
+treated as eligible Gmail Draft recipients.
+
+Contact selection rule:
+
+- Do not add a `contacts.selected` field or selected boolean.
+- When the user chooses a contact for Outreach Draft or Gmail Draft creation,
+  the frontend passes `contact_id`.
+- The backend must verify that `contact_id` exists, belongs to the current
+  approved lead, has `contact_type = email`, and has `status = valid`.
+- The backend must reject blocked, invalid, unverified, LinkedIn, phone,
+  contact form, or manual-review-only contacts for Gmail Draft creation.
+- The chosen contact is stored on `outreach_drafts.contact_id` after validation.
 
 `contact_type = linkedin` only represents a manually provided or manually
 reviewed public LinkedIn reference.
@@ -408,10 +470,13 @@ The system creates Gmail drafts only. It must not automatically send emails.
 
 Gmail draft eligibility should be evaluated from:
 
-- `lead.review_status`
-- the selected `contacts` record
-- the absence of an existing completed `outreach_drafts` record for the same
-  lead, campaign, and contact
+- `lead.review_status = approved`
+- `outreach_drafts.contact_id`
+- the selected contact belonging to the same lead
+- `contact.contact_type = email`
+- `contact.status = valid`
+- the absence of an existing `gmail_draft_created` record for the same lead,
+  campaign, selected contact, and outreach draft
 
 LinkedIn references must not be used as Gmail Draft recipients. Gmail Draft
 eligibility requires a selected valid email contact.

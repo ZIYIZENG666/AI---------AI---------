@@ -78,19 +78,26 @@ Rules:
    confirmed knowledge IDs in `source_knowledge_item_ids`.
 3. User-created Product Cards use `POST /api/v1/product-cards`, set
    `source_type = manual` and `status = draft`, and must belong to a company.
+   The request body must include `company_id`, and the backend must verify that
+   the company exists. Future company/workspace scope hardening may move manual
+   creation into a company-scoped endpoint, but a Product Card must never exist
+   without a company.
 4. The manual Product Card creation path must remain available even when AI generation is available.
 5. Product Card list has two read entry points:
-   - `GET /api/v1/product-cards`: global MVP list across Product Cards. It
-     returns both `draft` and `confirmed` records by default.
+   - `GET /api/v1/product-cards`: single-user MVP provisional global list
+     across Product Cards. It returns both `draft` and `confirmed` records by
+     default. This must not be treated as the long-term multi-company or
+     multi-workspace ownership model.
    - `GET /api/v1/companies/{company_id}/product-cards`: company-scoped list for
      Product Cards belonging to the specified company. It returns both `draft`
-     and `confirmed` records by default.
+     and `confirmed` records by default. Future frontend work should prefer
+     this company-scoped list when a company context is available.
 6. Both Product Card list endpoints support only `status=draft` or
    `status=confirmed`, and use the standard `limit` and `offset` pagination
    contract. `status=rejected` is invalid.
 7. `PATCH /api/v1/product-cards/{product_card_id}` is allowed for both statuses,
    saves editable fields only, and must not change `status`, `source_type`,
-   `source_knowledge_item_ids`, or company ownership.
+   `source_knowledge_item_ids`, `company_id`, or company ownership.
 8. `POST /api/v1/product-cards/{product_card_id}/confirm` changes `draft` to
    `confirmed`. Repeating it for an already confirmed Product Card returns HTTP
    `200` with the current record and leaves the status unchanged.
@@ -123,6 +130,132 @@ Rules:
 3. Workspace-scoped lookup is a future multi-tenant constraint and is not implemented yet.
 4. Account or workspace authorization must not be claimed until the corresponding implementation and tests exist.
 5. Product Card deletion must check Campaign references before physical deletion and return HTTP `409` when the card is in use.
+
+## Phase 3 Campaign Endpoints (Planned)
+
+Campaign endpoints are planned for Phase 3. This section defines the intended
+contract boundary and must not be read as current implemented API until the
+corresponding models, schemas, repositories, services, routes, migrations, and
+tests exist.
+
+Planned endpoints:
+
+- `POST /api/v1/companies/{company_id}/campaigns`
+- `GET /api/v1/companies/{company_id}/campaigns`
+- `GET /api/v1/campaigns/{campaign_id}`
+- `PATCH /api/v1/campaigns/{campaign_id}`
+- `POST /api/v1/campaigns/{campaign_id}/confirm`
+- `POST /api/v1/campaigns/{campaign_id}/archive`
+
+Planned request fields for create and patch:
+
+- `product_card_id`
+- `name`
+- `target_country`
+- `target_region`
+- `target_industry`
+- `target_company_type`
+- `target_role`
+- `search_keywords`
+- `qualification_criteria`
+- `outreach_angle`
+- `lead_limit`
+
+Rules:
+
+1. A Campaign must belong to a company and must keep `product_card_id`.
+2. A Campaign may be created from an AI suggestion or from user-entered fields,
+   but it starts as `draft`.
+3. AI suggestion fields such as `campaign_goal`,
+   `target_customer_profile`, `exclusion_rules`, and `scoring_focus` are AI
+   output fields until explicitly added to the data model. Services must map
+   them into the Campaign draft fields above instead of treating them as
+   database columns.
+4. Campaign creation must verify that the referenced Product Card exists,
+   belongs to the same company, and has `status = confirmed`.
+5. A Campaign must not be created from a draft, deleted, or rejected Product
+   Card. Product Cards do not have a current `rejected` status or reject
+   endpoint.
+6. `PATCH /api/v1/campaigns/{campaign_id}` may edit draft Campaign fields and
+   must not change `company_id`, `product_card_id`, or status unless a later
+   contract explicitly allows it.
+7. `POST /api/v1/campaigns/{campaign_id}/confirm` changes `draft` to
+   `confirmed` after validation.
+8. Only a `confirmed` Campaign may enter Lead Discovery.
+9. Planned status transitions are:
+   - `draft -> confirmed`
+   - `confirmed -> running`
+   - `running -> completed`
+   - `running -> failed`
+   - `confirmed -> archived`
+   - `completed -> archived`
+10. Campaign does not send email, does not create Gmail Drafts directly, and
+    does not approve leads on behalf of the user.
+11. Campaign is not a CRM sequence. It must not implement automatic follow-up,
+    bulk sending, reply tracking, or any auto-send behavior.
+
+## Lead Recommendation and Review Status Contract
+
+AI recommendation and human review status are separate concepts.
+
+AI scoring writes `lead_scores.recommendation` with these values:
+
+- `recommended`
+- `maybe`
+- `not_recommended`
+- `needs_manual_review`
+
+Human review writes `leads.review_status` with these values:
+
+- `unreviewed`
+- `approved`
+- `rejected`
+- `needs_manual_review`
+
+Rules:
+
+1. AI may produce only a recommendation. It must not approve or reject a lead.
+2. User review produces `review_status`.
+3. `needs_manual_review` may appear in both fields, but the meanings differ:
+   in `lead_scores.recommendation` it is an AI uncertainty signal; in
+   `leads.review_status` it is a human workflow state.
+4. Only `review_status = approved` can proceed to Outreach Draft or Gmail Draft
+   creation.
+
+## Contact Selection and Gmail Draft Eligibility Contract
+
+Gmail Draft eligibility must be based on a contact selected at draft creation
+time. Do not add `contacts.selected` or any selected boolean to the contacts
+table.
+
+Rules:
+
+1. When the user chooses a contact for Outreach Draft or Gmail Draft creation,
+   the frontend passes `contact_id`.
+2. The backend must verify:
+   - `contact_id` exists.
+   - The contact belongs to the current approved lead.
+   - `contact.contact_type = email`.
+   - `contact.status = valid`.
+   - The contact is not `blocked`, `invalid`, or `unverified`.
+   - The contact is not LinkedIn, phone, contact form, or manual-review-only.
+3. After validation, `outreach_drafts.contact_id` stores the chosen contact for
+   that draft.
+4. "Selected valid email contact" means the valid email contact passed and
+   verified for this Outreach Draft or Gmail Draft action. It does not mean
+   `contacts.selected = true`.
+5. A Gmail Draft can be created only when:
+   - the lead `review_status` is `approved`;
+   - the selected contact belongs to that lead;
+   - the selected contact has `contact_type = email`;
+   - the selected contact has `status = valid`;
+   - an outreach draft exists or can be generated for that selected contact;
+   - the same lead/contact/outreach draft has not already created a Gmail Draft.
+6. Rejected, unreviewed, or needs-manual-review leads are not eligible for Gmail
+   Draft creation.
+7. Invalid, unverified, blocked, LinkedIn, phone, contact form, manual-only
+   contacts, lead-level public-email fallback fields, and auto-sending email are
+   forbidden for Gmail Draft eligibility.
 
 ## Success Response Format
 
