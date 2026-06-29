@@ -6,6 +6,11 @@ Foundation stabilization and Phase 1B are complete. The finalized Phase 2
 Product Card backend contract is now implemented for the modular monolith
 backend.
 
+Project rule documents have also been refreshed through the latest checked local
+HEAD commit dated 2026-06-29. Those rule updates clarify Phase 3 Campaign
+planning, Product Card AI output mapping, lead recommendation versus human
+review status, and selected-contact Gmail Draft eligibility.
+
 The repository is no longer only a pure skeleton, but it is still far from a
 full MVP. The honest implemented backend slices are now `company`, `sources`,
 `knowledge`, and `products`. Most other backend modules remain placeholders.
@@ -71,6 +76,94 @@ full MVP. The honest implemented backend slices are now `company`, `sources`,
 - Rewrote Product Card API tests for the finalized backend contract.
 
 ## Current Task
+
+### 2026-06-29 - Rule Document Self-Check and Progress Catch-Up
+
+Completed: Project rule document self-check and progress-log catch-up.
+
+What changed:
+
+- Verified that the rule document entry points exist and remain discoverable
+  from `README.md`, `docs/README.md`, and `AGENTS.md`.
+- Confirmed that `README.md` tells Codex to read
+  `docs/DEVELOPMENT_PROGRESS.md` before development.
+- Confirmed that `docs/README.md` indexes `docs/UI_REQUIREMENTS.md` and
+  `docs/DEVELOPMENT_PROGRESS.md`.
+- Found that the latest local HEAD commit dated 2026-06-29 updated
+  `docs/AI_RULES.md`, `docs/API_CONTRACT.md`, and `docs/DATA_MODEL.md`, but did
+  not update `docs/DEVELOPMENT_PROGRESS.md`.
+- Updated this progress log so it reflects the latest rule-document state.
+- Recorded the latest rule-document clarifications:
+  - Product Card AI output mapping is not the same as database persistence.
+  - Manual Product Cards must include `company_id`; Product Cards must not exist
+    without a company.
+  - Planned Phase 3 Campaign endpoints and fields are documented as future
+    contract boundaries, not current implementation.
+  - AI lead recommendation and human `review_status` are separate concepts.
+  - Gmail Draft eligibility uses a user-selected `contact_id` verified by the
+    backend; it must not add or rely on a `contacts.selected` boolean.
+
+Files modified:
+
+- `docs/DEVELOPMENT_PROGRESS.md`
+
+Rule documents checked:
+
+- `AGENTS.md`
+- `README.md`
+- `docs/README.md`
+- `docs/AI_RULES.md`
+- `docs/API_CONTRACT.md`
+- `docs/DATA_MODEL.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+
+Verification commands:
+
+- `git status --short`
+- `git log -5 --date=short --pretty=format:"%h %ad %s"`
+- `git show --stat --name-only --pretty=format:"commit %H%nDate: %ad%nSubject: %s" --date=iso-strict HEAD`
+- `git show --unified=2 -- docs/AI_RULES.md docs/API_CONTRACT.md docs/DATA_MODEL.md`
+- `rg -n -C 4 "DEVELOPMENT_PROGRESS|UI_REQUIREMENTS|Document Reading Order|Project Documents|Codex" README.md docs\README.md`
+- `rg -n "public[_]email|public[ ]email|Public[ ]email|selected valid email|lead-level email|email-like" -g "*.md" .`
+- `rg -n "LinkedIn API|LinkedIn|Google Sheets|LangGraph|multi-agent|auto-send|automatic email|Gmail send|Gmail modify|browser automation|profile extraction|contact downloading" AGENTS.md README.md docs`
+- `rg` search for common malformed `DEVELOPMENT_PROGRESS` references in
+  Markdown files.
+
+Test status:
+
+- Documentation-only self-check and progress update; backend tests, frontend
+  tests, migrations, compile checks, and package checks were not run.
+- Git history confirmed latest local HEAD is commit
+  `6b0d2e518336a5143960c48a252be1671d789ebf` from 2026-06-29 with subject
+  `规则文档更新`.
+- Latest local HEAD changed only `docs/AI_RULES.md`, `docs/API_CONTRACT.md`,
+  and `docs/DATA_MODEL.md`.
+- Before this progress catch-up, `docs/DEVELOPMENT_PROGRESS.md` still listed
+  the latest current task as 2026-06-27.
+- Rule-entry search confirmed `docs/DEVELOPMENT_PROGRESS.md` is referenced from
+  both `README.md` and `docs/README.md`.
+- Email eligibility search confirmed remaining lead-level public-email wording
+  is denial wording, while selected valid email contact wording is present.
+- LinkedIn / Google Sheets / Gmail send boundary search confirmed the
+  prohibition language is still present across the main rule documents.
+- Typo search found no malformed `DEVELOPMENT_PROGRESS` references in Markdown
+  files.
+
+Known limitations:
+
+- This task did not change backend code, frontend code, tests, migrations,
+  package files, runtime configuration, or API behavior.
+- This self-check verified local repository state only; it did not prove whether
+  the latest commit has been pushed to GitHub.
+- The progress catch-up is a local working-tree change until it is committed and
+  pushed.
+
+Next recommended step:
+
+- Commit this `docs/DEVELOPMENT_PROGRESS.md` catch-up if the self-check result is
+  accepted.
+- After the progress log is committed, begin `Phase 3: Campaign Module` as the
+  next backend vertical slice.
 
 ### 2026-06-27 - Documentation Consistency Repair Only
 
@@ -452,37 +545,27 @@ Exit Criteria:
 
 ## Recently Changed Files
 
-- `AGENTS.md`
-- `docs/AI_RULES.md`
-- `docs/API_CONTRACT.md`
-- `docs/CODING_STANDARDS.md`
-- `docs/DATA_MODEL.md`
-- `docs/DEPLOYMENT_GUIDE.md`
 - `docs/DEVELOPMENT_PROGRESS.md`
-- `docs/MODULE_BOUNDARIES.md`
-- `docs/MVP_SCOPE.md`
-- `docs/PRODUCT_REQUIREMENTS.md`
-- `docs/PROJECT_OVERVIEW.md`
-- `docs/TESTING_STRATEGY.md`
-- `docs/UI_REQUIREMENTS.md`
-- `docs/WORKFLOW.md`
 
 ## Test Status
 
-- Documentation-only task; backend tests, frontend tests, compile checks, and
-  migrations were not run because no business code, tests, migrations,
-  configuration, package files, or runtime configuration files were changed.
-- `git diff --name-only` confirmed the changed files are Markdown documentation
-  files only.
-- `git diff --check` passed with no whitespace errors.
-- The lead-level email wording search has no old eligibility rule; the remaining
-  direct wording explicitly says not to rely on a lead-level email-like field.
-- LinkedIn search confirmed the stricter LinkedIn boundary remains consistent
-  across Product Requirements, MVP Scope, AI Rules, Module Boundaries, and API
-  Contract.
-- Source-scope search confirmed current text/URL scope is separated from future
-  uploaded document, PDF, Word, OCR, file storage, document parsing, and crawler
-  processing scope.
+- Documentation-only self-check and progress update; backend tests, frontend
+  tests, compile checks, and migrations were not run because no business code,
+  tests, migrations, configuration, package files, or runtime configuration
+  files were changed.
+- `git show --stat --name-only HEAD` confirmed the latest local HEAD commit
+  updated `docs/AI_RULES.md`, `docs/API_CONTRACT.md`, and
+  `docs/DATA_MODEL.md`.
+- Before this catch-up, `docs/DEVELOPMENT_PROGRESS.md` still showed the latest
+  current task as 2026-06-27.
+- Rule-entry search confirmed `docs/DEVELOPMENT_PROGRESS.md` and
+  `docs/UI_REQUIREMENTS.md` remain discoverable from the repository indexes.
+- Email eligibility search confirmed selected-valid-email-contact wording is
+  present and old lead-level public-email wording is denial-only.
+- LinkedIn, Google Sheets, automatic email sending, Gmail send / modify, and
+  LinkedIn automation prohibitions remain present in the main rule documents.
+- Typo search found no malformed `DEVELOPMENT_PROGRESS` references in Markdown
+  files.
 
 ## Known Issues
 
@@ -513,7 +596,8 @@ Exit Criteria:
 
 ## Next Recommended Step
 
-Begin `Phase 3: Campaign Module` as a backend vertical slice, starting with the
+Commit the local `docs/DEVELOPMENT_PROGRESS.md` catch-up if accepted, then begin
+`Phase 3: Campaign Module` as a backend vertical slice, starting with the
 minimal Campaign model, migration, schemas, repository, service, routes, and
 tests. Campaign must select only confirmed Product Cards from the same company.
 
