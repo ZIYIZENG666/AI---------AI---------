@@ -120,6 +120,14 @@ Important rules:
 
 The MVP only supports Gmail Draft creation.
 
+Gmail access must be draft-only:
+
+- Use the minimum OAuth permission needed to create drafts, for example
+  `gmail.compose`.
+- Do not request full Gmail access.
+- Do not read, sync, move, delete, label, or modify the user's existing mailbox
+  contents.
+
 Do not implement:
 
 - Auto-send email
@@ -127,6 +135,8 @@ Do not implement:
 - Gmail modify permission
 - Bulk email sending
 - Reply automation
+- Reply tracking or reply monitoring
+- Inbox sync or mailbox read features
 
 The user must manually review and send emails.
 

@@ -198,8 +198,11 @@ For approved leads, the system should generate a Gmail draft.
 
 Gmail Draft eligibility must be based on a selected valid email contact:
 
+- the frontend passes `contact_id`
+- the backend verifies that `contact_id` belongs to the approved lead
 - `contacts.contact_type = email`
 - `contacts.status = valid`
+- `outreach_drafts.contact_id` stores the selected contact after validation
 
 A LinkedIn reference, contact form, phone, manual review contact, or lead-level
 email-like field must not be used as Gmail Draft eligibility.
@@ -214,6 +217,12 @@ The email draft should be based on:
 - Matching reasons
 
 The system must not automatically send emails.
+
+Gmail Draft does not mean email automation or complete Gmail integration. The
+system must not read or sync the inbox, track replies, monitor replies, move,
+delete, label, or modify existing Gmail messages, or request `gmail.send` or
+`gmail.modify` permissions. OAuth scope must be limited to the minimum
+draft-creation permission, such as `gmail.compose`.
 
 ### 12. Task Tracking
 
@@ -253,7 +262,7 @@ The MVP should not include:
 - Team permission management
 - Full CRM pipeline
 - Automatic email sending
-- Email reply tracking
+- Email reply tracking, reply monitoring, inbox sync, or follow-up automation
 - LinkedIn API
 - LinkedIn scraping
 - LinkedIn crawler

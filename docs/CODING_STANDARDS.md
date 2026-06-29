@@ -154,7 +154,10 @@ Rules:
 2. Repositories must not call LLMs, crawlers, search APIs, email finders, or Gmail APIs.
 3. Prompts should stay in centralized prompt locations.
 4. AI output must pass schema validation before being trusted.
-5. Gmail integration must remain draft-only.
+5. Gmail integration must remain draft-only, with minimum OAuth scope such as
+   `gmail.compose`.
+6. Do not implement Gmail send, modify, mailbox read, inbox sync, move, delete,
+   label, reply tracking, reply monitoring, or full email automation behavior.
 
 ## Forbidden Patterns
 

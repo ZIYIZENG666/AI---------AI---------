@@ -258,8 +258,11 @@ It handles:
 
 Gmail Draft eligibility must be based on a selected valid email contact:
 
+- the frontend passes `contact_id`
+- the backend verifies that `contact_id` belongs to the approved lead
 - `contacts.contact_type = email`
 - `contacts.status = valid`
+- `outreach_drafts.contact_id` stores the selected contact after validation
 
 Contact forms, phone numbers, LinkedIn references, manual review contacts,
 invalid email contacts, unselected contacts, and lead-level email-like fields
@@ -296,6 +299,11 @@ contact.
 ### Not Responsible For
 
 It should not automatically send emails.
+
+It should not read or sync the inbox, track replies, monitor replies, move,
+delete, label, or modify existing Gmail messages.
+
+Gmail Draft creation is not complete Gmail integration or email automation.
 
 It should not approve leads.
 

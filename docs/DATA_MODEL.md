@@ -468,6 +468,11 @@ Important rule:
 
 The system creates Gmail drafts only. It must not automatically send emails.
 
+Gmail Draft creation is not email automation and not complete Gmail integration.
+The system must not read or sync the inbox, track replies, monitor replies,
+move, delete, label, or modify existing Gmail messages. OAuth scope must be
+limited to the minimum draft-creation permission, such as `gmail.compose`.
+
 Gmail draft eligibility should be evaluated from:
 
 - `lead.review_status = approved`

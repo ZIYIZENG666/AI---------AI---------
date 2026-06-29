@@ -150,7 +150,9 @@ MVP 不需要：
 - GMAIL_REDIRECT_URI
 - GMAIL_TOKEN_STORAGE_PATH
 
-Gmail scope 只能包含创建草稿所需权限，不允许添加 send / modify / delete 权限。
+Gmail scope 只能包含创建草稿所需的最小权限，例如 `gmail.compose`。
+不允许添加 `gmail.send`、`gmail.modify`、mailbox read、inbox sync、move、
+delete、label、reply tracking、reply monitoring 或完整 Gmail access 权限。
 
 ### 4.6 Runtime Limits
 
@@ -478,8 +480,9 @@ AI 相关日志应记录：
 5. CORS 只能允许可信 frontend domain。
 6. PostgreSQL 不应直接暴露到公网。
 7. Redis 不应直接暴露到公网。
-8. Gmail OAuth scope 只能用于 Draft。
-9. 不允许 Gmail send / modify / delete scope。
+8. Gmail OAuth scope 只能用于 Draft creation，例如 `gmail.compose`。
+9. 不允许 Gmail send / modify / delete、mailbox read、inbox sync、move、
+   label、reply tracking、reply monitoring 或完整 Gmail access scope。
 10. 不允许把 .env 提交到 Git。
 11. 不允许在日志中输出 token。
 12. 上传文件必须限制大小和类型。
@@ -646,7 +649,8 @@ Backend 使用 FastAPI。
 
 - OAuth token 是否有效
 - Gmail scope 是否正确
-- 是否只使用 draft 权限
+- 是否只使用最小 draft creation 权限，例如 `gmail.compose`
+- 是否没有 mailbox read、inbox sync、reply tracking 或 reply monitoring 权限
 - Lead 是否 Approved
 - selected contact 是否存在
 - selected contact 是否 `contact_type = email`
@@ -673,7 +677,9 @@ Backend 使用 FastAPI。
 - [ ] Redis 可连接。
 - [ ] Health check 正常。
 - [ ] 没有提交 API Key。
-- [ ] Gmail scope 没有 send / modify / delete。
+- [ ] Gmail scope 只有最小 draft creation 权限，例如 `gmail.compose`。
+- [ ] Gmail scope 没有 send / modify / delete、mailbox read、inbox sync、
+      move、label、reply tracking、reply monitoring 或完整 Gmail access。
 - [ ] 没有 Google Sheets 配置。
 - [ ] 没有 LinkedIn API 配置。
 - [ ] 如果已引入 worker，worker 可启动且不会绕过人工审核。
@@ -694,7 +700,8 @@ Backend 使用 FastAPI。
 - [ ] 是否 Docker 配置与当前仓库一致，例如 backend / frontend / postgres / redis？
 - [ ] 是否 backend 有 health check？
 - [ ] 如果 worker 已实现，是否 worker 不会自动发送邮件？
-- [ ] 是否 Gmail scope 只允许 Draft？
+- [ ] 是否 Gmail scope 只允许 Draft creation，例如 `gmail.compose`？
+- [ ] 是否没有实现 Gmail inbox sync、mailbox read、reply tracking 或 reply monitoring？
 - [ ] 是否生产环境关闭 debug？
 - [ ] 是否 CORS 配置安全？
 - [ ] 是否 migration 前有备份提醒？

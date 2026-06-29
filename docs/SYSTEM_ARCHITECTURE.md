@@ -129,11 +129,18 @@ Crawler provider responsibilities:
 
 ### Gmail Draft Provider
 
-Gmail integration should be accessed through a provider interface.
+Gmail Draft creation should be accessed through a provider interface.
 
 The MVP only supports Gmail draft creation.
 
-Do not request Gmail send or modify permissions.
+Use only the minimum OAuth scope needed to create Gmail drafts, such as
+`gmail.compose`.
+
+Do not request Gmail send, modify, full mailbox, mailbox read, inbox sync, move,
+delete, label, reply tracking, or reply monitoring permissions.
+
+Gmail Draft Provider is not a complete Gmail integration and must not implement
+email automation.
 
 ## Backend Layering
 

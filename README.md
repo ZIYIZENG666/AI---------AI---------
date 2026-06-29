@@ -46,7 +46,7 @@ The MVP does not include:
 - Automatic email sending
 - LinkedIn API integration
 - Full CRM features
-- Advanced reply tracking
+- Email reply tracking, reply monitoring, or inbox sync
 - Multi-agent architecture
 - Google Sheets workflow
 

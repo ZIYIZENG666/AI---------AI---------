@@ -95,6 +95,10 @@ The MVP must include the following:
 - Create Gmail draft only
 - Store draft status
 - User manually reviews and sends from Gmail
+- Use only the minimum OAuth scope needed to create Gmail drafts, such as
+  `gmail.compose`
+- Do not read, sync, move, delete, label, or modify the user's existing mailbox
+  contents
 
 ### 12. Task Status
 
@@ -153,7 +157,7 @@ The MVP must not include:
 - LangGraph workflow
 - Complex RAG system as a hard dependency
 - Advanced analytics dashboard
-- Complex email reply tracking
+- Email reply tracking, reply monitoring, inbox sync, or follow-up automation
 
 ## Account System Rule
 
@@ -184,6 +188,11 @@ Use Alembic for migrations.
 The MVP only creates Gmail drafts.
 
 The system must not send emails automatically.
+
+Gmail Draft is not full email automation and not a complete Gmail integration.
+The system must not request `gmail.send`, `gmail.modify`, mailbox read, inbox
+sync, move, delete, label, reply tracking, or reply monitoring permissions or
+features.
 
 ## AI Rule
 

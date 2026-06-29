@@ -286,9 +286,12 @@ Gmail 功能是高风险功能，必须严格测试。
 Gmail Draft eligibility must be based on a selected valid email contact.
 
 - `lead.review_status = approved`
-- selected contact exists
+- the frontend passed `contact_id`
+- the backend verifies that the selected contact exists and belongs to the
+  approved lead
 - `contact.contact_type = email`
 - `contact.status = valid`
+- `outreach_drafts.contact_id` stores the selected contact after validation
 - outreach draft subject/body 非空
 - 不存在同一 `lead_id + campaign_id + contact_id` 已创建的 `gmail_draft_created` 记录
 
@@ -305,6 +308,9 @@ Gmail Draft eligibility must be based on a selected valid email contact.
 9. Gmail Provider failure moves the task or draft status to failed.
 10. The system must not contain or call Gmail send / modify / delete behavior.
 11. LinkedIn contact, contact form, or manual review contact cannot be used as a Gmail Draft recipient.
+12. Gmail scope is limited to minimum draft creation permission, such as `gmail.compose`.
+13. The system does not read or sync inbox data, track replies, monitor replies,
+    move, delete, label, or modify existing Gmail messages.
 
 禁止测试中调用真实 Gmail。
 

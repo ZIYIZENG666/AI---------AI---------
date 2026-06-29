@@ -9,7 +9,8 @@ backend.
 Project rule documents have also been refreshed through the latest checked local
 HEAD commit dated 2026-06-29. Those rule updates clarify Phase 3 Campaign
 planning, Product Card AI output mapping, lead recommendation versus human
-review status, and selected-contact Gmail Draft eligibility.
+review status, selected-contact Gmail Draft eligibility, and Gmail Draft-only
+OAuth / mailbox-access boundaries.
 
 The repository is no longer only a pure skeleton, but it is still far from a
 full MVP. The honest implemented backend slices are now `company`, `sources`,
@@ -76,6 +77,85 @@ full MVP. The honest implemented backend slices are now `company`, `sources`,
 - Rewrote Product Card API tests for the finalized backend contract.
 
 ## Current Task
+
+### 2026-06-29 - Gmail Draft Only Scope Wording Repair
+
+Completed: Documentation-only wording repair for Gmail Draft-only scope and
+selected valid email contact eligibility.
+
+What changed:
+
+- Clarified that Gmail Draft creation is not full email automation and not a
+  complete Gmail integration.
+- Added explicit minimum OAuth scope wording with `gmail.compose` as the example
+  draft-creation permission.
+- Explicitly prohibited `gmail.send`, `gmail.modify`, full Gmail access,
+  mailbox read, inbox sync, move, delete, label, reply tracking, and reply
+  monitoring permissions or behavior.
+- Replaced ambiguous reply-tracking out-of-scope wording such as "advanced" or
+  "complex" reply tracking with broader out-of-scope wording.
+- Expanded selected valid email contact wording in product, workflow, module
+  boundary, and testing docs:
+  - the frontend passes `contact_id`;
+  - the backend verifies that `contact_id` belongs to the approved lead;
+  - `outreach_drafts.contact_id` stores the selected contact after validation.
+- Kept all changes documentation-only. No backend code, frontend code, tests,
+  migrations, dependencies, or runtime configuration were changed.
+
+Files modified:
+
+- `AGENTS.md`
+- `README.md`
+- `docs/AI_RULES.md`
+- `docs/API_CONTRACT.md`
+- `docs/CODING_STANDARDS.md`
+- `docs/DATA_MODEL.md`
+- `docs/DEPLOYMENT_GUIDE.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+- `docs/MODULE_BOUNDARIES.md`
+- `docs/MVP_SCOPE.md`
+- `docs/PRODUCT_REQUIREMENTS.md`
+- `docs/SYSTEM_ARCHITECTURE.md`
+- `docs/TESTING_STRATEGY.md`
+- `docs/WORKFLOW.md`
+
+Verification commands:
+
+- `git status --short`
+- `git diff --name-only`
+- `git diff --check`
+- `rg -n "gmail\.compose|gmail\.send|gmail\.modify|mailbox read|inbox sync|reply tracking|reply monitoring|full Gmail access|complete Gmail integration|email automation" AGENTS.md README.md docs`
+- `rg` search for the old ambiguous reply-tracking out-of-scope wording in
+  `README.md` and `docs`.
+- `rg -n "contact_id|outreach_drafts\.contact_id|selected valid email contact|lead-level public email|public_email" docs/AI_RULES.md docs/API_CONTRACT.md docs/DATA_MODEL.md docs/MODULE_BOUNDARIES.md docs/PRODUCT_REQUIREMENTS.md docs/TESTING_STRATEGY.md docs/WORKFLOW.md docs/DEVELOPMENT_PROGRESS.md`
+
+Test status:
+
+- Documentation-only task; backend tests, frontend tests, migrations, compile
+  checks, and package checks were not run.
+- `git diff --name-only` confirmed that only Markdown documentation files were
+  changed.
+- `git diff --check` passed with no whitespace errors.
+- Gmail scope search confirmed `gmail.compose` is now documented as the example
+  minimum draft-creation scope, while `gmail.send` and `gmail.modify` appear
+  only in prohibition wording.
+- Reply-tracking search confirmed the old ambiguous reply-tracking wording is no
+  longer present.
+- Eligibility search confirmed `contact_id`, backend ownership verification,
+  `outreach_drafts.contact_id`, selected valid email contact wording, and
+  denial-only lead-level email wording remain documented.
+
+Known limitations:
+
+- This task did not change implementation behavior.
+- No OAuth implementation exists yet; this task only tightened project rules for
+  later Gmail Draft provider work.
+
+Next recommended step:
+
+- Commit this documentation-only wording repair if accepted.
+- After that, begin `Phase 3: Campaign Module` as the next backend vertical
+  slice.
 
 ### 2026-06-29 - Rule Document Self-Check and Progress Catch-Up
 
@@ -545,27 +625,38 @@ Exit Criteria:
 
 ## Recently Changed Files
 
+- `AGENTS.md`
+- `README.md`
+- `docs/AI_RULES.md`
+- `docs/API_CONTRACT.md`
+- `docs/CODING_STANDARDS.md`
+- `docs/DATA_MODEL.md`
+- `docs/DEPLOYMENT_GUIDE.md`
 - `docs/DEVELOPMENT_PROGRESS.md`
+- `docs/MODULE_BOUNDARIES.md`
+- `docs/MVP_SCOPE.md`
+- `docs/PRODUCT_REQUIREMENTS.md`
+- `docs/SYSTEM_ARCHITECTURE.md`
+- `docs/TESTING_STRATEGY.md`
+- `docs/WORKFLOW.md`
 
 ## Test Status
 
-- Documentation-only self-check and progress update; backend tests, frontend
-  tests, compile checks, and migrations were not run because no business code,
-  tests, migrations, configuration, package files, or runtime configuration
+- Documentation-only wording repair; backend tests, frontend tests, compile
+  checks, migrations, package checks, and runtime checks were not run because no
+  code, tests, migrations, dependencies, package files, or runtime configuration
   files were changed.
-- `git show --stat --name-only HEAD` confirmed the latest local HEAD commit
-  updated `docs/AI_RULES.md`, `docs/API_CONTRACT.md`, and
-  `docs/DATA_MODEL.md`.
-- Before this catch-up, `docs/DEVELOPMENT_PROGRESS.md` still showed the latest
-  current task as 2026-06-27.
-- Rule-entry search confirmed `docs/DEVELOPMENT_PROGRESS.md` and
-  `docs/UI_REQUIREMENTS.md` remain discoverable from the repository indexes.
-- Email eligibility search confirmed selected-valid-email-contact wording is
-  present and old lead-level public-email wording is denial-only.
-- LinkedIn, Google Sheets, automatic email sending, Gmail send / modify, and
-  LinkedIn automation prohibitions remain present in the main rule documents.
-- Typo search found no malformed `DEVELOPMENT_PROGRESS` references in Markdown
-  files.
+- `git diff --name-only` confirmed that only Markdown documentation files were
+  changed.
+- `git diff --check` passed with no whitespace errors.
+- Gmail scope search confirmed `gmail.compose` is now documented as the example
+  minimum draft-creation scope, while `gmail.send` and `gmail.modify` appear
+  only in prohibition wording.
+- Reply-tracking search confirmed the old ambiguous reply-tracking wording is no
+  longer present.
+- Eligibility search confirmed `contact_id`, backend ownership verification,
+  `outreach_drafts.contact_id`, selected valid email contact wording, and
+  denial-only lead-level email wording remain documented.
 
 ## Known Issues
 
@@ -596,9 +687,9 @@ Exit Criteria:
 
 ## Next Recommended Step
 
-Commit the local `docs/DEVELOPMENT_PROGRESS.md` catch-up if accepted, then begin
-`Phase 3: Campaign Module` as a backend vertical slice, starting with the
-minimal Campaign model, migration, schemas, repository, service, routes, and
+Commit this documentation-only Gmail Draft scope wording repair if accepted,
+then begin `Phase 3: Campaign Module` as a backend vertical slice, starting with
+the minimal Campaign model, migration, schemas, repository, service, routes, and
 tests. Campaign must select only confirmed Product Cards from the same company.
 
 Before or during Phase 3, if an isolated live PostgreSQL database becomes available:

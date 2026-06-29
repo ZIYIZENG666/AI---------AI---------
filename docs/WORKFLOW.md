@@ -220,8 +220,11 @@ For approved leads, the system generates an outreach email draft.
 
 Gmail Draft eligibility must use a selected valid email contact:
 
+- the frontend passes `contact_id`
+- the backend verifies that `contact_id` belongs to the approved lead
 - `contacts.contact_type = email`
 - `contacts.status = valid`
+- `outreach_drafts.contact_id` stores the selected contact after validation
 
 A LinkedIn reference, contact form, phone, manual review contact, or lead-level
 email-like field must not make a lead eligible for Gmail Draft creation.
@@ -244,6 +247,10 @@ The user reviews the draft in Gmail.
 The user manually sends, edits, or deletes the email.
 
 The system must not automatically send emails.
+
+The system must not read or sync the inbox, track replies, monitor replies,
+move, delete, label, or modify existing Gmail messages. Gmail Draft creation is
+not complete Gmail automation.
 
 ### Step 15: Record Status
 
@@ -271,4 +278,6 @@ rules.
 5. Email drafts can only be generated for approved leads with a selected valid
    email contact.
 6. Gmail draft creation must not automatically send email.
-7. All major steps should store status and error information.
+7. Gmail access must stay limited to draft creation, with minimum OAuth scope
+   such as `gmail.compose`.
+8. All major steps should store status and error information.

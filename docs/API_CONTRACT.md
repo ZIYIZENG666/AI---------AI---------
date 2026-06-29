@@ -257,6 +257,22 @@ Rules:
    contacts, lead-level public-email fallback fields, and auto-sending email are
    forbidden for Gmail Draft eligibility.
 
+## Gmail Draft Only Scope Contract
+
+Gmail Draft creation is not email automation and not complete Gmail integration.
+
+Rules:
+
+1. The backend may only create Gmail drafts for eligible approved leads.
+2. OAuth scope must be limited to the minimum draft-creation permission, such as
+   `gmail.compose`.
+3. The system must not request or use `gmail.send`, `gmail.modify`, mailbox
+   read, inbox sync, move, delete, label, reply tracking, reply monitoring, or
+   full Gmail access permissions.
+4. The system must not read, sync, move, delete, label, or modify existing Gmail
+   messages.
+5. The user must review the draft in Gmail and manually send it.
+
 ## Success Response Format
 
 Business endpoints should return a consistent envelope:
