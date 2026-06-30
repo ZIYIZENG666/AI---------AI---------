@@ -76,6 +76,13 @@ dashboard page structure, and Chinese frontend copywriting requirements.
 
 Use this when implementing or changing frontend UI with Codex.
 
+### `FRONTEND_DEVELOPMENT_PLAN.md`
+
+Defines the frontend phase plan and explains how frontend phases align with
+backend phases, including the synchronized Phase 3 Campaign work.
+
+Use this when planning or implementing frontend work.
+
 ### `TESTING_STRATEGY.md`
 
 Defines what should be tested and how tests should be structured.
@@ -84,11 +91,18 @@ Use this when adding or modifying business logic.
 
 ### `DEVELOPMENT_PROGRESS.md`
 
-Records completed phases, the three most recent task records, changed files,
-verification results, known limitations, and the next recommended development
-step.
+Tracks the current active phase, unified backend/frontend phase status, known
+limitations, latest compact Codex task record, and the next recommended
+development step.
 
 Use this when checking the current project state or handing off work.
+
+### `DEVELOPMENT_LOG.md`
+
+Records detailed historical development logs and documentation-only task
+entries that no longer belong in the high-level progress tracker.
+
+Use this when historical task-level context is needed.
 
 ### `DEPLOYMENT_GUIDE.md`
 
