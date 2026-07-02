@@ -43,6 +43,11 @@ Frontend responsibilities:
 
 Frontend must not contain backend business logic.
 
+Frontend UI implementation follows a development-time design-to-code workflow.
+Stitch is used as the manual UI design source, and Codex uses Stitch MCP context
+when available to implement React frontend components. Stitch is not a product
+runtime dependency and is not part of the production system architecture.
+
 ### Backend
 
 Recommended stack:

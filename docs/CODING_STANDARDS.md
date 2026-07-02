@@ -41,6 +41,13 @@ Frontend standards:
    prompts.
 7. Frontend layout and visual implementation should follow Stitch-generated UI
    designs when available.
+8. Frontend must not hard-code unsupported business states.
+9. Frontend API client usage should be centralized or consistent with the
+   existing frontend structure.
+10. Loading, error, empty, and success states should be handled consistently.
+11. Do not add unsupported features for visual completeness.
+12. If Stitch design context conflicts with backend contracts or project rules,
+    stop and report the conflict before implementation.
 
 Product Card UI vocabulary and interaction rules:
 

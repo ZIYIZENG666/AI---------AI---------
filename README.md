@@ -111,15 +111,17 @@ Important project rule documents:
 - `docs/API_CONTRACT.md`
 - `docs/AI_RULES.md`
 - `docs/CODING_STANDARDS.md`
-- `docs/UI_REQUIREMENTS.md`: Defines frontend UI rules, the Stitch-to-Codex
-  workflow, dashboard page structure, and Chinese user-facing text requirements.
+- `docs/UI_REQUIREMENTS.md`: Defines frontend UI rules, the manual
+  Stitch-to-Codex workflow, dashboard page structure, unsupported-feature
+  boundaries, and Chinese user-facing text requirements.
 - `docs/FRONTEND_DEVELOPMENT_PLAN.md`: Defines frontend phase planning and how
-  frontend phases align with backend phases.
+  frontend phases align with backend phases, including separate Human Stitch
+  design tasks and Codex frontend implementation tasks.
 - `docs/TESTING_STRATEGY.md`
 - `docs/DEPLOYMENT_GUIDE.md`
 - `docs/DEVELOPMENT_PROGRESS.md`: Tracks the current active phase,
   backend/frontend phase alignment, known limitations, latest compact task
-  record, and next recommended development step.
+  records, and next recommended development step.
 - `docs/DEVELOPMENT_LOG.md`: Records detailed historical development and
   documentation-only task logs.
 

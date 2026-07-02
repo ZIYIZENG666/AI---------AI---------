@@ -71,15 +71,18 @@ Use this when writing or reviewing code.
 
 ### `UI_REQUIREMENTS.md`
 
-Defines frontend UI implementation rules, Stitch-generated design usage, the MVP
-dashboard page structure, and Chinese frontend copywriting requirements.
+Defines frontend UI implementation rules, manual Stitch design usage, the
+Stitch-to-Codex UI workflow, unsupported-feature boundaries, the MVP dashboard
+page structure, and Chinese frontend copywriting requirements.
 
 Use this when implementing or changing frontend UI with Codex.
 
 ### `FRONTEND_DEVELOPMENT_PLAN.md`
 
 Defines the frontend phase plan and explains how frontend phases align with
-backend phases, including the synchronized Phase 3 Campaign work.
+backend phases, including the synchronized Phase 3 Campaign work and the
+separation between Human Stitch design tasks and Codex frontend implementation
+tasks.
 
 Use this when planning or implementing frontend work.
 

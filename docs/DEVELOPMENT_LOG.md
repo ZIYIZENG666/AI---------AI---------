@@ -102,6 +102,70 @@ Planned or pending work summarized from the prior progress file:
 
 ## Dated Task Entries
 
+### 2026-07-02 - Frontend Backend Stitch Workflow Governance Update
+
+Type: Documentation-only.
+
+Completed:
+
+- Updated the frontend/backend workflow rules to state that backend API
+  contract, data model, business rules, validation rules, and allowed status
+  transitions come first for each phase.
+- Reworked `docs/FRONTEND_DEVELOPMENT_PLAN.md` so Human Stitch design tasks and
+  Codex frontend implementation tasks are separate sections.
+- Documented that the user manually creates UI designs in Stitch.
+- Documented that Codex reads Stitch MCP design context when available.
+- Documented that Stitch is a visual and interaction reference only, not a
+  backend business logic source and not a production runtime dependency.
+- Reinforced that Codex must not freely redesign UI unless explicitly requested.
+- Reinforced that Codex must not implement or imply frontend features that the
+  current backend API contract does not support.
+- Reinforced that all user-facing frontend text must be Chinese.
+- Kept frontend and backend phases synchronized by phase number.
+- Kept the current active phase as Phase 3 Campaign without marking Campaign
+  backend or Campaign frontend complete.
+
+Files modified:
+
+- `AGENTS.md`
+- `README.md`
+- `docs/README.md`
+- `docs/WORKFLOW.md`
+- `docs/UI_REQUIREMENTS.md`
+- `docs/SYSTEM_ARCHITECTURE.md`
+- `docs/CODING_STANDARDS.md`
+- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+- `docs/DEVELOPMENT_LOG.md`
+
+Verification:
+
+- `git diff --name-only`
+- `git diff --check`
+- `git status --short`
+- `rg` search for Stitch
+- `rg` search for `FRONTEND_DEVELOPMENT_PLAN`
+- `rg` search for `UI_REQUIREMENTS`
+- `rg` search for Campaign
+- `rg` search for rejected and reject
+- `rg` search for upload and OCR
+- `rg` search for Google Sheets and LinkedIn
+
+Known limitations:
+
+- No backend business code or frontend business code was changed.
+- Backend tests, frontend tests, migrations, compile checks, package checks, and
+  runtime checks were not run because this was a Markdown-only governance update.
+- Campaign remains the current active phase but is not implemented yet.
+- Campaign frontend remains in active planning until backend contract alignment
+  and Stitch MCP design context are available.
+
+Next recommended step:
+
+- Continue Phase 3 Campaign by implementing the minimal Campaign backend
+  vertical slice after confirming API contract, data model, business rules,
+  validation rules, and allowed status transitions.
+
 ### 2026-06-30 - Unified Phase Tracking And Frontend Plan Documentation
 
 Type: Documentation-only.

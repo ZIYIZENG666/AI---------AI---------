@@ -1,15 +1,20 @@
 # UI Requirements
 
-This project uses Stitch as the primary UI design source for the frontend
+This project uses Stitch as the manual UI design source for the frontend
 dashboard.
 
 ## UI Source of Truth
 
+The user manually creates UI designs in Stitch.
+
 Stitch-generated screens define the visual direction, layout, component
-placement, spacing, and overall user experience of the frontend.
+placement, spacing, and interaction intent of the frontend.
 
 However, Stitch does not define backend behavior, business rules, database
 rules, API contracts, or product workflow rules.
+
+Stitch is a development-time design reference only. It is not a production
+runtime dependency and is not part of the deployed system architecture.
 
 `AGENTS.md` remains the top-level authority for all Codex work. The priority
 order below applies only to frontend UI implementation details after `AGENTS.md`
@@ -26,19 +31,28 @@ order is:
 6. `docs/UI_REQUIREMENTS.md`
 7. Stitch-generated UI design and frontend code
 
-## Stitch to Codex Workflow
+## Stitch to Codex UI Workflow
 
 Frontend implementation should follow this workflow:
 
-1. Generate or update the UI screens in Stitch.
-2. Connect Stitch context to Codex through MCP when available.
-3. Ask Codex to implement the frontend based on the Stitch UI.
-4. Codex must compare the Stitch design with existing project rules before coding.
-5. Codex must not blindly copy Stitch-generated code if it conflicts with project architecture.
-6. Codex must keep API calls, state handling, validation, and error handling
+1. The user manually creates or updates UI screens in Stitch.
+2. Codex reads Stitch MCP design context when available.
+3. Stitch design is used as visual and interaction reference only.
+4. Project documents, API contracts, data model, business rules, validation
+   rules, and allowed status transitions remain the source of truth for
+   functionality.
+5. Codex must compare the Stitch design with existing project rules before
+   coding.
+6. If Stitch design conflicts with backend contract or project rules, Codex must
+   stop and report the conflict before implementation.
+7. Codex must not freely redesign pages unless explicitly instructed.
+8. Codex must keep API calls, state handling, validation, and error handling
    consistent with backend contracts.
-7. After implementation, Codex must run frontend checks and provide a summary of
-   completed pages.
+9. Codex must not show unsupported features or imply unsupported backend
+   capabilities.
+10. All user-facing text must be Chinese.
+11. After implementation, Codex must run appropriate frontend checks and provide
+    a summary of completed pages.
 
 ## Language Requirement
 

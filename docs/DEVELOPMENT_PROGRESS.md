@@ -13,11 +13,14 @@ the latest Codex task record required by `AGENTS.md`.
 Phase 3: Campaign is the current active phase.
 
 - Backend Phase 3 = Campaign backend/API/data contract work.
-- Frontend Phase 3 = Campaign frontend UI work.
+- Frontend Phase 3 = Campaign frontend UI planning / implementation work.
 - Frontend Phase 3 and Backend Phase 3 use the same phase number and should be
   tracked together.
-- Some frontend Phase 3 work depends on manual Google Stitch UI design before
-  Codex implementation.
+- Frontend implementation depends on the backend contract, data model, business
+  rules, validation rules, allowed status transitions, `docs/UI_REQUIREMENTS.md`,
+  and Stitch MCP design context when available.
+- Human UI design is created manually in Stitch. Stitch is a visual and
+  interaction reference, not a backend business logic source.
 
 ## Required Status Alignment
 
@@ -25,7 +28,10 @@ Phase 3: Campaign is the current active phase.
 - Phase 1B: Completed.
 - Phase 1 Sources + Knowledge: Completed.
 - Phase 2 Product Card backend contract: Completed.
-- Phase 3 Campaign: Active / current active phase.
+- Frontend Foundation: Basic shell present; business workflow UI pending.
+- Frontend Phase 1 and Frontend Phase 2: Planned / pending UI implementation.
+- Phase 3 Campaign backend and frontend: Active / current active phase; not
+  complete.
 
 ## Unified Phase Tracking
 
@@ -35,7 +41,7 @@ Phase 3: Campaign is the current active phase.
 | Phase 1B | Minimum text/URL source records plus deterministic knowledge draft and review behavior. | Completed | Feeds Frontend Phase 1 company/source/knowledge screens. | Planned. | UI must not imply uploaded documents, crawling, or OCR support. |
 | Phase 1: Sources + Knowledge | Source persistence, knowledge drafts, knowledge review transitions, models, schemas, repositories, services, routes, migrations, and tests for the MVP text/URL slice. | Completed | Frontend Phase 1: Company / Source / Knowledge basic UI alignment. | Planned. | Frontend should follow the current text/URL backend contract only. |
 | Phase 2: Product Card | Product Card backend contract for AI-generated and manual cards, draft/confirmed lifecycle, edit, confirm, delete, source type, company ownership, and tests. | Completed for backend contract. | Frontend Phase 2: Product Card UI. | Planned / pending. | Product Card frontend must use the finalized backend contract and Chinese user-facing text. |
-| Phase 3: Campaign | Campaign model, migration, schemas, repository, service, routes, API contract, lifecycle, confirmed Product Card linkage, and tests. | Active / current phase; not complete. | Frontend Phase 3: Campaign UI synchronized with Backend Phase 3 Campaign. | Active planning; implementation should follow Stitch design context when available. | Next implementation step is the minimal Campaign backend vertical slice. |
+| Phase 3: Campaign | Campaign model, migration, schemas, repository, service, routes, API contract, lifecycle, confirmed Product Card linkage, and tests. | Active / current phase; planned contract exists, implementation not complete. | Frontend Phase 3: Campaign UI planning / implementation synchronized with Backend Phase 3 Campaign. | Active planning; implementation depends on backend contract and Stitch design context when available. | Next implementation step is the minimal Campaign backend vertical slice. Do not mark Campaign backend or frontend complete yet. |
 | Phase 4: Lead Discovery | Provider-driven candidate lead discovery from confirmed Campaign criteria. | Planned / future. | Lead discovery task/result UI. | Planned / future. | Must use provider boundaries and store traceable source URLs. |
 | Phase 5: Lead Validation + Intelligence | Lead normalization, duplicate handling, website availability checks, intelligence capture, evidence storage, and content sufficiency. | Planned / future. | Lead validation and lead intelligence UI states. | Planned / future. | Must not pretend validation or crawling has completed before implementation exists. |
 | Phase 6: Lead Scoring | Evidence-based customer-fit scoring, recommendations, risk notes, uncertainty, and provider-mocked tests. | Planned / future. | Lead score, evidence, risk, and recommendation UI. | Planned / future. | AI recommendation remains separate from human review status. |
@@ -52,11 +58,18 @@ Phase 3: Campaign is the current active phase.
 - Frontend Phase 3 corresponds to Backend Phase 3 Campaign.
 - A backend phase being completed does not automatically mean the matching
   frontend phase is implemented.
-- Frontend implementation must follow backend API contracts and must not invent
-  unsupported backend behavior.
-- Stitch is a design reference for layout and visual direction. `AGENTS.md`,
-  `docs/API_CONTRACT.md`, `docs/DATA_MODEL.md`, and `docs/UI_REQUIREMENTS.md`
-  remain authoritative for project rules and behavior.
+- At the start of each phase, backend work should define the API contract, data
+  model, business rules, validation rules, and allowed status transitions.
+- Frontend implementation must follow backend API contracts, data model,
+  business rules, validation rules, and allowed status transitions. It must not
+  invent unsupported backend behavior.
+- The user manually creates UI designs in Stitch.
+- Stitch is a design reference for layout, visual direction, and interaction
+  intent. `AGENTS.md`, `docs/API_CONTRACT.md`, `docs/DATA_MODEL.md`, and
+  `docs/UI_REQUIREMENTS.md` remain authoritative for project rules and behavior.
+- Codex may read Stitch MCP design context when available, but must not freely
+  redesign UI unless explicitly requested.
+- All user-facing frontend text must be Chinese.
 
 ## Current Known Limits
 
@@ -84,6 +97,68 @@ Phase 3: Campaign is the current active phase.
 
 This section keeps compact records for the latest Codex tasks. Detailed task
 history should be moved to `docs/DEVELOPMENT_LOG.md`.
+
+### 2026-07-02 - Frontend Backend Stitch Workflow Governance Update
+
+Completed: Documentation-only update to reinforce the latest confirmed
+frontend/backend development workflow, manual Stitch design workflow, and Codex
+frontend implementation workflow.
+
+What changed:
+
+- Rewrote `docs/FRONTEND_DEVELOPMENT_PLAN.md` to separate Human Stitch design
+  tasks from Codex frontend implementation tasks.
+- Documented that backend phase work defines API contract, data model, business
+  rules, validation rules, and allowed status transitions first.
+- Clarified that Stitch is a visual and interaction reference, not a backend
+  business logic source or production runtime dependency.
+- Clarified that Codex reads Stitch MCP design context when available and must
+  not freely redesign UI unless explicitly requested.
+- Reinforced that frontend and backend phases stay synchronized by phase number.
+- Kept Phase 3 Campaign as the current active phase without marking Campaign
+  backend or frontend complete.
+
+Files modified:
+
+- `AGENTS.md`
+- `README.md`
+- `docs/README.md`
+- `docs/WORKFLOW.md`
+- `docs/UI_REQUIREMENTS.md`
+- `docs/SYSTEM_ARCHITECTURE.md`
+- `docs/CODING_STANDARDS.md`
+- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+- `docs/DEVELOPMENT_LOG.md`
+
+Verification commands:
+
+- `git diff --name-only`
+- `git diff --check`
+- `git status --short`
+- `rg` searches for Stitch, `FRONTEND_DEVELOPMENT_PLAN`, `UI_REQUIREMENTS`,
+  Campaign, rejected, reject, upload, OCR, Google Sheets, and LinkedIn.
+
+Test status:
+
+- Documentation-only task; backend tests, frontend tests, migrations, compile
+  checks, package checks, and runtime checks were not run.
+- Markdown diff and risky-wording searches were used for verification.
+
+Known limitations:
+
+- This task does not implement Campaign backend behavior.
+- This task does not implement frontend pages.
+- Stitch MCP design context has not yet been provided in this repository.
+- Existing risky wording for knowledge/lead review and Product Card boundary
+  documentation may still appear in search results; Product Card lifecycle must
+  remain limited to the supported backend contract.
+
+Next recommended step:
+
+- Continue Phase 3 Campaign by implementing the minimal Campaign backend
+  vertical slice after confirming the API contract, data model, business rules,
+  validation rules, and allowed status transitions.
 
 ### 2026-06-30 - Unified Phase Tracking and Frontend Plan Documentation
 
@@ -152,12 +227,5 @@ Next recommended step:
 
 Completed: Documentation-only cleanup that kept `docs/DEVELOPMENT_PROGRESS.md`
 to the latest recent task records and clarified progress-log retention.
-
-Detailed history moved forward through `docs/DEVELOPMENT_LOG.md`.
-
-### 2026-06-29 - Gmail Draft Only Scope Wording Repair
-
-Completed: Documentation-only wording repair for Gmail Draft-only scope and
-selected valid email contact eligibility.
 
 Detailed history moved forward through `docs/DEVELOPMENT_LOG.md`.

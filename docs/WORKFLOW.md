@@ -263,11 +263,31 @@ The system records statuses such as:
 - Draft failed
 - User rejected
 
-## Frontend Implementation Workflow
+## Frontend and Backend Development Workflow
 
-Major frontend pages should be designed in Stitch first when available, then
-implemented by Codex according to `docs/UI_REQUIREMENTS.md` and existing project
-rules.
+Backend and frontend work should move in synchronized phase numbers, while
+keeping their responsibilities separate.
+
+1. At the start of each phase, backend work defines the API contract, data model,
+   business rules, validation rules, and allowed status transitions.
+2. Frontend workflow design must be based on the current phase backend contract,
+   data model, and business rules.
+3. The user manually designs UI screens in Stitch.
+4. Stitch is a visual and interaction reference. It does not define backend
+   business logic or override project rules.
+5. Backend implementation can continue without waiting for Stitch UI design once
+   the API contract, data model, and business rules are clear.
+6. Codex reads Stitch MCP design context when available.
+7. Codex implements frontend pages from project rules, current phase API
+   contract, data model, business rules, `docs/UI_REQUIREMENTS.md`, and Stitch
+   design context when available.
+8. Codex must not freely redesign UI unless explicitly requested.
+9. Codex must not show or imply frontend features that the current backend API
+   contract does not support.
+10. Frontend and backend phases should be synchronized by phase number. For
+    example, Backend Phase 3 is Campaign backend/API/data contract work, and
+    Frontend Phase 3 is Campaign frontend UI work.
+11. All user-facing frontend text must be Chinese.
 
 ## Workflow Rules
 

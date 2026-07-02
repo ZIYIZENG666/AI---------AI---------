@@ -2,120 +2,241 @@
 
 ## Purpose
 
-This document defines how frontend development should be planned and tracked for
-the AI Sales Knowledge Base + AI Customer Matching Judgment System.
+This document tracks frontend development planning for the AI Sales Knowledge
+Base + AI Customer Matching Judgment System.
 
-Frontend development must stay aligned with backend phase numbers, backend API
-contracts, `docs/UI_REQUIREMENTS.md`, and the project rule documents.
+Frontend phase numbers align with backend phase numbers. Frontend work must be
+planned from the current backend API contract, data model, business rules,
+validation rules, allowed status transitions, `docs/UI_REQUIREMENTS.md`, and
+Stitch MCP design context when available.
 
-## Phase Numbering Rule
+## Frontend Development Principles
 
-Frontend work follows the same phase numbering as backend work where possible.
+- Frontend phase number should align with backend phase number.
+- Frontend implementation must follow backend contract and business rules.
+- Frontend must not invent business workflows that are not backed by the current
+  backend API contract.
+- Stitch design is a visual and interaction reference.
+- The user manually creates UI designs in Stitch.
+- Codex may read Stitch MCP design context when available, but Codex must not
+  freely redesign UI unless explicitly requested.
+- All user-facing text must be Chinese.
+- Unsupported backend features must not be shown or implied in UI.
+- Backend implementation does not need to wait for Stitch UI design once the API
+  contract, data model, and business rules are clear.
 
-- Frontend Phase 1 aligns with the Company / Source / Knowledge backend slice.
-- Frontend Phase 2 aligns with Product Card backend behavior.
-- Frontend Phase 3 corresponds to Backend Phase 3 Campaign.
-- Frontend Phase 3 and Backend Phase 3 should be tracked together in
-  `docs/DEVELOPMENT_PROGRESS.md`.
-- Later frontend phases should remain planned / future until the matching
-  backend behavior exists or is explicitly documented as a frontend-only shell.
+## Frontend Phase Overview
 
-## Frontend Work Sources
+| Frontend phase | Backend alignment | Human Stitch design | Codex frontend implementation | Status | Notes |
+|---|---|---|---|---|---|
+| Frontend Foundation | Foundation stabilization | Not required / optional. | React + TypeScript + Vite shell, dashboard layout foundation, API client foundation, loading/error/empty-state patterns. | Basic shell present; business workflow UI pending. | Keep user-facing text Chinese. |
+| Frontend Phase 1 | Backend Phase 1 / Phase 1B Sources + Knowledge | Company / Source / Knowledge basic pages. | Implement Company, Source, and Knowledge UI according to current API contract. | Planned / pending alignment. | Must show current text/URL source scope only. Do not imply uploaded documents, OCR, crawling, or file parsing support. |
+| Frontend Phase 2 | Backend Phase 2 Product Card | Product Card list, detail, manual creation, editing, confirmation, and deletion UI. | Implement Product Card UI according to finalized backend contract. | Planned / pending UI. | Must not show unsupported Product Card statuses or unsupported lifecycle actions. |
+| Frontend Phase 3 | Backend Phase 3 Campaign | Campaign create, edit, confirm, archive, list, detail, and criteria review UI. | Implement Campaign UI after API contract and Stitch design context are available. | Active planning / synchronized with Backend Phase 3. | Current official active phase. Campaign backend and frontend must not be marked complete yet. |
+| Frontend Phase 4 | Backend Phase 4 Lead Discovery | Lead discovery task initiation and discovery result UI. | Implement lead discovery UI after provider-backed discovery APIs exist. | Future. | Must depend on provider-backed discovery APIs, not frontend-only fake data. |
+| Frontend Phase 5 | Backend Phase 5 Lead Validation + Intelligence | Lead validation, intelligence, evidence, and content sufficiency states. | Implement validation and intelligence UI after backend contract exists. | Future. | Must show uncertainty and incomplete data honestly. |
+| Frontend Phase 6 | Backend Phase 6 Lead Scoring | Lead score, recommendation, matching reasons, risk notes, uncertainty, and evidence UI. | Implement scoring UI after AI scoring contract exists. | Future. | AI recommendation must stay separate from human review status. |
+| Frontend Phase 7 | Backend Phase 7 Lead Review | Lead review pages and human decision controls. | Implement user review UI after review API contract exists. | Future. | User review remains required before outreach. |
+| Frontend Phase 8 | Backend Phase 8 Contacts | Contact records, contact status, selected valid email contact, and manual reference review UI. | Implement contact selection UI after contact contract exists. | Future. | Manual references cannot be draft recipients. |
+| Frontend Phase 9 | Backend Phase 9 Outreach Draft + Gmail Draft | Outreach draft review, Gmail Draft status, and draft-creation controls. | Implement outreach draft UI after draft-only Gmail contract exists. | Future. | User manually reviews and sends from Gmail. |
+| Frontend Phase 10 | Backend phases 1-9 integrated | End-to-end MVP workflow review across all implemented screens. | Integrate company, source, knowledge, product, campaign, lead, contact, and outreach screens. | Future. | This is the integrated frontend MVP workflow phase. |
+| Frontend Phase 11 | Backend Phase 11 Background Jobs + Deployment | Task status, runtime health, and deployment-aware UI states. | Implement job and runtime status UI after worker runtime exists. | Future. | Worker behavior must match actual backend runtime. |
+| Frontend Phase 12 | Backend Phase 12 MVP Stabilization | Usability hardening and demo-readiness checks. | Frontend smoke checks, regression fixes, and demo readiness. | Future. | Stabilization should not expand MVP scope. |
 
-Frontend work may include two parts:
+## Human Stitch Design Tasks
 
-1. Manual UI design using Google Stitch.
-2. Codex implementation based on Stitch-generated design context and the
-   project rule documents.
+The user is responsible for manually creating UI designs in Stitch.
 
-Stitch defines visual direction, layout, spacing, screen composition, and user
-experience intent. Stitch does not override backend behavior, data model rules,
-API contracts, or MVP scope.
+Human design tasks include:
 
-Codex must not freely redesign the UI unless explicitly requested.
+- Creating page layout designs.
+- Designing user-facing workflow screens.
+- Designing important user actions and confirmation dialogs.
+- Designing empty, loading, error, and success states when possible.
+- Keeping all user-facing text in Chinese.
 
-## Required Frontend Rules
+Stitch design does not define backend business logic.
 
-- Frontend implementation must follow `docs/UI_REQUIREMENTS.md`.
-- Frontend API usage must follow `docs/API_CONTRACT.md`.
-- Frontend user-facing text must be Chinese.
-- Frontend must not invent unsupported backend behavior.
-- Frontend must not imply that a workflow is implemented before the backend API
-  exists.
-- Frontend must keep business rules on the backend unless a rule is strictly
-  presentation-only.
-- Frontend must not add auto-send email behavior.
-- Frontend must not add LinkedIn automation.
-- Frontend must not add a Google Sheets-based workflow.
-- Frontend must preserve the Gmail Draft-only review model.
+Stitch design is used as visual and interaction reference only.
 
-## Planned Frontend Phases
+API contract, data model, business rules, validation rules, allowed status
+transitions, and project documents remain the source of truth for functionality.
 
-| Frontend phase | Backend alignment | Frontend scope | Status | Notes |
-|---|---|---|---|---|
-| Frontend Foundation | Foundation stabilization | React + TypeScript + Vite shell, dashboard layout foundation, API client foundation, loading/error/empty-state patterns. | Basic shell present; business workflow UI pending. | Keep user-facing text Chinese. |
-| Frontend Phase 1 | Backend Phase 1 / Phase 1B Sources + Knowledge | Company / Source / Knowledge basic UI alignment. | Planned. | Must show current text/URL source scope only. Do not imply upload, OCR, crawling, or file parsing support. |
-| Frontend Phase 2 | Backend Phase 2 Product Card | Product Card UI for list, details, manual creation, editing, confirmation, and deletion under the finalized backend contract. | Planned / pending. | Must not show unsupported Product Card statuses or unsupported lifecycle actions. |
-| Frontend Phase 3 | Backend Phase 3 Campaign | Campaign UI for creating, editing, confirming, archiving, and reviewing campaign criteria after backend contract implementation. | Active planning / synchronized with Backend Phase 3. | Manual Stitch design may come first. Codex implementation should wait for backend contract and Stitch context when available. |
-| Frontend Phase 4 | Backend Phase 4 Lead Discovery | Lead discovery task initiation and discovery result UI. | Future. | Must depend on provider-backed discovery APIs, not frontend-only fake data. |
-| Frontend Phase 5 | Backend Phase 5 Lead Validation + Intelligence | Lead validation state UI, lead website intelligence, evidence, and content sufficiency displays. | Future. | Must show uncertainty and incomplete data honestly. |
-| Frontend Phase 6 | Backend Phase 6 Lead Scoring | Lead score, recommendation, matching reasons, risk notes, uncertainty, and evidence UI. | Future. | AI recommendation must stay separate from human review status. |
-| Frontend Phase 7 | Backend Phase 7 Lead Review | Approve, reject, and manual-review lead decision UI. | Future. | User review remains required before outreach. |
-| Frontend Phase 8 | Backend Phase 8 Contacts | Contact records, contact status, and selected valid email contact UI. | Future. | LinkedIn references are manual review references only and cannot be draft recipients. |
-| Frontend Phase 9 | Backend Phase 9 Outreach Draft + Gmail Draft | Outreach draft review, Gmail Draft status, and draft-creation controls. | Future. | User manually reviews and sends from Gmail. |
-| Frontend Phase 10 | Backend phases 1-9 integrated | End-to-end MVP workflow UI across company setup through Gmail Draft review. | Future. | This is the integrated frontend MVP workflow phase. |
-| Frontend Phase 11 | Backend Phase 11 Background Jobs + Deployment | Task status, runtime health, and deployment-aware UI states. | Future. | Worker behavior must match actual backend runtime. |
-| Frontend Phase 12 | Backend Phase 12 MVP Stabilization | Frontend smoke checks, regression fixes, usability hardening, and demo readiness. | Future. | Stabilization should not expand MVP scope. |
+## Codex Frontend Implementation Tasks
 
-## Phase 3 Alignment
+Codex is responsible for implementing frontend code.
 
-Backend Phase 3 and Frontend Phase 3 both mean Campaign.
+Codex implementation tasks include:
 
-Backend Phase 3 should provide:
+- Reading project rules.
+- Reading current phase API contract.
+- Reading current phase data model and business rules.
+- Reading validation rules and allowed status transitions.
+- Reading `docs/UI_REQUIREMENTS.md`.
+- Reading Stitch MCP design context when available.
+- Implementing React frontend pages and components.
+- Connecting frontend pages to backend APIs.
+- Adding loading, error, empty, and success states.
+- Ensuring all user-facing text is Chinese.
 
-- Campaign data model and migration.
-- Campaign schemas.
-- Campaign repository and service logic.
-- Campaign routes.
-- Tests for lifecycle and confirmed Product Card linkage.
+Codex must not freely redesign UI unless explicitly instructed.
 
-Frontend Phase 3 should provide:
+Codex must not implement unsupported frontend features that are not backed by the
+current API contract.
 
-- Campaign creation and edit UI.
-- Campaign criteria form.
-- Confirm/archive controls when supported by the backend contract.
-- Status, error, loading, and empty states.
-- Chinese user-facing text.
+## Phase-by-Phase Frontend Plan
 
-Frontend Phase 3 must wait for or follow the backend Campaign API contract. It
-must not create frontend-only behavior that the backend does not support.
+### Frontend Foundation
 
-## Stitch To Codex Handoff Rule
+Backend alignment:
 
-When Stitch design context is available:
+- Foundation stabilization.
 
-1. Use Stitch for visual structure and interaction intent.
-2. Compare the Stitch design against `docs/API_CONTRACT.md`,
-   `docs/DATA_MODEL.md`, `docs/MVP_SCOPE.md`, and `docs/UI_REQUIREMENTS.md`.
-3. Implement only behavior supported by the current backend contract.
-4. Keep all user-facing text Chinese.
-5. Report any mismatch between Stitch and project rules before implementing the
-   conflicting behavior.
+Human Stitch design scope:
 
-When Stitch design context is not available:
+- Not required for the basic shell.
+- Optional visual refinement only if the user provides Stitch design context.
 
-- Codex may implement only conservative UI aligned with existing project docs
-  and API contracts.
-- Codex must not invent a new product direction or unsupported workflow.
-- Large visual redesign work should wait for explicit user direction or Stitch
-  context.
+Codex implementation scope:
 
-## Current Frontend Status
+- Maintain React + TypeScript + Vite shell.
+- Maintain dashboard layout foundation.
+- Keep API client usage centralized or consistent with the frontend structure.
+- Keep loading, error, empty, and success patterns consistent.
+- Keep all user-facing text Chinese.
 
-- The frontend stack is React + TypeScript + Vite.
-- The frontend remains a basic shell.
-- Business workflow pages are not complete.
-- Product Card frontend UI has not yet been implemented for the finalized
-  backend contract.
-- Campaign frontend UI is aligned to Phase 3 planning and should be implemented
-  together with or after the backend Campaign contract.
+Dependencies:
+
+- Project rules.
+- `docs/UI_REQUIREMENTS.md`.
+- Existing frontend structure.
+
+Status:
+
+- Basic shell present.
+- Business workflow UI pending.
+
+### Frontend Phase 1: Company / Sources / Knowledge
+
+Backend alignment:
+
+- Backend Phase 1 / Phase 1B Sources + Knowledge.
+
+Human Stitch design scope:
+
+- Company profile page.
+- Source input page for current text and URL scope.
+- Knowledge draft and review page.
+- Loading, error, empty, and success states when possible.
+
+Codex implementation scope:
+
+- Implement Company, Source, and Knowledge pages based on the current API
+  contract.
+- Implement API client integration for current supported fields only.
+- Implement form validation that matches backend validation.
+- Implement loading, error, empty, and success states.
+- Keep all user-facing text Chinese.
+
+Dependencies:
+
+- Company, Source, and Knowledge API contract.
+- Current text/URL source data model.
+- Knowledge review business rules.
+- Stitch MCP design context when available.
+
+Status:
+
+- Planned / pending alignment.
+- Current backend supports text and URL source records only.
+
+### Frontend Phase 2: Product Card
+
+Backend alignment:
+
+- Backend Phase 2 Product Card.
+
+Human Stitch design scope:
+
+- Product Card list page.
+- Product Card detail dialog or page.
+- Manual Product Card creation UI.
+- Product Card editing UI.
+- Product Card confirmation UI.
+- Product Card deletion confirmation.
+
+Codex implementation scope:
+
+- Implement Product Card UI based on the finalized backend contract.
+- Implement API client integration for list, detail, create, patch, confirm, and
+  delete behavior.
+- Implement form validation that matches backend validation.
+- Implement status-based UI behavior supported by the backend contract.
+- Implement loading, error, empty, and success states.
+- Keep all user-facing text Chinese.
+
+Dependencies:
+
+- Product Card API contract.
+- Product Card data model.
+- Product Card business rules.
+- Stitch MCP design context when available.
+
+Status:
+
+- Planned / pending UI.
+- Backend contract is complete; frontend UI is not implemented yet.
+
+### Frontend Phase 3: Campaign
+
+Backend alignment:
+
+- Backend Phase 3 Campaign.
+
+Human Stitch design scope:
+
+- Campaign list page.
+- Campaign detail page.
+- Campaign creation page.
+- Campaign edit page.
+- Campaign confirmation flow.
+- Campaign archive confirmation.
+- Campaign criteria review UI.
+
+Codex implementation scope:
+
+- Implement Campaign pages based on API contract.
+- Implement API client integration.
+- Implement form validation.
+- Implement status-based UI behavior.
+- Implement loading, error, empty, and success states.
+- Keep all user-facing text Chinese.
+
+Dependencies:
+
+- Campaign API contract.
+- Campaign data model.
+- Campaign business rules.
+- Campaign validation rules and allowed status transitions.
+- Stitch MCP design context when available.
+
+Status:
+
+- Active planning.
+- Current official active phase.
+- Campaign backend/API/data contract work and Campaign frontend UI work are not
+  complete yet.
+
+## Handoff Requirements
+
+After completing frontend work, Codex must report:
+
+- Modified files.
+- Implementation summary.
+- API contract alignment.
+- Stitch design alignment when applicable.
+- User-facing Chinese text verification.
+- Tests or verification performed.
+- Missing dependencies.
+- Remaining risks.
+- Commit and push status.

@@ -79,6 +79,20 @@ When modifying code:
 18. When implementing frontend UI, Codex must follow `docs/UI_REQUIREMENTS.md`
     and use Stitch-generated design context when available. Codex must not freely
     redesign the UI unless explicitly requested.
+19. At the start of each phase, backend work must clarify the current phase API
+    contract, data model, business rules, validation rules, and allowed status
+    transitions.
+20. Frontend implementation must be based on the current backend API contract,
+    data model, business rules, validation rules, and allowed status
+    transitions.
+21. Codex must not implement frontend features that are not supported by the
+    current backend API contract, and must not imply unsupported capabilities in
+    the UI.
+22. Frontend phase numbers must stay synchronized with backend phase numbers.
+    For example, Backend Phase 3 means Campaign backend/API/data contract work,
+    and Frontend Phase 3 means Campaign frontend UI work.
+23. All user-facing frontend text must be Chinese, including buttons, page
+    titles, hints, errors, empty states, confirmation dialogs, and form labels.
 
 ## Architecture Rules
 
@@ -197,6 +211,9 @@ The completion report must clearly include:
 - Summary of changes
 - Tests added or updated
 - How to run or verify
+- API contract alignment
+- Stitch design alignment when applicable
+- User-facing Chinese text verification when frontend is involved
 - Known limitations or risks
 - Commit/push status
 - Recommended next step
