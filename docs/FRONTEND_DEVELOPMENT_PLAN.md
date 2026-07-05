@@ -24,6 +24,9 @@ Stitch MCP design context when available.
 - Unsupported backend features must not be shown or implied in UI.
 - Backend implementation does not need to wait for Stitch UI design once the API
   contract, data model, and business rules are clear.
+- For Campaign UI, the frontend must use only the backend Campaign statuses
+  `draft`, `confirmed`, and `archived`. It must not invent execution statuses or
+  action buttons that the API contract does not support.
 
 ## Frontend Phase Overview
 
@@ -32,7 +35,7 @@ Stitch MCP design context when available.
 | Frontend Foundation | Foundation stabilization | Not required / optional. | React + TypeScript + Vite shell, dashboard layout foundation, API client foundation, loading/error/empty-state patterns. | Basic shell present; business workflow UI pending. | Keep user-facing text Chinese. |
 | Frontend Phase 1 | Backend Phase 1 / Phase 1B Sources + Knowledge | Company / Source / Knowledge basic pages. | Implement Company, Source, and Knowledge UI according to current API contract. | Planned / pending alignment. | Must show current text/URL source scope only. Do not imply uploaded documents, OCR, crawling, or file parsing support. |
 | Frontend Phase 2 | Backend Phase 2 Product Card | Product Card list, detail, manual creation, editing, confirmation, and deletion UI. | Implement Product Card UI according to finalized backend contract. | Planned / pending UI. | Must not show unsupported Product Card statuses or unsupported lifecycle actions. |
-| Frontend Phase 3 | Backend Phase 3 Campaign | Campaign create, edit, confirm, archive, list, detail, and criteria review UI. | Implement Campaign UI after API contract and Stitch design context are available. | Active planning / synchronized with Backend Phase 3. | Current official active phase. Campaign backend and frontend must not be marked complete yet. |
+| Frontend Phase 3 | Backend Phase 3 Campaign | Campaign create, draft edit/delete, confirm, archive, duplicate as draft, list/detail, archived filter, and criteria review UI. | Implement Campaign UI after API contract and Stitch design context are available, using only supported status-based actions. | Active planning / synchronized with Backend Phase 3. | Current official active phase. Campaign backend and frontend must not be marked complete yet. |
 | Frontend Phase 4 | Backend Phase 4 Lead Discovery | Lead discovery task initiation and discovery result UI. | Implement lead discovery UI after provider-backed discovery APIs exist. | Future. | Must depend on provider-backed discovery APIs, not frontend-only fake data. |
 | Frontend Phase 5 | Backend Phase 5 Lead Validation + Intelligence | Lead validation, intelligence, evidence, and content sufficiency states. | Implement validation and intelligence UI after backend contract exists. | Future. | Must show uncertainty and incomplete data honestly. |
 | Frontend Phase 6 | Backend Phase 6 Lead Scoring | Lead score, recommendation, matching reasons, risk notes, uncertainty, and evidence UI. | Implement scoring UI after AI scoring contract exists. | Future. | AI recommendation must stay separate from human review status. |
@@ -201,7 +204,10 @@ Human Stitch design scope:
 - Campaign edit page.
 - Campaign confirmation flow.
 - Campaign archive confirmation.
+- Campaign duplicate / copy as draft flow.
+- Archived Campaign explicit filter entry.
 - Campaign criteria review UI.
+- Status-based action visibility for draft, confirmed, and archived Campaigns.
 
 Codex implementation scope:
 
@@ -209,6 +215,19 @@ Codex implementation scope:
 - Implement API client integration.
 - Implement form validation.
 - Implement status-based UI behavior.
+- Show draft Campaign actions: edit, delete, and confirm.
+- Show confirmed Campaign actions: view details, archive, and start / use for
+  Lead Discovery.
+- Wire start / use for Lead Discovery only when the backend Lead Discovery
+  contract exists. Before that, the UI must not imply that Lead Discovery has
+  already run or that unsupported backend work is available.
+- Do not show edit, delete, or return-to-draft actions for confirmed Campaigns.
+- Make archived Campaigns read-only and do not show edit, delete, restore, or
+  start Lead Discovery actions.
+- Hide archived Campaigns from the default list unless the user explicitly
+  filters for archived Campaigns.
+- Keep all Campaign page titles, form labels, buttons, status labels, empty
+  states, errors, success messages, and confirmation dialogs in Chinese.
 - Implement loading, error, empty, and success states.
 - Keep all user-facing text Chinese.
 
@@ -218,6 +237,7 @@ Dependencies:
 - Campaign data model.
 - Campaign business rules.
 - Campaign validation rules and allowed status transitions.
+- Product Card confirmed-only rule and Campaign `product_card_snapshot` rule.
 - Stitch MCP design context when available.
 
 Status:

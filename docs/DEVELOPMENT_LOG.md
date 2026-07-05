@@ -23,8 +23,7 @@ tracker.
 
 ## Current Progress Summary
 
-This summary is based on the previous contents of
-`docs/DEVELOPMENT_PROGRESS.md` before the 2026-06-30 phase-tracking update.
+This summary reflects the current high-level backend implementation state.
 
 | Area | Status | Summary |
 |---|---|---|
@@ -32,7 +31,7 @@ This summary is based on the previous contents of
 | Phase 1B | Completed | The minimum source and knowledge slice supports text/URL source records and deterministic source-to-knowledge draft creation. |
 | Phase 1: Sources + Knowledge | Completed | Source persistence, knowledge draft creation, review transitions, filtering, migrations, routes, services, repositories, schemas, and tests exist for the MVP text/URL slice. |
 | Phase 2: Product Card backend contract | Completed | Product Card backend supports AI-generated and manual cards, `draft` and `confirmed` lifecycle, edit, confirm, delete, `source_type`, and tests under the finalized contract. |
-| Phase 3: Campaign | Active / current | Campaign is the current active phase but is not implemented yet. The current API contract documents planned endpoints and fields only. |
+| Phase 3: Campaign | Backend vertical slice completed | Campaign backend supports the minimum Phase 3 contract: `draft`, `confirmed`, and `archived`; confirmed same-company Product Card validation; `product_card_snapshot`; archive; duplicate-as-draft; routes; migration; and tests. |
 | Frontend business workflow | Planned / pending | The frontend remains a basic shell. Product Card UI and later business workflow screens are not implemented yet. |
 
 ## Historical Implementation Summary
@@ -88,9 +87,27 @@ Completed work summarized from the prior progress file:
   status constraint cleanup.
 - Rewrote Product Card API tests for the finalized backend contract.
 
-### Phase 3 Readiness Items
+### Phase 3 Campaign Backend Contract
 
-Planned or pending work summarized from the prior progress file:
+Completed work summarized from the 2026-07-03 Campaign implementation:
+
+- Added Campaign persistence and API behavior for the minimum Phase 3 backend
+  contract.
+- Limited Campaign statuses to `draft`, `confirmed`, and `archived`.
+- Added create, company-scoped list, get, patch, delete, confirm, archive, and
+  duplicate endpoints.
+- Enforced confirmed same-company Product Card validation at creation and
+  confirmation.
+- Captured `product_card_snapshot` at confirmation.
+- Made repeated confirm idempotent for already confirmed Campaigns.
+- Kept archived Campaigns read-only and hidden from the default list unless
+  `status=archived` is explicitly requested.
+- Added Alembic revision `20260703_0005` for Campaign persistence.
+- Added focused Campaign API tests for lifecycle and validation behavior.
+
+### Remaining Phase 3 Hardening Items
+
+Planned or pending work:
 
 - Extend Product Card route-level scoping when API context supports company or
   future workspace ownership.
@@ -98,9 +115,163 @@ Planned or pending work summarized from the prior progress file:
   `ck_<table_name>_<column_name>` naming.
 - Run the current migration chain against a live isolated PostgreSQL test
   database.
-- Begin Campaign backend implementation as the next vertical slice.
 
 ## Dated Task Entries
+
+### 2026-07-03 - Campaign Phase 3 Minimum Backend Vertical Slice
+
+Type: Backend implementation.
+
+Completed:
+
+- Implemented the Campaign Phase 3 minimum backend vertical slice.
+- Added the `campaigns` ORM model with documented Campaign fields and
+  `ck_campaigns_status`.
+- Added Alembic revision `20260703_0005` to create the `campaigns` table,
+  foreign keys, indexes, and status check constraint.
+- Added Campaign schemas for create, patch, read, list, and delete envelopes.
+- Added Campaign repository create, list, get, update, delete, and Product Card
+  reference-check behavior.
+- Added Campaign service rules for create, edit, delete, confirm, archive, and
+  duplicate.
+- Registered Campaign routes under `/api/v1`.
+- Implemented endpoints:
+  - `POST /api/v1/companies/{company_id}/campaigns`
+  - `GET /api/v1/companies/{company_id}/campaigns`
+  - `GET /api/v1/campaigns/{campaign_id}`
+  - `PATCH /api/v1/campaigns/{campaign_id}`
+  - `DELETE /api/v1/campaigns/{campaign_id}`
+  - `POST /api/v1/campaigns/{campaign_id}/confirm`
+  - `POST /api/v1/campaigns/{campaign_id}/archive`
+  - `POST /api/v1/campaigns/{campaign_id}/duplicate`
+- Enforced Campaign status values as only `draft`, `confirmed`, and
+  `archived`.
+- Enforced confirmed Product Card validation in the same company on Campaign
+  creation and confirmation.
+- Saved a Product Card business-field snapshot when confirming a draft Campaign.
+- Kept repeated confirm on confirmed Campaigns idempotent.
+- Rejected edits and deletes for confirmed and archived Campaigns.
+- Rejected archive for non-confirmed Campaigns.
+- Hid archived Campaigns from the default company Campaign list and allowed
+  explicit `status=archived` listing.
+- Added focused Campaign tests for the required lifecycle and validation paths.
+- Updated backend and API/progress documentation to stop describing Campaign
+  backend as unimplemented.
+
+Files added:
+
+- `backend/alembic/versions/20260703_0005_create_campaigns.py`
+- `backend/tests/test_campaigns.py`
+
+Files modified:
+
+- `backend/README.md`
+- `backend/app/main.py`
+- `backend/app/models.py`
+- `backend/app/modules/campaigns/models.py`
+- `backend/app/modules/campaigns/repository.py`
+- `backend/app/modules/campaigns/routes.py`
+- `backend/app/modules/campaigns/schemas.py`
+- `backend/app/modules/campaigns/service.py`
+- `docs/API_CONTRACT.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+- `docs/DEVELOPMENT_LOG.md`
+
+Verification:
+
+- `.\.venv\Scripts\python.exe -m pytest tests\test_campaigns.py -q` passed:
+  16 passed.
+- `.\.venv\Scripts\python.exe -m pytest tests\test_products.py -q` passed:
+  19 passed.
+- `.\.venv\Scripts\python.exe -m pytest -q` passed: 57 passed.
+- `git diff --check` passed.
+- `git status --short` and `git diff --name-only` were used for final handoff
+  inspection.
+
+Known limitations:
+
+- No frontend UI, Lead Discovery, Gmail, outreach, contacts, provider calls, or
+  background jobs were implemented.
+- The migration chain was not executed against a live isolated PostgreSQL test
+  database in this task.
+- SQLite in-memory tests validated API behavior, but they do not replace
+  PostgreSQL migration smoke validation.
+- Campaign does not add an `archived_at` column; the current docs define
+  archived state through `status = archived` and `updated_at`.
+
+Next recommended step:
+
+- Implement Frontend Phase 3 Campaign UI from the current backend API contract,
+  data model, lifecycle rules, Chinese user-facing text requirements, and Stitch
+  design context when available.
+
+### 2026-07-02 - Campaign Phase 3 Final Rule Documentation Alignment
+
+Type: Documentation-only.
+
+Completed:
+
+- Synchronized the finalized Campaign Phase 3 rules into the project rule
+  documents.
+- Documented that Campaign status values are limited to `draft`, `confirmed`,
+  and `archived`.
+- Documented that `running`, `paused`, `completed`, `failed`, and `cancelled`
+  are future LeadDiscoveryJob / CampaignJob / background task execution states,
+  not Campaign configuration states.
+- Documented draft, confirmed, and archived Campaign lifecycle rules.
+- Documented idempotent repeated confirm for already confirmed Campaigns.
+- Documented that Campaign creation and confirmation must validate a same-company
+  / workspace-scope `confirmed` Product Card.
+- Documented that confirming a draft Campaign saves `product_card_snapshot` as
+  a historical copy of Product Card business fields used by matching and
+  outreach generation.
+- Documented duplicate / copy as draft as the reuse path, instead of editing
+  confirmed Campaigns or restoring archived Campaigns.
+- Documented that archived Campaigns are read-only history, hidden from default
+  lists, not restorable, and not usable for new Lead Discovery.
+- Added Campaign UI status/action rules and Chinese user-facing text
+  requirements.
+- Kept Phase 3 Campaign active / in progress and did not mark backend or
+  frontend Campaign implementation complete.
+
+Files modified:
+
+- `docs/API_CONTRACT.md`
+- `docs/DATA_MODEL.md`
+- `docs/WORKFLOW.md`
+- `docs/MODULE_BOUNDARIES.md`
+- `docs/PRODUCT_REQUIREMENTS.md`
+- `docs/MVP_SCOPE.md`
+- `docs/AI_RULES.md`
+- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
+- `docs/UI_REQUIREMENTS.md`
+- `docs/TESTING_STRATEGY.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+- `docs/DEVELOPMENT_LOG.md`
+- `backend/README.md`
+
+Verification:
+
+- `git diff --check`
+- `git diff --name-only`
+- `rg "running|paused|completed|restore|product_card_snapshot|archived|confirmed|draft" docs`
+- `git status --short`
+
+Known limitations:
+
+- No backend business code, frontend business code, migrations, package files,
+  or runtime configuration were changed.
+- Backend tests, frontend tests, migrations, compile checks, package checks, and
+  runtime checks were not run because this was a documentation-only update.
+- Campaign implementation remains pending: model, migration, schemas,
+  repository, service, routes, and tests still need to be built.
+
+Next recommended step:
+
+- Implement the minimal Campaign backend vertical slice for the final
+  `draft` / `confirmed` / `archived` contract, including same-company Product
+  Card validation, `product_card_snapshot`, archive, duplicate-as-draft, and
+  focused tests.
 
 ### 2026-07-02 - Frontend Backend Stitch Workflow Governance Update
 

@@ -160,11 +160,13 @@ Campaign 是用户要开发客户的具体销售方向。
 AI 可以根据 Confirmed Knowledge 和 Product Card 生成 Campaign 建议，但必须遵守：
 
 1. Campaign 只能作为建议，不能自动执行。
-2. 用户必须可以修改 Campaign。
+2. AI 生成的 Campaign 建议必须先成为 `draft`，用户只能编辑 draft Campaign。
 3. 用户确认 Campaign 后，系统才能开始搜索客户。
 4. Campaign 必须明确目标市场、目标行业、客户类型和开发目标。
 5. Campaign 不能过度宽泛。
 6. Campaign 不能包含违法、骚扰或误导性销售目标。
+7. Campaign 只能使用同一 company / workspace scope 下的 `confirmed`
+   Product Card。
 
 Campaign 应包含：
 
@@ -183,12 +185,24 @@ Campaign 应包含：
 Campaign AI output mapping:
 
 - `product_card_id` is the required Product Card link for a Campaign draft.
+- Campaign status values are limited to `draft`, `confirmed`, and `archived`.
+- AI must not introduce Campaign statuses such as `running`, `paused`,
+  `completed`, `failed`, or `cancelled`; those belong to future job or task
+  execution models.
 - `target_country` and `target_region` are separate fields. Do not use
   `target_country_or_region` as the persisted field name.
 - AI-only suggestion fields such as `campaign_goal`,
   `target_customer_profile`, `customer_pain_points`, `exclusion_rules`, and
   `scoring_focus` may appear in AI output, but they must be mapped by service
   logic into the Campaign draft fields unless the data model later adds them.
+- Confirming a Campaign must revalidate the linked Product Card and save a
+  `product_card_snapshot` so downstream Lead Discovery uses the confirmed-time
+  Product Card meaning.
+- Confirmed Campaigns cannot be edited, deleted, or returned to draft.
+- Archived Campaigns are read-only history and cannot be restored or used for
+  new Lead Discovery.
+- Campaign reuse should use duplicate / copy as draft rather than editing a
+  confirmed Campaign or restoring an archived Campaign.
 - AI must not treat Campaign as a CRM sequence, automatic follow-up workflow,
   bulk email workflow, or auto-send workflow.
 

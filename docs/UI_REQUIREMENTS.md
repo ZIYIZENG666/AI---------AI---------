@@ -99,6 +99,53 @@ The MVP dashboard should include UI screens for:
 7. Lead Detail Review
 8. Outreach Draft Status
 
+## Campaign UI Rules
+
+Campaign UI must follow the backend Phase 3 Campaign contract.
+
+Supported Campaign status labels must be displayed in Chinese:
+
+- draft = 草稿
+- confirmed = 已确认
+- archived = 已归档
+
+Draft Campaign pages may show:
+
+- 编辑
+- 删除
+- 确认获客任务
+
+Confirmed Campaign pages may show:
+
+- 查看详情
+- 归档
+- 开始获客 / 用于获客
+- 复制为草稿
+
+Start / use for Lead Discovery must be wired only when the corresponding
+backend Lead Discovery API contract exists. The UI must not imply that
+unsupported discovery work has already run.
+
+Confirmed Campaign pages must not show:
+
+- 编辑
+- 删除
+- 退回草稿
+
+Archived Campaign pages are read-only. They must not show edit, delete,
+restore, return-to-draft, confirm, or start Lead Discovery actions.
+
+The default Campaign list must hide archived Campaigns. The UI may show archived
+Campaigns only through an explicit archived filter entry.
+
+Campaign copy / duplicate behavior must be presented as creating a new draft
+Campaign. It must not be presented as restoring an archived Campaign or editing
+the original confirmed Campaign.
+
+Campaign UI text shown to users must be Chinese, including page titles, buttons,
+form labels, status badges, empty states, error messages, success messages,
+confirmation dialogs, tooltips, and table headers.
+
 ## Product Card UI Rules
 
 The Product Card UI must support:

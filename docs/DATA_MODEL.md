@@ -219,6 +219,7 @@ Main fields:
 - `id`
 - `company_id`
 - `product_card_id`
+- `product_card_snapshot`
 - `name`
 - `target_country`
 - `target_region`
@@ -237,16 +238,22 @@ Possible `status`:
 
 - `draft`
 - `confirmed`
-- `running`
-- `completed`
-- `failed`
 - `archived`
 
 `confirmed` 表示用户已确认，可进入 lead discovery。
 
+`archived` 表示只读历史记录。Archived Campaigns cannot be edited, deleted,
+restored, or used for new Lead Discovery.
+
 Campaign field rules:
 
 - `product_card_id` is the required Product Card link.
+- `product_card_snapshot` is a JSON/JSONB historical copy saved when a Campaign
+  transitions from `draft` to `confirmed`. It is not a foreign key and should
+  contain only core Product Card business fields that affect matching or
+  outreach generation, such as product name, description, target customer / ICP,
+  value proposition, pain points, use cases, differentiators, industry /
+  category, and other confirmed Product Card fields directly used downstream.
 - `target_country` and `target_region` are separate fields. Do not use
   `target_country_or_region` as a database field.
 - AI suggestion fields such as `campaign_goal`,
@@ -257,10 +264,29 @@ Campaign field rules:
   same company and has `status = confirmed`.
 - A Campaign must not be created from a draft, deleted, or rejected Product
   Card. Product Cards do not have a current `rejected` status.
-- Planned status transitions are `draft -> confirmed`,
-  `confirmed -> running`, `running -> completed`, `running -> failed`,
-  `confirmed -> archived`, and `completed -> archived`.
+- New Campaigns default to `draft`.
+- A `draft` Campaign may be viewed, edited, deleted, or confirmed, but it cannot
+  be used for formal Lead Discovery before confirmation.
+- A `confirmed` Campaign may be viewed, archived, and used for Lead Discovery.
+  It cannot be edited, deleted, or returned to `draft`.
+- Repeating confirm on an already `confirmed` Campaign is idempotent and leaves
+  it confirmed.
+- A `confirmed` Campaign must preserve historical meaning through
+  `product_card_snapshot`; downstream Lead Discovery should use the snapshot
+  captured at confirmation time instead of rereading a later edited Product Card
+  as the source of Campaign meaning.
+- Planned Campaign status transitions are only `draft -> confirmed` and
+  `confirmed -> archived`.
+- Duplicate / copy as draft creates a new `draft` Campaign with a new `id` from
+  a source Campaign. The source Campaign is not modified, and the new draft must
+  revalidate the current Product Card when it is later confirmed.
+- Archived Campaigns are not restorable. If future reuse is needed, it must be
+  handled through duplicate / copy as draft rather than restore.
 - Only a `confirmed` Campaign may enter Lead Discovery.
+- Campaign status must not store Lead Discovery execution status. Future
+  LeadDiscoveryJob, CampaignJob, or background task models should own execution
+  states such as `pending`, `running`, `paused`, `completed`, `failed`, and
+  `cancelled`.
 - Campaign is not a CRM sequence and must not perform automatic follow-up, bulk
   sending, or automatic email sending.
 
@@ -489,6 +515,10 @@ eligibility requires a selected valid email contact.
 ## task_runs
 
 Stores background task status.
+
+Task execution status is separate from Campaign configuration status. A task run
+may track Lead Discovery or future Campaign Job execution, but these values must
+not be stored in `campaigns.status`.
 
 Main fields:
 

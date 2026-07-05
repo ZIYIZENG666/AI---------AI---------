@@ -6,9 +6,13 @@ Current implemented backend slices:
 - `sources`: company-owned text/URL source create, list, and get
 - `knowledge`: deterministic source-to-draft creation, status-filtered listing, confirm, and reject
 - `products`: confirmed-knowledge-only deterministic Product Card generation, manual Product Card creation, list, get, patch/edit, confirm, and delete
+- `campaigns`: Campaign create, company-scoped list, get, patch/edit for drafts,
+  delete for drafts, confirm, archive, duplicate-as-draft, confirmed Product
+  Card validation, and `product_card_snapshot` capture
 
 The backend is no longer only the company minimum slice. The implemented backend
-surface currently covers `company`, `sources`, `knowledge`, and `products`.
+surface currently covers `company`, `sources`, `knowledge`, `products`, and
+`campaigns`.
 
 Current Product Card backend behavior:
 
@@ -21,11 +25,25 @@ Current Product Card backend behavior:
 - PATCH edits only user-editable Product Card fields and must not change status, source type, source knowledge, or company ownership.
 - Confirm is idempotent: confirming an already confirmed Product Card returns the current confirmed record.
 - Draft Product Cards can be deleted. Confirmed Product Cards can be deleted only when no Campaign has ever referenced them; otherwise deletion returns HTTP `409`.
-- Campaign is still a later phase. Only confirmed Product Cards may be selected by Campaign when that module is implemented.
+
+Current Campaign backend behavior:
+
+- Campaigns support create, company-scoped list, get, patch/edit, delete,
+  confirm, archive, and duplicate.
+- Campaign status supports only `draft`, `confirmed`, and `archived`.
+- Campaign creation requires a confirmed Product Card from the same company.
+- Draft Campaigns can be edited, deleted, or confirmed.
+- Confirming a draft Campaign revalidates the Product Card and saves
+  `product_card_snapshot`.
+- Confirming an already confirmed Campaign is idempotent.
+- Confirmed Campaigns can be archived but cannot be edited or deleted.
+- Archived Campaigns are read-only, are hidden from the default company Campaign
+  list, and can be listed only with `status=archived`.
+- Duplicate creates a new draft Campaign and does not reuse the source
+  Campaign's `product_card_snapshot` as an active confirmed snapshot.
 
 Current not implemented:
 
-- Campaign
 - Lead Discovery
 - Contacts
 - Outreach and Gmail Draft workflow

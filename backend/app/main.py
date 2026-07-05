@@ -10,6 +10,7 @@ from app.core.config import settings
 from app.core.database import check_database_connection
 from app.core.errors import register_exception_handlers
 from app.core.logging import configure_logging
+from app.modules.campaigns.routes import router as campaigns_router
 from app.modules.company.routes import router as company_router
 from app.modules.knowledge.routes import router as knowledge_router
 from app.modules.products.routes import router as products_router
@@ -36,6 +37,7 @@ app.include_router(company_router, prefix="/api/v1")
 app.include_router(sources_router, prefix="/api/v1")
 app.include_router(knowledge_router, prefix="/api/v1")
 app.include_router(products_router, prefix="/api/v1")
+app.include_router(campaigns_router, prefix="/api/v1")
 
 
 @app.get("/health", tags=["system"])

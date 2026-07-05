@@ -125,11 +125,43 @@ The campaign defines:
 - Outreach angle
 - Number of leads to find
 
-AI may suggest campaign content, but the user must be able to edit and confirm it.
+AI may suggest campaign content, but it starts as a `draft` Campaign and must be
+reviewed by the user.
+
+Campaign lifecycle rules:
+
+- A new Campaign defaults to `draft`.
+- A `draft` Campaign can be viewed, edited, deleted, or confirmed.
+- A `draft` Campaign cannot be used for formal Lead Discovery before it is
+  confirmed.
+- Confirming a `draft` Campaign requires the backend to revalidate that the
+  linked Product Card exists, belongs to the same company / workspace scope, and
+  has `status = confirmed`.
+- When a Campaign becomes `confirmed`, the backend saves
+  `product_card_snapshot` as a historical copy of the confirmed Product Card
+  business fields that affect matching or outreach generation.
+- A `confirmed` Campaign can be viewed, archived, and used for Lead Discovery.
+- A `confirmed` Campaign cannot be edited, deleted, or returned to `draft`.
+- Repeating confirm on an already `confirmed` Campaign is idempotent and leaves
+  it confirmed.
+- An `archived` Campaign is a read-only historical record. It can be viewed only
+  through an explicit archived filter, cannot be edited or deleted, cannot be
+  restored, and cannot be used for new Lead Discovery.
+- If the user wants to reuse a similar `confirmed` Campaign, the workflow is
+  duplicate / copy as draft. The copied Campaign receives a new `id`, starts as
+  `draft`, can be edited, and must revalidate the current Product Card when it
+  is confirmed.
+
+Campaign status is limited to `draft`, `confirmed`, and `archived`. Runtime
+states such as `pending`, `running`, `paused`, `completed`, `failed`, and
+`cancelled` belong to future Lead Discovery / Campaign Job records, not to the
+Campaign configuration itself.
 
 ### Step 7: Discover Candidate Leads
 
-The system searches for potential customer companies based on the confirmed campaign.
+The system searches for potential customer companies based on the confirmed
+campaign. Lead Discovery should use the Campaign configuration and the
+`product_card_snapshot` captured at Campaign confirmation time.
 
 The system may use:
 
@@ -292,8 +324,10 @@ keeping their responsibilities separate.
 ## Workflow Rules
 
 1. AI-generated knowledge must be reviewed before becoming confirmed knowledge.
-2. Campaigns must be based on product cards.
-3. Lead scoring must be based on confirmed campaign and product information.
+2. Campaigns must be based on confirmed product cards from the same company /
+   workspace scope.
+3. Lead scoring must be based on confirmed campaign information and the
+   Campaign's confirmed-time Product Card snapshot.
 4. Invalid leads should not be scored by AI.
 5. Email drafts can only be generated for approved leads with a selected valid
    email contact.

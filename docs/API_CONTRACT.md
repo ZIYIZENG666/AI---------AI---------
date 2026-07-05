@@ -131,23 +131,24 @@ Rules:
 4. Account or workspace authorization must not be claimed until the corresponding implementation and tests exist.
 5. Product Card deletion must check Campaign references before physical deletion and return HTTP `409` when the card is in use.
 
-## Phase 3 Campaign Endpoints (Planned)
+## Phase 3 Campaign Endpoints
 
-Campaign endpoints are planned for Phase 3. This section defines the intended
-contract boundary and must not be read as current implemented API until the
-corresponding models, schemas, repositories, services, routes, migrations, and
-tests exist.
+The current Campaign backend contract exposes the minimum Phase 3 vertical
+slice with models, schemas, repository logic, service logic, routes, migration,
+and focused tests.
 
-Planned endpoints:
+Current endpoints:
 
 - `POST /api/v1/companies/{company_id}/campaigns`
 - `GET /api/v1/companies/{company_id}/campaigns`
 - `GET /api/v1/campaigns/{campaign_id}`
 - `PATCH /api/v1/campaigns/{campaign_id}`
+- `DELETE /api/v1/campaigns/{campaign_id}`
 - `POST /api/v1/campaigns/{campaign_id}/confirm`
 - `POST /api/v1/campaigns/{campaign_id}/archive`
+- `POST /api/v1/campaigns/{campaign_id}/duplicate`
 
-Planned request fields for create and patch:
+Request fields for create:
 
 - `product_card_id`
 - `name`
@@ -160,6 +161,28 @@ Planned request fields for create and patch:
 - `qualification_criteria`
 - `outreach_angle`
 - `lead_limit`
+
+Editable request fields for patch:
+
+- `name`
+- `target_country`
+- `target_region`
+- `target_industry`
+- `target_company_type`
+- `target_role`
+- `search_keywords`
+- `qualification_criteria`
+- `outreach_angle`
+- `lead_limit`
+
+Response-only or system-managed fields:
+
+- `id`
+- `company_id`
+- `product_card_snapshot`
+- `status`
+- `created_at`
+- `updated_at`
 
 Rules:
 
@@ -176,23 +199,62 @@ Rules:
 5. A Campaign must not be created from a draft, deleted, or rejected Product
    Card. Product Cards do not have a current `rejected` status or reject
    endpoint.
-6. `PATCH /api/v1/campaigns/{campaign_id}` may edit draft Campaign fields and
-   must not change `company_id`, `product_card_id`, or status unless a later
-   contract explicitly allows it.
-7. `POST /api/v1/campaigns/{campaign_id}/confirm` changes `draft` to
-   `confirmed` after validation.
-8. Only a `confirmed` Campaign may enter Lead Discovery.
-9. Planned status transitions are:
-   - `draft -> confirmed`
-   - `confirmed -> running`
-   - `running -> completed`
-   - `running -> failed`
-   - `confirmed -> archived`
-   - `completed -> archived`
-10. Campaign does not send email, does not create Gmail Drafts directly, and
+6. Campaign status values are limited to `draft`, `confirmed`, and `archived`.
+   `running`, `paused`, `completed`, `failed`, and `cancelled` are job or task
+   execution states for future Lead Discovery / Campaign Job models, not
+   Campaign status values.
+7. `GET /api/v1/companies/{company_id}/campaigns` returns non-archived
+   Campaigns by default. It may accept `status=draft`, `status=confirmed`, or
+   `status=archived`; archived Campaigns are returned only when explicitly
+   requested with `status=archived`.
+8. `PATCH /api/v1/campaigns/{campaign_id}` may edit only `draft` Campaign
+   fields. It must reject edits to `confirmed` or `archived` Campaigns and must
+   not change `company_id`, `product_card_id`, `product_card_snapshot`, or
+   status unless a later contract explicitly allows it.
+9. `POST /api/v1/campaigns/{campaign_id}/confirm` changes `draft` to
+   `confirmed` only after revalidating the current Product Card. The backend
+   must verify that the Campaign exists, belongs to the current company /
+   workspace scope, references an existing Product Card in the same company,
+   and that the Product Card has `status = confirmed`.
+10. Confirming a `draft` Campaign saves `product_card_snapshot`, a historical
+    copy of Product Card business fields used by matching and outreach. The
+    snapshot is not a foreign key and should include only core fields such as
+    product name, description, target customer / ICP, value proposition, pain
+    points, use cases, differentiators, industry / category, and any confirmed
+    Product Card fields that directly affect lead matching or outreach
+    generation.
+11. Repeating confirm for an already `confirmed` Campaign is idempotent: return
+    HTTP `200 OK` with the current Campaign and keep status `confirmed`.
+12. Confirming an `archived` Campaign is invalid and should return HTTP `409`.
+13. Only a `confirmed` Campaign may enter Lead Discovery. Lead Discovery must
+    use the confirmed Campaign's `product_card_snapshot`, not a live reread of a
+    later edited Product Card.
+14. `POST /api/v1/campaigns/{campaign_id}/archive` changes `confirmed` to
+    `archived`. Archived Campaigns are read-only history records; they cannot be
+    edited, deleted, restored to `draft`, restored to `confirmed`, or used for
+    new Lead Discovery.
+15. `DELETE /api/v1/campaigns/{campaign_id}` is allowed only for `draft`
+    Campaigns. Deleting `confirmed` or `archived` Campaigns is invalid and
+    should return HTTP `409`.
+16. `POST /api/v1/campaigns/{campaign_id}/duplicate` creates a new `draft`
+    Campaign with a new `id` from a source Campaign. The new draft can be
+    edited, and its later confirm must revalidate that the current Product Card
+    is still usable. Duplicate / copy as draft must not modify the source
+    Campaign and must not be treated as archived restore.
+17. Campaign does not send email, does not create Gmail Drafts directly, and
     does not approve leads on behalf of the user.
-11. Campaign is not a CRM sequence. It must not implement automatic follow-up,
+18. Campaign is not a CRM sequence. It must not implement automatic follow-up,
     bulk sending, reply tracking, or any auto-send behavior.
+
+Campaign error handling:
+
+- Missing Campaign: HTTP `404` with `campaign_not_found`.
+- Missing Product Card: HTTP `404` with `product_card_not_found`.
+- Product Card from another company or workspace scope: HTTP `404` or `403`
+  according to the future authorization model, but never allow confirmation.
+- Product Card not confirmed: HTTP `409` with `product_card_not_confirmed`.
+- Invalid status transition: HTTP `409` with `invalid_campaign_status_transition`.
+- Unsupported status filter: HTTP `422` with validation details.
 
 ## Lead Recommendation and Review Status Contract
 

@@ -104,11 +104,13 @@ A product card may include:
 
 ### 6. Campaign
 
-The system should allow the user to create a sales campaign.
+The system should allow the user to create a sales campaign from a confirmed
+Product Card that belongs to the same company / workspace scope.
 
 A campaign may include:
 
 - Selected product card
+- Product Card snapshot captured at confirmation
 - Target country or region
 - Target industry
 - Target company type
@@ -118,7 +120,39 @@ A campaign may include:
 - Number of leads to discover
 - Outreach angle
 
-The AI may suggest a campaign, but the user must be able to edit and confirm it.
+The AI may suggest a campaign, but AI suggestions start as draft content and
+must be reviewed by the user.
+
+Campaign status values are limited to:
+
+- `draft`
+- `confirmed`
+- `archived`
+
+Campaign lifecycle requirements:
+
+- New Campaigns default to `draft`.
+- Draft Campaigns can be viewed, edited, deleted, or confirmed.
+- Draft Campaigns cannot be used for formal Lead Discovery before confirmation.
+- Confirming a Campaign requires Product Card validation: the Product Card must
+  exist, belong to the same company / workspace scope, and have
+  `status = confirmed`.
+- Confirming a Campaign saves `product_card_snapshot` so future Lead Discovery
+  uses the product meaning that was confirmed at that time.
+- Confirmed Campaigns can be viewed, archived, and used for Lead Discovery.
+- Confirmed Campaigns cannot be edited, deleted, or returned to draft.
+- Repeating confirm on an already confirmed Campaign is idempotent and should
+  keep the Campaign confirmed.
+- Archived Campaigns are read-only history. They cannot be edited, deleted,
+  restored, or used for new Lead Discovery, and the default Campaign list should
+  hide them unless the user explicitly filters for archived Campaigns.
+- Reusing a similar confirmed Campaign should use duplicate / copy as draft. The
+  copy gets a new ID, starts as draft, can be edited, and must revalidate the
+  current Product Card when later confirmed.
+
+Campaign runtime execution states such as running, paused, completed, failed,
+or cancelled belong to future Lead Discovery / Campaign Job records. They must
+not be mixed into Campaign status.
 
 ### 7. Lead Discovery
 
@@ -248,11 +282,17 @@ The dashboard should support:
 - Knowledge review
 - Product card management
 - Campaign creation
+- Campaign list and detail behavior that follows `draft`, `confirmed`, and
+  `archived` permissions
 - Lead results page
 - Lead detail page
 - Outreach draft status
 
 The UI does not need to be highly complex, but it should be clear and usable.
+
+All user-facing Campaign UI text, including page titles, buttons, status labels,
+empty states, errors, success messages, and confirmation dialogs, must be
+Chinese.
 
 ## Out of Scope for MVP
 

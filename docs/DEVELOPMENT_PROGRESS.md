@@ -12,8 +12,13 @@ the latest Codex task record required by `AGENTS.md`.
 
 Phase 3: Campaign is the current active phase.
 
-- Backend Phase 3 = Campaign backend/API/data contract work.
+- Backend Phase 3 = Campaign backend/API/data contract work. The minimum
+  Campaign backend vertical slice is implemented.
 - Frontend Phase 3 = Campaign frontend UI planning / implementation work.
+- Campaign Phase 3 final documentation contract uses only `draft`,
+  `confirmed`, and `archived` Campaign statuses.
+- Product Card confirmed-only validation and `product_card_snapshot` capture are
+  required parts of the Campaign Phase 3 contract.
 - Frontend Phase 3 and Backend Phase 3 use the same phase number and should be
   tracked together.
 - Frontend implementation depends on the backend contract, data model, business
@@ -30,8 +35,8 @@ Phase 3: Campaign is the current active phase.
 - Phase 2 Product Card backend contract: Completed.
 - Frontend Foundation: Basic shell present; business workflow UI pending.
 - Frontend Phase 1 and Frontend Phase 2: Planned / pending UI implementation.
-- Phase 3 Campaign backend and frontend: Active / current active phase; not
-  complete.
+- Phase 3 Campaign backend: Minimum backend vertical slice implemented.
+- Phase 3 Campaign frontend: Active / current active phase; not implemented.
 
 ## Unified Phase Tracking
 
@@ -41,7 +46,7 @@ Phase 3: Campaign is the current active phase.
 | Phase 1B | Minimum text/URL source records plus deterministic knowledge draft and review behavior. | Completed | Feeds Frontend Phase 1 company/source/knowledge screens. | Planned. | UI must not imply uploaded documents, crawling, or OCR support. |
 | Phase 1: Sources + Knowledge | Source persistence, knowledge drafts, knowledge review transitions, models, schemas, repositories, services, routes, migrations, and tests for the MVP text/URL slice. | Completed | Frontend Phase 1: Company / Source / Knowledge basic UI alignment. | Planned. | Frontend should follow the current text/URL backend contract only. |
 | Phase 2: Product Card | Product Card backend contract for AI-generated and manual cards, draft/confirmed lifecycle, edit, confirm, delete, source type, company ownership, and tests. | Completed for backend contract. | Frontend Phase 2: Product Card UI. | Planned / pending. | Product Card frontend must use the finalized backend contract and Chinese user-facing text. |
-| Phase 3: Campaign | Campaign model, migration, schemas, repository, service, routes, API contract, lifecycle, confirmed Product Card linkage, and tests. | Active / current phase; planned contract exists, implementation not complete. | Frontend Phase 3: Campaign UI planning / implementation synchronized with Backend Phase 3 Campaign. | Active planning; implementation depends on backend contract and Stitch design context when available. | Next implementation step is the minimal Campaign backend vertical slice. Do not mark Campaign backend or frontend complete yet. |
+| Phase 3: Campaign | Campaign model, migration, schemas, repository, service, routes, API contract, lifecycle, confirmed Product Card linkage, `product_card_snapshot`, duplicate-as-draft behavior, and tests. | Completed for the minimum backend vertical slice. | Frontend Phase 3: Campaign UI planning / implementation synchronized with Backend Phase 3 Campaign. | Active planning; implementation depends on backend contract and Stitch design context when available. | Next step is Frontend Phase 3 Campaign UI planning / implementation from the current backend contract and Stitch context when available. Do not mark Campaign frontend complete yet. |
 | Phase 4: Lead Discovery | Provider-driven candidate lead discovery from confirmed Campaign criteria. | Planned / future. | Lead discovery task/result UI. | Planned / future. | Must use provider boundaries and store traceable source URLs. |
 | Phase 5: Lead Validation + Intelligence | Lead normalization, duplicate handling, website availability checks, intelligence capture, evidence storage, and content sufficiency. | Planned / future. | Lead validation and lead intelligence UI states. | Planned / future. | Must not pretend validation or crawling has completed before implementation exists. |
 | Phase 6: Lead Scoring | Evidence-based customer-fit scoring, recommendations, risk notes, uncertainty, and provider-mocked tests. | Planned / future. | Lead score, evidence, risk, and recommendation UI. | Planned / future. | AI recommendation remains separate from human review status. |
@@ -73,9 +78,12 @@ Phase 3: Campaign is the current active phase.
 
 ## Current Known Limits
 
-- Backend implementation is real through `company`, `sources`, `knowledge`, and
-  `products`; most later modules remain placeholders.
-- Campaign persistence and Campaign APIs are not implemented yet.
+- Backend implementation is real through `company`, `sources`, `knowledge`,
+  `products`, and the minimum `campaigns` vertical slice; most later modules
+  remain placeholders.
+- Campaign persistence and APIs are implemented for the Phase 3 minimum backend
+  contract: `draft` / `confirmed` / `archived`, same-company confirmed Product
+  Card validation, `product_card_snapshot`, archive, and duplicate-as-draft.
 - Product Card frontend UI has not been implemented for the finalized backend
   contract.
 - Frontend remains a basic shell and does not yet provide the business workflow
@@ -97,6 +105,139 @@ Phase 3: Campaign is the current active phase.
 
 This section keeps compact records for the latest Codex tasks. Detailed task
 history should be moved to `docs/DEVELOPMENT_LOG.md`.
+
+### 2026-07-03 - Campaign Phase 3 Minimum Backend Vertical Slice
+
+Completed: Implemented the minimum Campaign backend vertical slice for the
+finalized Phase 3 contract.
+
+What changed:
+
+- Added Campaign ORM model, Alembic migration, schemas, repository, service,
+  and routes.
+- Registered Campaign routes in the FastAPI app and shared ORM metadata.
+- Implemented create, company-scoped list, get, patch, delete, confirm,
+  archive, and duplicate endpoints.
+- Enforced `draft`, `confirmed`, and `archived` Campaign status only.
+- Enforced confirmed same-company Product Card validation at creation and
+  confirmation.
+- Saved `product_card_snapshot` when confirming a draft Campaign.
+- Kept repeated confirm on confirmed Campaigns idempotent.
+- Kept archived Campaigns hidden from default company lists unless
+  `status=archived` is requested.
+- Updated Product Card Campaign-reference checking to use real Campaign rows.
+
+Files modified:
+
+- `backend/README.md`
+- `backend/app/main.py`
+- `backend/app/models.py`
+- `backend/app/modules/campaigns/models.py`
+- `backend/app/modules/campaigns/repository.py`
+- `backend/app/modules/campaigns/routes.py`
+- `backend/app/modules/campaigns/schemas.py`
+- `backend/app/modules/campaigns/service.py`
+- `docs/API_CONTRACT.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+- `docs/DEVELOPMENT_LOG.md`
+
+Files added:
+
+- `backend/alembic/versions/20260703_0005_create_campaigns.py`
+- `backend/tests/test_campaigns.py`
+
+Verification commands:
+
+- `.\.venv\Scripts\python.exe -m pytest tests\test_campaigns.py -q`
+- `.\.venv\Scripts\python.exe -m pytest tests\test_products.py -q`
+- `.\.venv\Scripts\python.exe -m pytest -q`
+- `git diff --check`
+- `git status --short`
+- `git diff --name-only`
+
+Test status:
+
+- Campaign tests passed: 16 passed.
+- Product Card tests passed: 19 passed.
+- Full backend tests passed: 57 passed.
+- FastAPI / Starlette emitted the existing `httpx` deprecation warning in test
+  output.
+
+Known limitations:
+
+- No frontend UI was implemented.
+- Lead Discovery, Gmail, outreach, contacts, provider calls, and background jobs
+  were not implemented.
+- The migration chain still has not been executed against a live isolated
+  PostgreSQL test database in this task.
+- Campaign does not add `archived_at`; the current rule docs define archived
+  state through `status = archived` and `updated_at`.
+
+Next recommended step:
+
+- Implement Frontend Phase 3 Campaign UI from the current backend API contract,
+  data model, lifecycle rules, Chinese user-facing text requirements, and Stitch
+  design context when available.
+
+### 2026-07-02 - Campaign Phase 3 Final Rule Documentation Alignment
+
+Completed: Documentation-only update to synchronize the finalized Campaign
+Phase 3 business rules across the project rule documents.
+
+What changed:
+
+- Documented Campaign statuses as `draft`, `confirmed`, and `archived` only.
+- Moved `running`, `paused`, `completed`, `failed`, and `cancelled` out of
+  Campaign status and into future job / task execution status.
+- Added confirmed Product Card validation, same-company / workspace-scope
+  boundary, `product_card_snapshot`, idempotent confirm, archive, and duplicate
+  / copy-as-draft rules.
+- Added Campaign UI rules for draft, confirmed, and archived states, including
+  Chinese user-facing text and default hiding of archived Campaigns.
+- Kept Phase 3 Campaign active / in progress; no backend or frontend Campaign
+  implementation was marked complete.
+
+Files modified:
+
+- `docs/API_CONTRACT.md`
+- `docs/DATA_MODEL.md`
+- `docs/WORKFLOW.md`
+- `docs/MODULE_BOUNDARIES.md`
+- `docs/PRODUCT_REQUIREMENTS.md`
+- `docs/MVP_SCOPE.md`
+- `docs/AI_RULES.md`
+- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
+- `docs/UI_REQUIREMENTS.md`
+- `docs/TESTING_STRATEGY.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+- `docs/DEVELOPMENT_LOG.md`
+- `backend/README.md`
+
+Verification commands:
+
+- `git diff --check`
+- `git diff --name-only`
+- `rg "running|paused|completed|restore|product_card_snapshot|archived|confirmed|draft" docs`
+- `git status --short`
+
+Test status:
+
+- Documentation-only task; backend tests, frontend tests, migrations, compile
+  checks, package checks, and runtime checks were not run.
+
+Known limitations:
+
+- Campaign persistence, API routes, migrations, services, repositories, schemas,
+  and tests are still not implemented.
+- Stitch MCP design context has not yet been provided in this repository.
+- Product Card route-level company/workspace authorization remains planned
+  hardening and should not be claimed as complete.
+
+Next recommended step:
+
+- Implement the minimal Campaign backend vertical slice for the finalized
+  `draft` / `confirmed` / `archived` contract, including Product Card
+  validation, `product_card_snapshot`, archive, duplicate-as-draft, and tests.
 
 ### 2026-07-02 - Frontend Backend Stitch Workflow Governance Update
 
@@ -159,73 +300,3 @@ Next recommended step:
 - Continue Phase 3 Campaign by implementing the minimal Campaign backend
   vertical slice after confirming the API contract, data model, business rules,
   validation rules, and allowed status transitions.
-
-### 2026-06-30 - Unified Phase Tracking and Frontend Plan Documentation
-
-Completed: Documentation-only update to separate detailed historical logging
-from high-level phase tracking and to align frontend/backend phase numbering.
-
-What changed:
-
-- Added `docs/DEVELOPMENT_LOG.md` for detailed historical development entries.
-- Added `docs/FRONTEND_DEVELOPMENT_PLAN.md` for frontend phase planning and
-  backend/frontend phase synchronization.
-- Reworked this file into a unified backend/frontend phase tracking table.
-- Marked Phase 3 Campaign as the current active phase.
-- Added the new documentation files to the project documentation indexes.
-
-Files modified:
-
-- `README.md`
-- `docs/README.md`
-- `docs/DEVELOPMENT_PROGRESS.md`
-
-Files added:
-
-- `docs/DEVELOPMENT_LOG.md`
-- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
-
-Verification commands:
-
-- `git status --short`
-- `git diff --name-only`
-- `git diff --check`
-- `rg -n "DEVELOPMENT_LOG|FRONTEND_DEVELOPMENT_PLAN" README.md docs/README.md docs/DEVELOPMENT_PROGRESS.md docs/DEVELOPMENT_LOG.md docs/FRONTEND_DEVELOPMENT_PLAN.md`
-- `rg` search for rejected legacy terminology across the new phase-tracking
-  docs.
-
-Test status:
-
-- Documentation-only task; backend tests, frontend tests, migrations, compile
-  checks, package checks, and runtime checks were not run.
-- `git status --short` listed modified tracked docs and the two new untracked
-  docs.
-- `git diff --name-only` listed the tracked Markdown files changed in this task.
-- `git diff --check` passed; Git printed LF-to-CRLF working-copy warnings only.
-- New-document reference search found `DEVELOPMENT_LOG` and
-  `FRONTEND_DEVELOPMENT_PLAN` references in the project indexes and progress
-  docs.
-- Rejected legacy wording search returned no matches in the new phase-tracking
-  docs.
-- Trailing-whitespace search returned no matches in the new/updated progress
-  docs.
-
-Known limitations:
-
-- This task does not implement Campaign backend behavior.
-- This task does not implement frontend pages.
-- This task does not provide Stitch design context.
-
-Next recommended step:
-
-- Begin Phase 3 Campaign as the next backend vertical slice, starting with the
-  minimal Campaign model, migration, schemas, repository, service, routes, and
-  tests. Campaign must select only confirmed Product Cards from the same
-  company.
-
-### 2026-06-29 - Development Progress Retention Cleanup
-
-Completed: Documentation-only cleanup that kept `docs/DEVELOPMENT_PROGRESS.md`
-to the latest recent task records and clarified progress-log retention.
-
-Detailed history moved forward through `docs/DEVELOPMENT_LOG.md`.

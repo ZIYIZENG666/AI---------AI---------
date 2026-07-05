@@ -58,9 +58,19 @@ The MVP must include the following:
 ### 6. Campaign
 
 - Create campaign from a confirmed product card
+- Require the Product Card to belong to the same company / workspace scope
 - Define target market, target industry, target customer type, and search criteria
 - Allow AI to suggest campaign content
-- Allow user to edit and confirm campaign
+- Keep Campaign status limited to `draft`, `confirmed`, and `archived`
+- Allow draft Campaigns to be viewed, edited, deleted, or confirmed
+- Save `product_card_snapshot` when a draft Campaign is confirmed
+- Allow confirmed Campaigns to be viewed, archived, and used for Lead Discovery
+- Do not allow confirmed Campaigns to be edited, deleted, or returned to draft
+- Treat repeated confirm on an already confirmed Campaign as idempotent
+- Treat archived Campaigns as read-only history that cannot be edited, deleted,
+  restored, or used for new Lead Discovery
+- Support duplicate / copy as draft for Campaign reuse instead of editing a
+  confirmed Campaign or restoring an archived Campaign
 
 ### 7. Lead Discovery
 
@@ -104,6 +114,9 @@ The MVP must include the following:
 
 - Record background task status
 - Show whether tasks are pending, running, completed, or failed
+- Keep task execution status separate from Campaign status. Runtime states such
+  as running, paused, completed, failed, or cancelled belong to future
+  LeadDiscoveryJob / CampaignJob / task records, not to `campaigns.status`
 
 ## Should Have
 

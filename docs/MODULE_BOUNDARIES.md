@@ -129,6 +129,13 @@ The `products` module owns Product Card scope validation.
   repository/service lookup semantics.
 - Future workspace support should extend this to `product_card_id + company_id + workspace_id`.
 - Campaign and later modules must not consume a Product Card from another company or workspace.
+- Campaign creation and confirmation may consume only `confirmed` Product Cards.
+  Draft Product Cards, missing Product Cards, deleted Product Cards, and Product
+  Cards outside the current company / workspace scope must be rejected.
+- The Product Card remains linked by `product_card_id`, but once a Campaign is
+  confirmed the Campaign module owns the historical `product_card_snapshot`.
+  Later Product Card edits must not silently change a confirmed Campaign's
+  meaning.
 - The `products` service must protect Campaign references before deletion; route
   handlers must not perform the reference query or deletion decision directly.
 - Product Card reject/rejected behavior is outside this module contract. Deletion is the only removal operation.
@@ -144,18 +151,29 @@ It handles:
 
 - Campaign creation
 - Campaign criteria
+- Product Card linkage and same-company / workspace-scope validation
+- Product Card snapshot capture at confirmation
 - Target country or region
 - Target industry
 - Search keywords
 - Qualification criteria
 - Outreach angle
-- Campaign status
+- Campaign configuration status: `draft`, `confirmed`, and `archived`
+- Campaign duplication / copy as draft
 
 ### Not Responsible For
 
 It should not crawl websites directly.
 
 It should not generate Gmail drafts directly.
+
+It should not store Lead Discovery or background task execution state in
+Campaign status. Runtime states such as `pending`, `running`, `paused`,
+`completed`, `failed`, and `cancelled` belong to future job or task models.
+
+It should not edit or delete confirmed Campaigns.
+
+It should not restore archived Campaigns.
 
 ## discovery
 
@@ -170,6 +188,7 @@ It handles:
 - Candidate company collection
 - Source URL collection
 - Initial lead creation
+- Lead Discovery execution state through a future job or task model
 
 ### Not Responsible For
 
@@ -178,6 +197,8 @@ It should not perform final AI scoring.
 It should not approve leads.
 
 It should not generate outreach drafts.
+
+It should not mutate `campaigns.status` to represent discovery execution state.
 
 ## intelligence
 

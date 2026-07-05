@@ -142,6 +142,8 @@ Service 层必须测试：
 - Company Knowledge Draft 生成流程
 - Product Card 生成流程
 - Campaign 创建流程
+- Campaign `draft -> confirmed -> archived` lifecycle and invalid transitions
+- Campaign Product Card validation and `product_card_snapshot` capture
 - Lead 基础验证流程
 - Lead Scoring 流程
 - Lead Review 流程
@@ -221,6 +223,34 @@ API Test 规则：
 - 409 Conflict
 - 422 Validation Error
 - 500 Internal Server Error
+
+---
+
+## 8.1 Campaign Phase 3 Testing Rules
+
+Campaign Phase 3 tests must cover:
+
+1. Creating a Campaign starts with `status = draft`.
+2. Campaign creation rejects missing Product Cards, Product Cards from another
+   company / workspace scope, draft Product Cards, and otherwise invalid Product
+   Cards.
+3. Draft Campaigns can be edited, deleted, and confirmed.
+4. Confirming a draft Campaign revalidates the Product Card and saves
+   `product_card_snapshot`.
+5. Repeating confirm on an already confirmed Campaign returns success and keeps
+   the Campaign confirmed.
+6. Confirmed Campaigns cannot be edited, deleted, or returned to draft.
+7. Confirmed Campaigns can be archived.
+8. Archived Campaigns are read-only, cannot be restored, and cannot be used for
+   new Lead Discovery.
+9. The default Campaign list hides archived Campaigns, and `status=archived`
+   returns archived Campaigns explicitly.
+10. Duplicate / copy as draft creates a new draft Campaign with a new ID and
+    does not modify the source Campaign.
+11. Campaign status rejects `running`, `paused`, `completed`, `failed`, and
+    `cancelled`; those values belong to future job or task models.
+12. Lead Discovery tests should require a confirmed Campaign and should use the
+    Campaign's `product_card_snapshot` instead of live Product Card content.
 
 ---
 
