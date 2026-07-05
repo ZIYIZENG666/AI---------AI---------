@@ -32,7 +32,7 @@ This summary reflects the current high-level backend implementation state.
 | Phase 1: Sources + Knowledge | Completed | Source persistence, knowledge draft creation, review transitions, filtering, migrations, routes, services, repositories, schemas, and tests exist for the MVP text/URL slice. |
 | Phase 2: Product Card backend contract | Completed | Product Card backend supports AI-generated and manual cards, `draft` and `confirmed` lifecycle, edit, confirm, delete, `source_type`, and tests under the finalized contract. |
 | Phase 3: Campaign | Backend vertical slice completed | Campaign backend supports the minimum Phase 3 contract: `draft`, `confirmed`, and `archived`; confirmed same-company Product Card validation; `product_card_snapshot`; archive; duplicate-as-draft; routes; migration; and tests. |
-| Frontend business workflow | Planned / pending | The frontend remains a basic shell. Product Card UI and later business workflow screens are not implemented yet. |
+| Frontend business workflow | Planned / blocked for Campaign UI | The frontend remains a basic shell. Product Card UI and later business workflow screens are not implemented yet. Frontend Phase 3 Campaign UI requires Stitch Campaign design context before Codex implementation can begin. |
 
 ## Historical Implementation Summary
 
@@ -109,6 +109,8 @@ Completed work summarized from the 2026-07-03 Campaign implementation:
 
 Planned or pending work:
 
+- Provide or authorize Stitch Campaign design context before starting Frontend
+  Phase 3 Campaign UI implementation.
 - Extend Product Card route-level scoping when API context supports company or
   future workspace ownership.
 - Audit non-Product-Card ORM and Alembic check constraints for consistent
@@ -117,6 +119,60 @@ Planned or pending work:
   database.
 
 ## Dated Task Entries
+
+### 2026-07-05 - Stitch-Gated Campaign Frontend Documentation Cleanup
+
+Type: Documentation-only.
+
+Completed:
+
+- Updated Campaign frontend planning to state that the Campaign backend minimum
+  vertical slice is complete.
+- Marked Frontend Phase 3 Campaign UI as blocked until Stitch Campaign design
+  context is provided or authorized.
+- Documented that Codex must not implement a conservative Campaign UI fallback
+  without Stitch Campaign screens or authorized Stitch context.
+- Clarified that Campaign-side Product Card same-company validation is
+  implemented for Campaign creation and confirmation.
+- Clarified that Product Card route-level get, patch, confirm, and delete
+  company/workspace authorization remains planned hardening.
+- Kept Lead Discovery, Contacts, Outreach, Gmail Draft, backend code, frontend
+  code, migrations, package files, and runtime behavior out of scope.
+
+Files modified:
+
+- `docs/API_CONTRACT.md`
+- `docs/CODING_STANDARDS.md`
+- `docs/DATA_MODEL.md`
+- `docs/WORKFLOW.md`
+- `docs/SYSTEM_ARCHITECTURE.md`
+- `docs/UI_REQUIREMENTS.md`
+- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+- `docs/DEVELOPMENT_LOG.md`
+
+Verification:
+
+- `git diff --check`
+- `git diff --name-only`
+- `rg -n "Campaign backend and frontend must not be marked complete yet|when available|without waiting for Stitch|Product Card Scope Hardening|Route-level Product Card" docs`
+- `rg -n "^### [0-9]{4}-[0-9]{2}-[0-9]{2} -" docs\DEVELOPMENT_PROGRESS.md`
+
+Known limitations:
+
+- No backend tests, frontend tests, migrations, compile checks, package checks,
+  or runtime checks were run because this was documentation-only.
+- Stitch Campaign screens and Stitch MCP design context still need to be
+  provided or authorized before Campaign frontend implementation can begin.
+- Product Card route-level company/workspace authorization remains planned
+  hardening.
+
+Next recommended step:
+
+- Provide or authorize Stitch Campaign screens for Frontend Phase 3. After that,
+  implement only the supported Campaign UI actions from the current backend
+  contract, without starting Lead Discovery, Contacts, Outreach, or Gmail Draft
+  work.
 
 ### 2026-07-03 - Campaign Phase 3 Minimum Backend Vertical Slice
 
@@ -201,9 +257,9 @@ Known limitations:
 
 Next recommended step:
 
-- Implement Frontend Phase 3 Campaign UI from the current backend API contract,
-  data model, lifecycle rules, Chinese user-facing text requirements, and Stitch
-  design context when available.
+- Provide or authorize Stitch Campaign screens before implementing Frontend
+  Phase 3 Campaign UI. Codex must not implement a conservative fallback UI
+  without Stitch Campaign context.
 
 ### 2026-07-02 - Campaign Phase 3 Final Rule Documentation Alignment
 

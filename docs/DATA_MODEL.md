@@ -191,13 +191,20 @@ Product Card scope plan:
 
 - The current Product Card model belongs to a company through `company_id` in
   the single-user MVP.
-- ID-only get, patch, confirm, and delete lookups are provisional and must not be
-  treated as the final ownership model.
-- Planned repository/service lookups should require
-  `product_card_id + company_id` before or alongside Phase 3.
+- Campaign creation and confirmation already consume Product Cards through
+  same-company validation: a Campaign may use only a confirmed Product Card
+  from its own company.
+- Product Card deletion checks whether a Campaign has referenced the Product
+  Card before physical deletion.
+- Product Card route-level get, patch, confirm, and delete lookups are still
+  ID-only in the current single-user MVP contract. They are provisional and
+  must not be treated as the final ownership model.
+- Planned route-level repository/service lookups should require
+  `product_card_id + company_id` for get, patch, confirm, and delete operations.
 - Future workspace support should add and enforce `workspace_id`, producing
   `product_card_id + company_id + workspace_id` scope semantics.
-- No workspace ownership field or multi-tenant authorization is claimed as implemented yet.
+- No route-level Product Card company/workspace authorization, workspace
+  ownership field, or multi-tenant authorization is claimed as implemented yet.
 
 Product Card AI output mapping note:
 

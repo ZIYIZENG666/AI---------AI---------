@@ -115,6 +115,22 @@ Rules:
 The current MVP remains a single-user prototype. ID-only get, patch, confirm,
 and delete operations must not be treated as the final authorization model.
 
+Implemented boundary:
+
+- Campaign creation and confirmation already validate Product Card consumption
+  with `product_card_id + company_id` semantics. A Campaign may use only a
+  confirmed Product Card from the same company.
+- Product Card deletion already checks whether a Campaign has referenced the
+  Product Card before physical deletion.
+
+Still planned hardening:
+
+- Product Card route-level get, patch, confirm, and delete endpoints still use
+  ID-only paths in the current single-user MVP contract.
+- These Product Card route-level operations must not be described as having
+  company/workspace authorization until company-scoped route semantics,
+  service checks, and tests are implemented.
+
 Target repository/service query semantics:
 
 - get by `product_card_id + company_id`
@@ -126,10 +142,13 @@ Target repository/service query semantics:
 Rules:
 
 1. Product Cards must remain associated with their owning company.
-2. Company-scoped lookup hardening should be incorporated before or alongside Phase 3 Campaign work.
-3. Workspace-scoped lookup is a future multi-tenant constraint and is not implemented yet.
-4. Account or workspace authorization must not be claimed until the corresponding implementation and tests exist.
-5. Product Card deletion must check Campaign references before physical deletion and return HTTP `409` when the card is in use.
+2. Campaign-side same-company Product Card validation is implemented for the
+   Phase 3 Campaign backend slice.
+3. Product Card route-level company-scoped lookup hardening remains planned work
+   for get, patch, confirm, and delete operations.
+4. Workspace-scoped lookup is a future multi-tenant constraint and is not implemented yet.
+5. Account or workspace authorization must not be claimed until the corresponding implementation and tests exist.
+6. Product Card deletion must check Campaign references before physical deletion and return HTTP `409` when the card is in use.
 
 ## Phase 3 Campaign Endpoints
 

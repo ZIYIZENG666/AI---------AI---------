@@ -39,8 +39,10 @@ Frontend standards:
 6. All user-visible text must be Chinese, including page titles, buttons, form
    labels, dialogs, errors, empty states, status labels, menus, and confirmation
    prompts.
-7. Frontend layout and visual implementation should follow Stitch-generated UI
-   designs when available.
+7. Frontend layout and visual implementation must follow Stitch-generated UI
+   designs for business workflow screens that require user-provided design
+   context. Campaign UI implementation must not start without Stitch Campaign
+   design context.
 8. Frontend must not hard-code unsupported business states.
 9. Frontend API client usage should be centralized or consistent with the
    existing frontend structure.

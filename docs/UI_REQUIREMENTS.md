@@ -36,7 +36,8 @@ order is:
 Frontend implementation should follow this workflow:
 
 1. The user manually creates or updates UI screens in Stitch.
-2. Codex reads Stitch MCP design context when available.
+2. Codex reads Stitch MCP design context before implementing screens that
+   require Stitch design context.
 3. Stitch design is used as visual and interaction reference only.
 4. Project documents, API contracts, data model, business rules, validation
    rules, and allowed status transitions remain the source of truth for
@@ -53,6 +54,11 @@ Frontend implementation should follow this workflow:
 10. All user-facing text must be Chinese.
 11. After implementation, Codex must run appropriate frontend checks and provide
     a summary of completed pages.
+
+For Campaign frontend implementation, Stitch Campaign design context is
+required. If Stitch Campaign screens or authorized Stitch context are not
+available, Codex must stop before implementation and must not build a
+conservative fallback Campaign UI.
 
 ## Language Requirement
 
@@ -119,12 +125,11 @@ Confirmed Campaign pages may show:
 
 - 查看详情
 - 归档
-- 开始获客 / 用于获客
 - 复制为草稿
 
-Start / use for Lead Discovery must be wired only when the corresponding
-backend Lead Discovery API contract exists. The UI must not imply that
-unsupported discovery work has already run.
+Start / use for Lead Discovery must not be shown or wired until the
+corresponding backend Lead Discovery API contract exists. The UI must not imply
+that unsupported discovery work has already run.
 
 Confirmed Campaign pages must not show:
 

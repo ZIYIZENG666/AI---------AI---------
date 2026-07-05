@@ -106,9 +106,13 @@ Product Card lifecycle and editing rules:
 Product Card scope note:
 
 - The current MVP is a single-user prototype, and each Product Card belongs to a company.
-- Before Campaign and later downstream records rely on a Product Card, access should be hardened to preserve the same company boundary.
+- Campaign creation and confirmation already validate that the selected Product
+  Card is confirmed and belongs to the same company as the Campaign.
+- Product Card route-level get, patch, confirm, and delete company/workspace
+  authorization remains planned hardening.
 - Future workspace or multi-tenant support must extend this boundary to workspace ownership.
-- This is planned hardening, not a claim that account or workspace authorization is already implemented.
+- This is not a claim that Product Card route-level account or workspace
+  authorization is already implemented.
 
 ### Step 6: Create Campaign
 
@@ -307,12 +311,14 @@ keeping their responsibilities separate.
 3. The user manually designs UI screens in Stitch.
 4. Stitch is a visual and interaction reference. It does not define backend
    business logic or override project rules.
-5. Backend implementation can continue without waiting for Stitch UI design once
+5. Backend implementation can continue independently of Stitch UI design once
    the API contract, data model, and business rules are clear.
-6. Codex reads Stitch MCP design context when available.
+6. Campaign frontend implementation requires Stitch Campaign design context.
+   Without Stitch Campaign screens or authorized Stitch context, Codex must not
+   implement a conservative fallback Campaign UI.
 7. Codex implements frontend pages from project rules, current phase API
-   contract, data model, business rules, `docs/UI_REQUIREMENTS.md`, and Stitch
-   design context when available.
+   contract, data model, business rules, `docs/UI_REQUIREMENTS.md`, and required
+   Stitch design context.
 8. Codex must not freely redesign UI unless explicitly requested.
 9. Codex must not show or imply frontend features that the current backend API
    contract does not support.
