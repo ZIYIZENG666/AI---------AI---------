@@ -140,8 +140,9 @@ Confirmed Campaign pages must not show:
 Archived Campaign pages are read-only. They must not show edit, delete,
 restore, return-to-draft, confirm, or start Lead Discovery actions.
 
-The default Campaign list must hide archived Campaigns. The UI may show archived
-Campaigns only through an explicit archived filter entry.
+The default Campaign list and the `全部` view may show archived Campaigns
+alongside draft and confirmed Campaigns. The UI may also provide an explicit
+`已归档` filter, but archived Campaign visibility is not limited to that filter.
 
 Campaign copy / duplicate behavior must be presented as creating a new draft
 Campaign. It must not be presented as restoring an archived Campaign or editing

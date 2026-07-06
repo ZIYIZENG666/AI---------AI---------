@@ -232,8 +232,9 @@ Codex implementation scope:
 - Do not show edit, delete, or return-to-draft actions for confirmed Campaigns.
 - Make archived Campaigns read-only and do not show edit, delete, restore, or
   start Lead Discovery actions.
-- Hide archived Campaigns from the default list unless the user explicitly
-  filters for archived Campaigns.
+- Allow archived Campaigns to appear in the default Campaign list / `全部` view
+  alongside draft and confirmed Campaigns. The UI may also provide an explicit
+  archived filter.
 - Keep all Campaign page titles, form labels, buttons, status labels, empty
   states, errors, success messages, and confirmation dialogs in Chinese.
 - Implement loading, error, empty, and success states.

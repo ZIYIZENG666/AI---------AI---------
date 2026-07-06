@@ -100,8 +100,10 @@ Completed work summarized from the 2026-07-03 Campaign implementation:
   confirmation.
 - Captured `product_card_snapshot` at confirmation.
 - Made repeated confirm idempotent for already confirmed Campaigns.
-- Kept archived Campaigns read-only and hidden from the default list unless
-  `status=archived` is explicitly requested.
+- Initially kept archived Campaigns read-only and hidden from the default list
+  under the then-current implementation contract. The default-list behavior was
+  later superseded by the 2026-07-06 documentation rule update and synchronized
+  in backend code and tests on 2026-07-06.
 - Added Alembic revision `20260703_0005` for Campaign persistence.
 - Added focused Campaign API tests for lifecycle and validation behavior.
 
@@ -119,6 +121,90 @@ Planned or pending work:
   database.
 
 ## Dated Task Entries
+
+### 2026-07-06 - Campaign Backend Archived List Runtime Sync
+
+Type: Backend behavior and tests.
+
+Completed:
+
+- Removed the Campaign repository default-list filter that excluded archived
+  Campaigns when no `status` query parameter was supplied.
+- Updated the Campaign list test so the default company Campaign list includes
+  both draft and archived Campaigns.
+- Verified that `status=archived` and `status=draft` still return
+  status-specific lists.
+- Updated backend README and progress notes so they no longer describe backend
+  archived-list synchronization as pending.
+- Kept archived Campaign lifecycle restrictions unchanged.
+
+Files modified:
+
+- `backend/app/modules/campaigns/repository.py`
+- `backend/tests/test_campaigns.py`
+- `backend/README.md`
+- `docs/DEVELOPMENT_LOG.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+
+Verification:
+
+- `.\.venv\Scripts\python.exe -m pytest tests\test_campaigns.py -q`
+- `git diff --check`
+- `git status --short`
+
+Known limitations:
+
+- No frontend UI was implemented.
+- The migration chain still has not been executed against a live isolated
+  PostgreSQL test database in this task.
+
+### 2026-07-06 - Campaign Archived List Visibility Rule Update
+
+Type: Documentation-only.
+
+Completed:
+
+- Updated the Campaign list visibility rule so the default Campaign list /
+  `全部` view may include archived Campaigns alongside draft and confirmed
+  Campaigns.
+- Kept archived Campaigns as read-only history records that cannot be edited,
+  deleted, restored, confirmed, or used for new Lead Discovery.
+- Kept `status=archived` / `已归档` as an allowed status-specific filter, but no
+  longer the only way to view archived Campaigns.
+- Updated API, data model, workflow, MVP scope, product, frontend plan, UI, and
+  testing rule documents.
+- Added explicit follow-up notes that backend implementation and tests still
+  needed synchronization from the earlier default-hidden behavior. That
+  follow-up was completed later on 2026-07-06.
+
+Files modified:
+
+- `backend/README.md`
+- `docs/API_CONTRACT.md`
+- `docs/DATA_MODEL.md`
+- `docs/DEVELOPMENT_LOG.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
+- `docs/MVP_SCOPE.md`
+- `docs/PRODUCT_REQUIREMENTS.md`
+- `docs/TESTING_STRATEGY.md`
+- `docs/UI_REQUIREMENTS.md`
+- `docs/WORKFLOW.md`
+
+Verification:
+
+- `rg -n "default Campaign list|hide archived|hidden from default|explicit archived|status=archived|全部|已归档|归档" docs backend/README.md`
+- `git diff --check`
+- `git diff --name-only`
+- `git status --short`
+
+Known limitations:
+
+- The task was documentation-only.
+- Backend repository logic and Campaign tests still implement the earlier
+  default-hidden behavior and require a follow-up code/test update. This was
+  resolved by the later 2026-07-06 Campaign backend archived list runtime sync.
+- No frontend UI was implemented.
 
 ### 2026-07-05 - Stitch-Gated Campaign Frontend Documentation Cleanup
 
@@ -283,8 +369,10 @@ Completed:
   outreach generation.
 - Documented duplicate / copy as draft as the reuse path, instead of editing
   confirmed Campaigns or restoring archived Campaigns.
-- Documented that archived Campaigns are read-only history, hidden from default
-  lists, not restorable, and not usable for new Lead Discovery.
+- Documented the then-current rule that archived Campaigns were read-only
+  history, hidden from default lists, not restorable, and not usable for new
+  Lead Discovery. The default-list visibility portion was superseded by the
+  2026-07-06 documentation rule update.
 - Added Campaign UI status/action rules and Chinese user-facing text
   requirements.
 - Kept Phase 3 Campaign active / in progress and did not mark backend or

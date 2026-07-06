@@ -252,6 +252,10 @@ Possible `status`:
 `archived` 表示只读历史记录。Archived Campaigns cannot be edited, deleted,
 restored, or used for new Lead Discovery.
 
+Archived Campaigns may appear in the default Campaign list / `全部` view
+alongside draft and confirmed Campaigns. List visibility does not change their
+read-only lifecycle rules.
+
 Campaign field rules:
 
 - `product_card_id` is the required Product Card link.

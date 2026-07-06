@@ -144,8 +144,9 @@ Campaign lifecycle requirements:
 - Repeating confirm on an already confirmed Campaign is idempotent and should
   keep the Campaign confirmed.
 - Archived Campaigns are read-only history. They cannot be edited, deleted,
-  restored, or used for new Lead Discovery, and the default Campaign list should
-  hide them unless the user explicitly filters for archived Campaigns.
+  restored, or used for new Lead Discovery. They may appear in the default
+  Campaign list / `全部` view alongside draft and confirmed Campaigns, and the
+  UI may also provide an explicit archived filter.
 - Reusing a similar confirmed Campaign should use duplicate / copy as draft. The
   copy gets a new ID, starts as draft, can be edited, and must revalidate the
   current Product Card when later confirmed.

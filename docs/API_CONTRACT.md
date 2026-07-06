@@ -222,10 +222,10 @@ Rules:
    `running`, `paused`, `completed`, `failed`, and `cancelled` are job or task
    execution states for future Lead Discovery / Campaign Job models, not
    Campaign status values.
-7. `GET /api/v1/companies/{company_id}/campaigns` returns non-archived
-   Campaigns by default. It may accept `status=draft`, `status=confirmed`, or
-   `status=archived`; archived Campaigns are returned only when explicitly
-   requested with `status=archived`.
+7. `GET /api/v1/companies/{company_id}/campaigns` returns all Campaigns by
+   default, including `draft`, `confirmed`, and `archived` Campaigns. It may
+   accept `status=draft`, `status=confirmed`, or `status=archived` to return a
+   status-specific list.
 8. `PATCH /api/v1/campaigns/{campaign_id}` may edit only `draft` Campaign
    fields. It must reject edits to `confirmed` or `archived` Campaigns and must
    not change `company_id`, `product_card_id`, `product_card_snapshot`, or

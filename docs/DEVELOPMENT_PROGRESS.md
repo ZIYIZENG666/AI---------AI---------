@@ -90,6 +90,9 @@ Phase 3: Campaign is the current active phase.
 - Campaign persistence and APIs are implemented for the Phase 3 minimum backend
   contract: `draft` / `confirmed` / `archived`, same-company confirmed Product
   Card validation, `product_card_snapshot`, archive, and duplicate-as-draft.
+- Campaign default company list behavior now matches the current rule documents:
+  default Campaign lists / `全部` include archived Campaigns alongside draft and
+  confirmed Campaigns, while status-specific filters remain available.
 - Product Card frontend UI has not been implemented for the finalized backend
   contract.
 - Frontend remains a basic shell and does not yet provide the business workflow
@@ -114,6 +117,122 @@ Phase 3: Campaign is the current active phase.
 
 This section keeps compact records for the latest Codex tasks. Detailed task
 history should be moved to `docs/DEVELOPMENT_LOG.md`.
+
+### 2026-07-06 - Campaign Backend Archived List Runtime Sync
+
+Completed: Synchronized Campaign backend list behavior and tests with the
+updated rule that default Campaign lists / `全部` include archived Campaigns.
+
+What changed:
+
+- Removed the repository-level default filter that excluded archived Campaigns
+  when no `status` query parameter was provided.
+- Updated the Campaign list test so the default company list includes both a
+  draft Campaign and an archived Campaign.
+- Kept `status=archived` and `status=draft` as status-specific filters.
+- Updated backend documentation and progress/history notes to state that runtime
+  behavior now matches the revised Campaign list rule.
+- Kept archived Campaign lifecycle restrictions unchanged: archived Campaigns
+  remain read-only and cannot be edited, deleted, restored, confirmed, or used
+  for new Lead Discovery.
+
+Files modified:
+
+- `backend/app/modules/campaigns/repository.py`
+- `backend/tests/test_campaigns.py`
+- `backend/README.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+- `docs/DEVELOPMENT_LOG.md`
+
+Verification commands:
+
+- `.\.venv\Scripts\python.exe -m pytest tests\test_campaigns.py -q`
+- `git diff --check`
+- `git status --short`
+
+Test status:
+
+- Campaign tests passed: 16 passed.
+- FastAPI / Starlette emitted the existing `httpx` deprecation warning in test
+  output.
+
+Known limitations:
+
+- No frontend UI was implemented in this task.
+- Lead Discovery, Contacts, Outreach, Gmail Draft, provider calls, and
+  background jobs remain out of scope.
+- The migration chain still has not been executed against a live isolated
+  PostgreSQL test database in this task.
+
+Next recommended step:
+
+- Re-read the updated Stitch Campaign screens and implement only the supported
+  Frontend Phase 3 Campaign UI actions against the current backend contract.
+
+### 2026-07-06 - Campaign Archived List Visibility Rule Update
+
+Completed: Documentation-only update to change the Campaign list visibility
+rule so archived Campaigns may appear in the default Campaign list / `全部`
+view.
+
+What changed:
+
+- Updated the Campaign API contract to say the company Campaign list returns
+  `draft`, `confirmed`, and `archived` Campaigns by default.
+- Updated Campaign UI rules to allow archived Campaigns in `全部`, while keeping
+  archived Campaigns read-only and ineligible for edit, delete, restore,
+  confirm, or Lead Discovery actions.
+- Updated product, workflow, data model, frontend plan, MVP scope, and testing
+  rules to remove the old "archived only through explicit filter" requirement.
+- Kept the explicit `已归档` / `status=archived` filter as an allowed
+  status-specific view, not the only way to see archived Campaigns.
+- Added an implementation-alignment note because, at the time of that
+  documentation-only task, backend code and tests still reflected the earlier
+  default-hidden behavior.
+
+Files modified:
+
+- `docs/API_CONTRACT.md`
+- `docs/DATA_MODEL.md`
+- `docs/WORKFLOW.md`
+- `docs/MVP_SCOPE.md`
+- `docs/PRODUCT_REQUIREMENTS.md`
+- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
+- `docs/UI_REQUIREMENTS.md`
+- `docs/TESTING_STRATEGY.md`
+- `docs/DEVELOPMENT_LOG.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+- `backend/README.md`
+
+Verification commands:
+
+- `rg -n "default Campaign list|hide archived|hidden from default|explicit archived|status=archived|全部|已归档|归档" docs backend/README.md`
+- `git diff --check`
+- `git diff --name-only`
+- `git status --short`
+
+Test status:
+
+- Documentation-only task; backend tests, frontend tests, migrations, compile
+  checks, package checks, and runtime checks were not run.
+
+Known limitations:
+
+- Backend repository logic and Campaign tests still hid archived Campaigns from
+  the default company Campaign list at the time of this documentation-only task.
+  This was resolved by the later 2026-07-06 Campaign backend archived list
+  runtime sync.
+- No frontend UI was implemented in this task.
+- Lead Discovery, Contacts, Outreach, Gmail Draft, provider calls, and
+  background jobs remain out of scope.
+
+Next recommended step recorded at that time:
+
+- Synchronize the Campaign backend list behavior and tests so the default
+  company Campaign list / `全部` view includes archived Campaigns, while
+  preserving archived read-only restrictions and the `status=archived` filter.
+  This was completed by the later 2026-07-06 Campaign backend archived list
+  runtime sync.
 
 ### 2026-07-05 - Stitch-Gated Campaign Frontend Documentation Cleanup
 
@@ -172,136 +291,3 @@ Next recommended step:
   implement only the supported Campaign UI actions from the current backend
   contract, without starting Lead Discovery, Contacts, Outreach, or Gmail Draft
   work.
-
-### 2026-07-03 - Campaign Phase 3 Minimum Backend Vertical Slice
-
-Completed: Implemented the minimum Campaign backend vertical slice for the
-finalized Phase 3 contract.
-
-What changed:
-
-- Added Campaign ORM model, Alembic migration, schemas, repository, service,
-  and routes.
-- Registered Campaign routes in the FastAPI app and shared ORM metadata.
-- Implemented create, company-scoped list, get, patch, delete, confirm,
-  archive, and duplicate endpoints.
-- Enforced `draft`, `confirmed`, and `archived` Campaign status only.
-- Enforced confirmed same-company Product Card validation at creation and
-  confirmation.
-- Saved `product_card_snapshot` when confirming a draft Campaign.
-- Kept repeated confirm on confirmed Campaigns idempotent.
-- Kept archived Campaigns hidden from default company lists unless
-  `status=archived` is requested.
-- Updated Product Card Campaign-reference checking to use real Campaign rows.
-
-Files modified:
-
-- `backend/README.md`
-- `backend/app/main.py`
-- `backend/app/models.py`
-- `backend/app/modules/campaigns/models.py`
-- `backend/app/modules/campaigns/repository.py`
-- `backend/app/modules/campaigns/routes.py`
-- `backend/app/modules/campaigns/schemas.py`
-- `backend/app/modules/campaigns/service.py`
-- `docs/API_CONTRACT.md`
-- `docs/DEVELOPMENT_PROGRESS.md`
-- `docs/DEVELOPMENT_LOG.md`
-
-Files added:
-
-- `backend/alembic/versions/20260703_0005_create_campaigns.py`
-- `backend/tests/test_campaigns.py`
-
-Verification commands:
-
-- `.\.venv\Scripts\python.exe -m pytest tests\test_campaigns.py -q`
-- `.\.venv\Scripts\python.exe -m pytest tests\test_products.py -q`
-- `.\.venv\Scripts\python.exe -m pytest -q`
-- `git diff --check`
-- `git status --short`
-- `git diff --name-only`
-
-Test status:
-
-- Campaign tests passed: 16 passed.
-- Product Card tests passed: 19 passed.
-- Full backend tests passed: 57 passed.
-- FastAPI / Starlette emitted the existing `httpx` deprecation warning in test
-  output.
-
-Known limitations:
-
-- No frontend UI was implemented.
-- Lead Discovery, Gmail, outreach, contacts, provider calls, and background jobs
-  were not implemented.
-- The migration chain still has not been executed against a live isolated
-  PostgreSQL test database in this task.
-- Campaign does not add `archived_at`; the current rule docs define archived
-  state through `status = archived` and `updated_at`.
-
-Next recommended step:
-
-- Provide or authorize Stitch Campaign screens before implementing Frontend
-  Phase 3 Campaign UI. Codex must not implement a conservative fallback UI
-  without Stitch Campaign context.
-
-### 2026-07-02 - Campaign Phase 3 Final Rule Documentation Alignment
-
-Completed: Documentation-only update to synchronize the finalized Campaign
-Phase 3 business rules across the project rule documents.
-
-What changed:
-
-- Documented Campaign statuses as `draft`, `confirmed`, and `archived` only.
-- Moved `running`, `paused`, `completed`, `failed`, and `cancelled` out of
-  Campaign status and into future job / task execution status.
-- Added confirmed Product Card validation, same-company / workspace-scope
-  boundary, `product_card_snapshot`, idempotent confirm, archive, and duplicate
-  / copy-as-draft rules.
-- Added Campaign UI rules for draft, confirmed, and archived states, including
-  Chinese user-facing text and default hiding of archived Campaigns.
-- Kept Phase 3 Campaign active / in progress; no backend or frontend Campaign
-  implementation was marked complete.
-
-Files modified:
-
-- `docs/API_CONTRACT.md`
-- `docs/DATA_MODEL.md`
-- `docs/WORKFLOW.md`
-- `docs/MODULE_BOUNDARIES.md`
-- `docs/PRODUCT_REQUIREMENTS.md`
-- `docs/MVP_SCOPE.md`
-- `docs/AI_RULES.md`
-- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
-- `docs/UI_REQUIREMENTS.md`
-- `docs/TESTING_STRATEGY.md`
-- `docs/DEVELOPMENT_PROGRESS.md`
-- `docs/DEVELOPMENT_LOG.md`
-- `backend/README.md`
-
-Verification commands:
-
-- `git diff --check`
-- `git diff --name-only`
-- `rg "running|paused|completed|restore|product_card_snapshot|archived|confirmed|draft" docs`
-- `git status --short`
-
-Test status:
-
-- Documentation-only task; backend tests, frontend tests, migrations, compile
-  checks, package checks, and runtime checks were not run.
-
-Known limitations:
-
-- Campaign persistence, API routes, migrations, services, repositories, schemas,
-  and tests are still not implemented.
-- Stitch MCP design context has not yet been provided in this repository.
-- Product Card route-level company/workspace authorization remains planned
-  hardening and should not be claimed as complete.
-
-Next recommended step:
-
-- Implement the minimal Campaign backend vertical slice for the finalized
-  `draft` / `confirmed` / `archived` contract, including Product Card
-  validation, `product_card_snapshot`, archive, duplicate-as-draft, and tests.

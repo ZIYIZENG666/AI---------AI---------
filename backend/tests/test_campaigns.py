@@ -361,7 +361,7 @@ def test_archived_campaign_is_read_only_and_not_restorable(client) -> None:
     assert status_patch_response.json()["error"]["code"] == "validation_error"
 
 
-def test_archived_campaign_is_hidden_from_default_list_and_explicitly_listed(
+def test_archived_campaign_is_in_default_list_and_status_filters_still_work(
     client,
 ) -> None:
     company_id = create_company(client)
@@ -388,17 +388,29 @@ def test_archived_campaign_is_hidden_from_default_list_and_explicitly_listed(
         f"/api/v1/companies/{company_id}/campaigns"
         "?status=archived&limit=10&offset=0"
     )
+    draft_response = client.get(
+        f"/api/v1/companies/{company_id}/campaigns?status=draft&limit=10&offset=0"
+    )
 
     assert default_response.status_code == 200
-    assert default_response.json()["data"]["pagination"]["total"] == 1
-    assert [item["id"] for item in default_response.json()["data"]["items"]] == [
-        draft_campaign["id"]
-    ]
+    assert default_response.json()["data"]["pagination"]["total"] == 2
+    default_items = default_response.json()["data"]["items"]
+    assert {item["id"] for item in default_items} == {
+        draft_campaign["id"],
+        archived_campaign["id"],
+    }
+    assert {item["status"] for item in default_items} == {"draft", "archived"}
 
     assert archived_response.status_code == 200
     assert archived_response.json()["data"]["pagination"]["total"] == 1
     assert [item["id"] for item in archived_response.json()["data"]["items"]] == [
         archived_campaign["id"]
+    ]
+
+    assert draft_response.status_code == 200
+    assert draft_response.json()["data"]["pagination"]["total"] == 1
+    assert [item["id"] for item in draft_response.json()["data"]["items"]] == [
+        draft_campaign["id"]
     ]
 
 

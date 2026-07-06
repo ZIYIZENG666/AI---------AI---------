@@ -148,9 +148,10 @@ Campaign lifecycle rules:
 - A `confirmed` Campaign cannot be edited, deleted, or returned to `draft`.
 - Repeating confirm on an already `confirmed` Campaign is idempotent and leaves
   it confirmed.
-- An `archived` Campaign is a read-only historical record. It can be viewed only
-  through an explicit archived filter, cannot be edited or deleted, cannot be
-  restored, and cannot be used for new Lead Discovery.
+- An `archived` Campaign is a read-only historical record. It may appear in the
+  default Campaign list / `全部` view or through an explicit archived filter, but
+  it cannot be edited or deleted, cannot be restored, and cannot be used for new
+  Lead Discovery.
 - If the user wants to reuse a similar `confirmed` Campaign, the workflow is
   duplicate / copy as draft. The copied Campaign receives a new `id`, starts as
   `draft`, can be edited, and must revalidate the current Product Card when it

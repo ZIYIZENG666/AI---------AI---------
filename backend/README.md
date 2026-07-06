@@ -37,8 +37,9 @@ Current Campaign backend behavior:
   `product_card_snapshot`.
 - Confirming an already confirmed Campaign is idempotent.
 - Confirmed Campaigns can be archived but cannot be edited or deleted.
-- Archived Campaigns are read-only, are hidden from the default company Campaign
-  list, and can be listed only with `status=archived`.
+- Archived Campaigns are read-only and appear in the default company Campaign
+  list / `全部` view alongside draft and confirmed Campaigns. `status=archived`
+  remains available for an archived-only list.
 - Duplicate creates a new draft Campaign and does not reuse the source
   Campaign's `product_card_snapshot` as an active confirmed snapshot.
 

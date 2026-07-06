@@ -243,8 +243,9 @@ Campaign Phase 3 tests must cover:
 7. Confirmed Campaigns can be archived.
 8. Archived Campaigns are read-only, cannot be restored, and cannot be used for
    new Lead Discovery.
-9. The default Campaign list hides archived Campaigns, and `status=archived`
-   returns archived Campaigns explicitly.
+9. The default Campaign list / `全部` view includes archived Campaigns alongside
+   draft and confirmed Campaigns, and `status=archived` returns only archived
+   Campaigns.
 10. Duplicate / copy as draft creates a new draft Campaign with a new ID and
     does not modify the source Campaign.
 11. Campaign status rejects `running`, `paused`, `completed`, `failed`, and

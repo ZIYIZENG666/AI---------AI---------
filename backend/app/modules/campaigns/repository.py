@@ -27,9 +27,7 @@ class CampaignRepository:
         status_filter: str | None = None,
     ) -> tuple[list[Campaign], int]:
         filters = [Campaign.company_id == company_id]
-        if status_filter is None:
-            filters.append(Campaign.status.in_(("draft", "confirmed")))
-        else:
+        if status_filter is not None:
             filters.append(Campaign.status == status_filter)
 
         total = self.session.scalar(

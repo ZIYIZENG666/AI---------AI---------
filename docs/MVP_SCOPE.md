@@ -69,6 +69,9 @@ The MVP must include the following:
 - Treat repeated confirm on an already confirmed Campaign as idempotent
 - Treat archived Campaigns as read-only history that cannot be edited, deleted,
   restored, or used for new Lead Discovery
+- Allow archived Campaigns to appear in the default Campaign list / `全部` view
+  alongside draft and confirmed Campaigns, while still keeping archived records
+  read-only
 - Support duplicate / copy as draft for Campaign reuse instead of editing a
   confirmed Campaign or restoring an archived Campaign
 
