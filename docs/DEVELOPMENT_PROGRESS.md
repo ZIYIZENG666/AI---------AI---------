@@ -27,6 +27,8 @@ Phase 3: Campaign is the current active phase.
   `docs/UI_REQUIREMENTS.md`, and Stitch Campaign design context.
 - Human UI design is created manually in Stitch. Stitch is a visual and
   interaction reference, not a backend business logic source.
+- Current implementation priority is to fill the Frontend Phase 2 Product Card
+  UI gap before starting Phase 4 Lead Discovery work.
 
 ## Required Status Alignment
 
@@ -35,7 +37,9 @@ Phase 3: Campaign is the current active phase.
 - Phase 1 Sources + Knowledge: Completed.
 - Phase 2 Product Card backend contract: Completed.
 - Frontend Foundation: Basic shell present; Campaign workflow UI implemented.
-- Frontend Phase 1 and Frontend Phase 2: Planned / pending UI implementation.
+- Frontend Phase 1: Planned / pending UI implementation.
+- Frontend Phase 2 Product Card UI: Planned / pending UI implementation;
+  current next frontend implementation priority.
 - Phase 3 Campaign backend: Minimum backend vertical slice implemented.
 - Phase 3 Campaign frontend: Implemented for the supported Campaign UI
   lifecycle.
@@ -47,9 +51,9 @@ Phase 3: Campaign is the current active phase.
 | Foundation stabilization | Project scaffold, environment-driven config, Alembic baseline, health checks, company router, and rule-doc stabilization. | Completed | React + TypeScript + Vite shell and dashboard foundation. | Basic shell present; business workflow UI pending. | Foundation is complete, but this is not a full MVP. |
 | Phase 1B | Minimum text/URL source records plus deterministic knowledge draft and review behavior. | Completed | Feeds Frontend Phase 1 company/source/knowledge screens. | Planned. | UI must not imply uploaded documents, crawling, or OCR support. |
 | Phase 1: Sources + Knowledge | Source persistence, knowledge drafts, knowledge review transitions, models, schemas, repositories, services, routes, migrations, and tests for the MVP text/URL slice. | Completed | Frontend Phase 1: Company / Source / Knowledge basic UI alignment. | Planned. | Frontend should follow the current text/URL backend contract only. |
-| Phase 2: Product Card | Product Card backend contract for AI-generated and manual cards, draft/confirmed lifecycle, edit, confirm, delete, source type, company ownership, and tests. | Completed for backend contract. | Frontend Phase 2: Product Card UI. | Planned / pending. | Product Card frontend must use the finalized backend contract and Chinese user-facing text. |
-| Phase 3: Campaign | Campaign model, migration, schemas, repository, service, routes, API contract, lifecycle, confirmed Product Card linkage, `product_card_snapshot`, duplicate-as-draft behavior, and tests. | Completed for the minimum backend vertical slice. | Frontend Phase 3: Campaign UI synchronized with Backend Phase 3 Campaign. | Implemented for the supported Campaign UI lifecycle. | Next step is real backend runtime integration verification with seeded Company and confirmed Product Card data. |
-| Phase 4: Lead Discovery | Provider-driven candidate lead discovery from confirmed Campaign criteria. | Planned / future. | Lead discovery task/result UI. | Planned / future. | Must use provider boundaries and store traceable source URLs. |
+| Phase 2: Product Card | Product Card backend contract for AI-generated and manual cards, draft/confirmed lifecycle, edit, confirm, delete, source type, company ownership, and tests. | Completed for backend contract. | Frontend Phase 2: Product Card UI. | Planned / pending. | Current next implementation step before Phase 4 Lead Discovery. Product Card frontend must use the finalized backend contract and Chinese user-facing text. |
+| Phase 3: Campaign | Campaign model, migration, schemas, repository, service, routes, API contract, lifecycle, confirmed Product Card linkage, `product_card_snapshot`, duplicate-as-draft behavior, and tests. | Completed for the minimum backend vertical slice. | Frontend Phase 3: Campaign UI synchronized with Backend Phase 3 Campaign. | Implemented for the supported Campaign UI lifecycle. | Real backend runtime integration verification remains pending, but the next implementation priority is Frontend Phase 2 Product Card UI before Phase 4. |
+| Phase 4: Lead Discovery | Provider-driven candidate lead discovery from confirmed Campaign criteria. | Planned / future. | Lead discovery task/result UI. | Planned / future. | Start only after Product Card UI is filled and Phase 4 backend contract, data model, business rules, validation rules, and provider boundaries are clarified. |
 | Phase 5: Lead Validation + Intelligence | Lead normalization, duplicate handling, website availability checks, intelligence capture, evidence storage, and content sufficiency. | Planned / future. | Lead validation and lead intelligence UI states. | Planned / future. | Must not pretend validation or crawling has completed before implementation exists. |
 | Phase 6: Lead Scoring | Evidence-based customer-fit scoring, recommendations, risk notes, uncertainty, and provider-mocked tests. | Planned / future. | Lead score, evidence, risk, and recommendation UI. | Planned / future. | AI recommendation remains separate from human review status. |
 | Phase 7: Lead Review | User approval, rejection, and manual-review workflow. | Planned / future. | Lead review pages and decision controls. | Planned / future. | AI must not approve leads for the user. |
@@ -63,6 +67,8 @@ Phase 3: Campaign is the current active phase.
 
 - Frontend phase numbering follows backend phase numbering where possible.
 - Frontend Phase 3 corresponds to Backend Phase 3 Campaign.
+- The current next frontend implementation task is Frontend Phase 2 Product Card
+  UI; Phase 4 Lead Discovery remains future work until that UI gap is closed.
 - A backend phase being completed does not automatically mean the matching
   frontend phase is implemented.
 - At the start of each phase, backend work should define the API contract, data
@@ -92,6 +98,8 @@ Phase 3: Campaign is the current active phase.
   confirmed Campaigns, while status-specific filters remain available.
 - Product Card frontend UI has not been implemented for the finalized backend
   contract.
+- Product Card frontend UI is the current next frontend implementation priority
+  before Phase 4 Lead Discovery.
 - Campaign frontend UI is implemented for the Phase 3 supported lifecycle:
   list/filter, create draft, edit draft, delete draft, confirm, duplicate
   confirmed Campaign as draft, archive confirmed Campaign, and read-only
@@ -116,6 +124,61 @@ Phase 3: Campaign is the current active phase.
 
 This section keeps compact records for the latest Codex tasks. Detailed task
 history should be moved to `docs/DEVELOPMENT_LOG.md`.
+
+### 2026-07-07 - Frontend Phase Priority Documentation Alignment
+
+Completed: Documentation-only alignment of frontend phase status and next-step
+priority.
+
+What changed:
+
+- Updated the frontend plan so Frontend Phase 3 Campaign UI is no longer marked
+  blocked or unimplemented.
+- Marked Frontend Phase 2 Product Card UI as the current next frontend
+  implementation priority before Phase 4 Lead Discovery.
+- Clarified that Campaign real full-stack verification remains useful and
+  pending, but it does not replace the Product Card UI implementation priority.
+- Clarified that Phase 4 Lead Discovery should start only after the Product Card
+  UI gap is closed and the Phase 4 backend contract, data model, business
+  rules, validation rules, and provider boundaries are clarified.
+- Kept this task documentation-only; no backend code, frontend code, migrations,
+  package files, or runtime configuration were changed.
+
+Files modified:
+
+- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+- `docs/DEVELOPMENT_LOG.md`
+
+Verification commands:
+
+- `rg -n "Campaign frontend UI is implemented|current next frontend implementation priority|Frontend Phase 2 Product Card UI|Phase 4 Lead Discovery" docs`
+- `rg -n "^### [0-9]{4}-[0-9]{2}-[0-9]{2} -" docs\DEVELOPMENT_PROGRESS.md`
+- `git diff --check`
+- `git diff --name-only`
+- `git status --short --branch`
+
+Test status:
+
+- Documentation-only task; backend tests, frontend tests, migrations, compile
+  checks, package checks, and runtime checks were not run.
+
+Known limitations:
+
+- Product Card frontend UI is still not implemented.
+- Campaign real full-stack browser verification against live backend and
+  PostgreSQL data remains pending.
+- Phase 4 Lead Discovery remains future work.
+
+Commit / push status:
+
+- Not committed.
+- Not pushed to GitHub.
+
+Next recommended step:
+
+- Discuss and confirm the Frontend Phase 2 Product Card UI workflow, then
+  implement Product Card UI before starting Phase 4 Lead Discovery.
 
 ### 2026-07-06 - Frontend Phase 3 Campaign UI Implementation
 
@@ -182,14 +245,14 @@ Known limitations:
 
 Commit / push status:
 
-- Not committed.
-- Not pushed to GitHub.
+- Later committed and pushed to `origin/main` as commit
+  `452262f campaign前端已完成`.
 
 Next recommended step:
 
-- Run the frontend against the real backend with seeded Company and confirmed
-  Product Card data, then decide whether to implement Product Card frontend UI
-  before continuing to Phase 4 Lead Discovery.
+- Implement Frontend Phase 2 Product Card UI before continuing to Phase 4 Lead
+  Discovery. Campaign real full-stack verification remains pending and should
+  be included in a later integration check.
 
 ### 2026-07-06 - Campaign Backend Archived List Runtime Sync
 
@@ -241,68 +304,3 @@ Next recommended step:
 
 - Re-read the updated Stitch Campaign screens and implement only the supported
   Frontend Phase 3 Campaign UI actions against the current backend contract.
-
-### 2026-07-06 - Campaign Archived List Visibility Rule Update
-
-Completed: Documentation-only update to change the Campaign list visibility
-rule so archived Campaigns may appear in the default Campaign list / `全部`
-view.
-
-What changed:
-
-- Updated the Campaign API contract to say the company Campaign list returns
-  `draft`, `confirmed`, and `archived` Campaigns by default.
-- Updated Campaign UI rules to allow archived Campaigns in `全部`, while keeping
-  archived Campaigns read-only and ineligible for edit, delete, restore,
-  confirm, or Lead Discovery actions.
-- Updated product, workflow, data model, frontend plan, MVP scope, and testing
-  rules to remove the old "archived only through explicit filter" requirement.
-- Kept the explicit `已归档` / `status=archived` filter as an allowed
-  status-specific view, not the only way to see archived Campaigns.
-- Added an implementation-alignment note because, at the time of that
-  documentation-only task, backend code and tests still reflected the earlier
-  default-hidden behavior.
-
-Files modified:
-
-- `docs/API_CONTRACT.md`
-- `docs/DATA_MODEL.md`
-- `docs/WORKFLOW.md`
-- `docs/MVP_SCOPE.md`
-- `docs/PRODUCT_REQUIREMENTS.md`
-- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
-- `docs/UI_REQUIREMENTS.md`
-- `docs/TESTING_STRATEGY.md`
-- `docs/DEVELOPMENT_LOG.md`
-- `docs/DEVELOPMENT_PROGRESS.md`
-- `backend/README.md`
-
-Verification commands:
-
-- `rg -n "default Campaign list|hide archived|hidden from default|explicit archived|status=archived|全部|已归档|归档" docs backend/README.md`
-- `git diff --check`
-- `git diff --name-only`
-- `git status --short`
-
-Test status:
-
-- Documentation-only task; backend tests, frontend tests, migrations, compile
-  checks, package checks, and runtime checks were not run.
-
-Known limitations:
-
-- Backend repository logic and Campaign tests still hid archived Campaigns from
-  the default company Campaign list at the time of this documentation-only task.
-  This was resolved by the later 2026-07-06 Campaign backend archived list
-  runtime sync.
-- No frontend UI was implemented in this task.
-- Lead Discovery, Contacts, Outreach, Gmail Draft, provider calls, and
-  background jobs remain out of scope.
-
-Next recommended step recorded at that time:
-
-- Synchronize the Campaign backend list behavior and tests so the default
-  company Campaign list / `全部` view includes archived Campaigns, while
-  preserving archived read-only restrictions and the `status=archived` filter.
-  This was completed by the later 2026-07-06 Campaign backend archived list
-  runtime sync.

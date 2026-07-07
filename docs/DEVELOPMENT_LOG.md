@@ -31,8 +31,8 @@ This summary reflects the current high-level backend implementation state.
 | Phase 1B | Completed | The minimum source and knowledge slice supports text/URL source records and deterministic source-to-knowledge draft creation. |
 | Phase 1: Sources + Knowledge | Completed | Source persistence, knowledge draft creation, review transitions, filtering, migrations, routes, services, repositories, schemas, and tests exist for the MVP text/URL slice. |
 | Phase 2: Product Card backend contract | Completed | Product Card backend supports AI-generated and manual cards, `draft` and `confirmed` lifecycle, edit, confirm, delete, `source_type`, and tests under the finalized contract. |
-| Phase 3: Campaign | Backend vertical slice completed | Campaign backend supports the minimum Phase 3 contract: `draft`, `confirmed`, and `archived`; confirmed same-company Product Card validation; `product_card_snapshot`; archive; duplicate-as-draft; routes; migration; and tests. |
-| Frontend business workflow | Planned / blocked for Campaign UI | The frontend remains a basic shell. Product Card UI and later business workflow screens are not implemented yet. Frontend Phase 3 Campaign UI requires Stitch Campaign design context before Codex implementation can begin. |
+| Phase 3: Campaign | Backend and supported frontend lifecycle completed | Campaign backend supports the minimum Phase 3 contract: `draft`, `confirmed`, and `archived`; confirmed same-company Product Card validation; `product_card_snapshot`; archive; duplicate-as-draft; routes; migration; and tests. Frontend Phase 3 Campaign UI is implemented for the supported lifecycle. |
+| Frontend business workflow | Partially implemented | Campaign UI is implemented for Phase 3. Product Card UI is still pending and is the current next frontend implementation priority before Phase 4 Lead Discovery. |
 
 ## Historical Implementation Summary
 
@@ -111,8 +111,12 @@ Completed work summarized from the 2026-07-03 Campaign implementation:
 
 Planned or pending work:
 
-- Provide or authorize Stitch Campaign design context before starting Frontend
-  Phase 3 Campaign UI implementation.
+- Run Campaign real full-stack browser verification against live backend and
+  PostgreSQL data.
+- Keep future Campaign UI changes backed by the backend contract and available
+  Stitch Campaign design context.
+- Implement Frontend Phase 2 Product Card UI before starting Phase 4 Lead
+  Discovery.
 - Extend Product Card route-level scoping when API context supports company or
   future workspace ownership.
 - Audit non-Product-Card ORM and Alembic check constraints for consistent
@@ -121,6 +125,51 @@ Planned or pending work:
   database.
 
 ## Dated Task Entries
+
+### 2026-07-07 - Frontend Phase Priority Documentation Alignment
+
+Type: Documentation-only.
+
+Completed:
+
+- Updated the frontend planning document so Frontend Phase 3 Campaign UI is no
+  longer described as blocked or unimplemented.
+- Marked Frontend Phase 2 Product Card UI as the current next frontend
+  implementation priority before Phase 4 Lead Discovery.
+- Clarified that Campaign real full-stack verification remains pending and
+  useful, but it does not replace the Product Card UI implementation priority.
+- Clarified that Phase 4 Lead Discovery should start only after the Product Card
+  UI gap is closed and the Phase 4 backend contract, data model, business
+  rules, validation rules, and provider boundaries are clarified.
+- Kept this task documentation-only.
+
+Files modified:
+
+- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+- `docs/DEVELOPMENT_LOG.md`
+
+Verification:
+
+- `rg -n "Campaign frontend UI is implemented|current next frontend implementation priority|Frontend Phase 2 Product Card UI|Phase 4 Lead Discovery" docs`
+- `rg -n "^### [0-9]{4}-[0-9]{2}-[0-9]{2} -" docs\DEVELOPMENT_PROGRESS.md`
+- `git diff --check`
+- `git diff --name-only`
+- `git status --short --branch`
+
+Known limitations:
+
+- No backend code, frontend code, migrations, package files, or runtime
+  configuration were changed.
+- Product Card frontend UI is still not implemented.
+- Campaign real full-stack browser verification against live backend and
+  PostgreSQL data remains pending.
+- Phase 4 Lead Discovery remains future work.
+
+Next recommended step:
+
+- Discuss and confirm the Frontend Phase 2 Product Card UI workflow, then
+  implement Product Card UI before starting Phase 4 Lead Discovery.
 
 ### 2026-07-06 - Campaign Backend Archived List Runtime Sync
 
