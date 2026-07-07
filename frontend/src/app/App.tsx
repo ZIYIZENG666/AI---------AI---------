@@ -1,7 +1,7 @@
-import CampaignWorkspace from "../pages/campaigns/CampaignWorkspace";
+import ProductCardWorkspace from "../pages/products/ProductCardWorkspace";
 
 function App() {
-  return <CampaignWorkspace />;
+  return <ProductCardWorkspace />;
 }
 
 export default App;
