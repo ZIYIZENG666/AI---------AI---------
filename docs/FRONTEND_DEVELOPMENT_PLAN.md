@@ -37,17 +37,23 @@ use the backend contract and available Stitch Campaign design context.
 
 ## Current Frontend Priority
 
-The current frontend implementation order is:
+The current frontend verification priority for Product Card and Campaign is
+closed for local PostgreSQL live-backend browser smoke.
 
-1. Implement Frontend Phase 2 Product Card UI against the finalized backend
-   Product Card contract.
-2. Then continue to Phase 4 Lead Discovery only after the Product Card UI gap is
-   closed and the Phase 4 backend contract, data model, business rules,
-   validation rules, and provider boundaries are clarified.
+The next frontend-related priority is to wait for the Phase 4 Lead Discovery
+backend contract before implementing Lead Discovery UI. Phase 4 must clarify
+the backend API contract, data model, business rules, validation rules, status
+boundaries, and provider interfaces before frontend work starts.
 
-Campaign real full-stack verification with live backend and PostgreSQL data
-remains useful, but it does not replace the current implementation priority:
-Frontend Phase 2 Product Card UI comes before Phase 4 Lead Discovery.
+The completed verification covered:
+
+1. Product Card create, edit, confirm, draft delete, and Campaign-linked 409
+   deletion protection against a live FastAPI backend and local PostgreSQL data.
+2. Product Card to Campaign flow against the live backend: confirmed Product
+   Card selection, Campaign create/confirm, `product_card_snapshot`, and
+   `全部` / `草稿` / `已确认` filters.
+3. Local workspace reachability through `/campaigns`, `/products`,
+   `#campaigns`, and `#products`.
 
 ## Frontend Phase Overview
 
@@ -55,8 +61,8 @@ Frontend Phase 2 Product Card UI comes before Phase 4 Lead Discovery.
 |---|---|---|---|---|---|
 | Frontend Foundation | Foundation stabilization | Not required / optional. | React + TypeScript + Vite shell, dashboard layout foundation, API client foundation, loading/error/empty-state patterns. | Basic shell present; business workflow UI pending. | Keep user-facing text Chinese. |
 | Frontend Phase 1 | Backend Phase 1 / Phase 1B Sources + Knowledge | Company / Source / Knowledge basic pages. | Implement Company, Source, and Knowledge UI according to current API contract. | Planned / pending alignment. | Must show current text/URL source scope only. Do not imply uploaded documents, OCR, crawling, or file parsing support. |
-| Frontend Phase 2 | Backend Phase 2 Product Card | Product Card list, detail, manual creation, editing, confirmation, and deletion UI. | Implement Product Card UI according to finalized backend contract. | Planned / pending UI; current next frontend implementation priority. | Must not show unsupported Product Card statuses or unsupported lifecycle actions. Complete this before Phase 4 Lead Discovery. |
-| Frontend Phase 3 | Backend Phase 3 Campaign; minimum backend vertical slice completed. | Campaign create, draft edit/delete, confirm, archive, duplicate as draft, list/detail, archived filter, and criteria review UI. | Implemented for the supported Campaign lifecycle using the backend Campaign contract and Stitch Campaign visual context. | Implemented for the supported Campaign UI lifecycle. | Future Campaign UI changes must remain contract-backed and must not introduce Lead Discovery actions before Phase 4 exists. |
+| Frontend Phase 2 | Backend Phase 2 Product Card | Product Card list, detail, manual creation, editing, confirmation, and deletion UI. | Implemented Product Card UI according to finalized backend contract. | Implemented for the supported Product Card UI lifecycle. | Local PostgreSQL live-backend browser smoke passed, including Campaign-linked 409 UI messaging. |
+| Frontend Phase 3 | Backend Phase 3 Campaign; minimum backend vertical slice completed. | Campaign create, draft edit/delete, confirm, archive, duplicate as draft, list/detail, archived filter, and criteria review UI. | Implemented for the supported Campaign lifecycle using the backend Campaign contract and Stitch Campaign visual context. | Implemented for the supported Campaign UI lifecycle. | Local PostgreSQL live-backend browser smoke passed for direct route reachability, create, confirm, and filters. Future Campaign UI changes must remain contract-backed and must not introduce Lead Discovery actions before Phase 4 exists. |
 | Frontend Phase 4 | Backend Phase 4 Lead Discovery | Lead discovery task initiation and discovery result UI. | Implement lead discovery UI after provider-backed discovery APIs exist. | Future. | Must depend on provider-backed discovery APIs, not frontend-only fake data. |
 | Frontend Phase 5 | Backend Phase 5 Lead Validation + Intelligence | Lead validation, intelligence, evidence, and content sufficiency states. | Implement validation and intelligence UI after backend contract exists. | Future. | Must show uncertainty and incomplete data honestly. |
 | Frontend Phase 6 | Backend Phase 6 Lead Scoring | Lead score, recommendation, matching reasons, risk notes, uncertainty, and evidence UI. | Implement scoring UI after AI scoring contract exists. | Future. | AI recommendation must stay separate from human review status. |
@@ -193,12 +199,12 @@ Human Stitch design scope:
 
 Codex implementation scope:
 
-- Implement Product Card UI based on the finalized backend contract.
-- Implement API client integration for list, detail, create, patch, confirm, and
+- Product Card UI is implemented based on the finalized backend contract.
+- API client integration exists for list, detail, create, patch, confirm, and
   delete behavior.
-- Implement form validation that matches backend validation.
-- Implement status-based UI behavior supported by the backend contract.
-- Implement loading, error, empty, and success states.
+- Form validation follows backend validation.
+- Status-based UI behavior follows the supported backend contract.
+- Loading, error, empty, and success states exist for the implemented UI.
 - Keep all user-facing text Chinese.
 
 Dependencies:
@@ -210,9 +216,10 @@ Dependencies:
 
 Status:
 
-- Planned / pending UI.
-- Backend contract is complete; frontend UI is not implemented yet.
-- Current next frontend implementation priority before Phase 4 Lead Discovery.
+- Implemented for the supported Product Card UI lifecycle.
+- Backend contract is complete and the frontend UI is implemented.
+- Local PostgreSQL live-backend browser smoke has passed for the supported
+  Product Card UI lifecycle and Campaign-linked 409 UI messaging.
 
 ### Frontend Phase 3: Campaign
 
@@ -272,12 +279,13 @@ Dependencies:
 Status:
 
 - Implemented for the supported Campaign UI lifecycle.
-- Current official active phase.
+- Phase 3 is complete for the supported Campaign lifecycle; Phase 4 Lead
+  Discovery is the next backend contract-planning lane.
 - Campaign backend/API/data contract work has a completed minimum backend
   vertical slice.
 - Campaign frontend UI is implemented for the current supported lifecycle.
-- Real full-stack browser verification against live backend and PostgreSQL data
-  remains pending.
+- Local PostgreSQL live-backend browser smoke has passed for direct route
+  reachability, Campaign create, confirm, and status filters.
 
 ## Handoff Requirements
 

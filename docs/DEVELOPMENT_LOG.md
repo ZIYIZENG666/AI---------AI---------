@@ -23,7 +23,8 @@ tracker.
 
 ## Current Progress Summary
 
-This summary reflects the current high-level backend implementation state.
+This summary reflects the current high-level backend and frontend implementation
+state.
 
 | Area | Status | Summary |
 |---|---|---|
@@ -32,7 +33,7 @@ This summary reflects the current high-level backend implementation state.
 | Phase 1: Sources + Knowledge | Completed | Source persistence, knowledge draft creation, review transitions, filtering, migrations, routes, services, repositories, schemas, and tests exist for the MVP text/URL slice. |
 | Phase 2: Product Card backend contract | Completed | Product Card backend supports AI-generated and manual cards, `draft` and `confirmed` lifecycle, edit, confirm, delete, `source_type`, and tests under the finalized contract. |
 | Phase 3: Campaign | Backend and supported frontend lifecycle completed | Campaign backend supports the minimum Phase 3 contract: `draft`, `confirmed`, and `archived`; confirmed same-company Product Card validation; `product_card_snapshot`; archive; duplicate-as-draft; routes; migration; and tests. Frontend Phase 3 Campaign UI is implemented for the supported lifecycle. |
-| Frontend business workflow | Partially implemented | Campaign UI is implemented for Phase 3. Product Card UI is still pending and is the current next frontend implementation priority before Phase 4 Lead Discovery. |
+| Frontend business workflow | Partially implemented | Product Card UI and Campaign UI are implemented for their supported lifecycles and locally smoke-verified against the live backend. Frontend Phase 1 company/source/knowledge screens and Phase 4+ workflow screens remain future work. |
 
 ## Historical Implementation Summary
 
@@ -107,24 +108,70 @@ Completed work summarized from the 2026-07-03 Campaign implementation:
 - Added Alembic revision `20260703_0005` for Campaign persistence.
 - Added focused Campaign API tests for lifecycle and validation behavior.
 
-### Remaining Phase 3 Hardening Items
+### Remaining Product Card / Campaign Hardening Items
 
 Planned or pending work:
 
-- Run Campaign real full-stack browser verification against live backend and
-  PostgreSQL data.
 - Keep future Campaign UI changes backed by the backend contract and available
   Stitch Campaign design context.
-- Implement Frontend Phase 2 Product Card UI before starting Phase 4 Lead
-  Discovery.
 - Extend Product Card route-level scoping when API context supports company or
   future workspace ownership.
 - Audit non-Product-Card ORM and Alembic check constraints for consistent
   `ck_<table_name>_<column_name>` naming.
-- Run the current migration chain against a live isolated PostgreSQL test
-  database.
+- Run broader deployment or staging PostgreSQL verification during later
+  stabilization.
+- Clarify the Phase 4 Lead Discovery backend contract before implementing Lead
+  Discovery or its frontend UI.
 
 ## Dated Task Entries
+
+### 2026-07-09 - Build Verification And Progress Documentation Reconciliation
+
+Type: Documentation and verification cleanup.
+
+Completed:
+
+- Rechecked the current Product Card and Campaign implementation status against
+  the active progress docs.
+- Reran frontend build verification after a one-time Vite build failure was
+  observed during the audit; the final `npm.cmd run build` passed.
+- Updated the frontend plan so Frontend Phase 3 Campaign is no longer described
+  as the current active phase after Phase 4 became the next contract-planning
+  lane.
+- Updated this log's current summary and remaining hardening list so it no
+  longer says Product Card UI, Campaign live-backend verification, or the local
+  migration chain are pending.
+- Updated `docs/DEVELOPMENT_PROGRESS.md` with a compact latest task record.
+
+Files modified:
+
+- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
+- `docs/DEVELOPMENT_LOG.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+
+Verification:
+
+- `npx.cmd vite build --debug`
+- `npm.cmd run build`
+- `.venv\Scripts\python.exe -m pytest -q`
+- `git diff --check`
+- `git status --short --branch`
+
+Known limitations:
+
+- No backend API behavior, frontend workflow behavior, migration, or data model
+  changed in this cleanup task.
+- No browser smoke test was rerun in this task because the code behavior under
+  review had already been smoke-verified and this task only reconciled build
+  verification and documentation.
+- The smoke evidence remains local development proof, not staging or production
+  database proof.
+
+Next recommended step:
+
+- Clarify the Phase 4 Lead Discovery backend contract, data model, business
+  rules, validation rules, status boundaries, and provider interfaces before
+  implementation.
 
 ### 2026-07-07 - Frontend Phase Priority Documentation Alignment
 

@@ -10,8 +10,9 @@ the latest Codex task record required by `AGENTS.md`.
 
 ## Current Active Phase
 
-Frontend Phase 2: Product Card UI gap-filling is the current active
-implementation lane before Phase 4 Lead Discovery.
+Phase 4 Lead Discovery backend contract clarification is the next active lane
+after closing the Product Card / Campaign live-backend frontend verification
+gap.
 
 - Backend Phase 2 = Product Card backend/API/data contract work. The Product
   Card backend contract is implemented.
@@ -32,9 +33,9 @@ implementation lane before Phase 4 Lead Discovery.
   `docs/UI_REQUIREMENTS.md`, and Stitch Campaign design context.
 - Human UI design is created manually in Stitch. Stitch is a visual and
   interaction reference, not a backend business logic source.
-- Current verification priority is to run a real backend/PostgreSQL Product
-  Card browser smoke check and then verify the Product Card to Campaign flow
-  before starting Phase 4 Lead Discovery work.
+- Current verification priority for Product Card / Campaign is closed for local
+  PostgreSQL live-backend browser smoke. The next recommended work is to
+  clarify the Phase 4 Lead Discovery backend contract before implementation.
 
 ## Required Status Alignment
 
@@ -46,7 +47,8 @@ implementation lane before Phase 4 Lead Discovery.
   UI implemented.
 - Frontend Phase 1: Planned / pending UI implementation.
 - Frontend Phase 2 Product Card UI: Implemented for the supported Product Card
-  lifecycle; real full-stack browser verification remains pending.
+  lifecycle; PostgreSQL-backed browser smoke passed for create, edit, confirm,
+  draft delete, and Campaign-linked 409 delete messaging.
 - Phase 3 Campaign backend: Minimum backend vertical slice implemented.
 - Phase 3 Campaign frontend: Implemented for the supported Campaign UI
   lifecycle.
@@ -58,9 +60,9 @@ implementation lane before Phase 4 Lead Discovery.
 | Foundation stabilization | Project scaffold, environment-driven config, Alembic baseline, health checks, company router, and rule-doc stabilization. | Completed | React + TypeScript + Vite shell and dashboard foundation. | Basic shell present; business workflow UI pending. | Foundation is complete, but this is not a full MVP. |
 | Phase 1B | Minimum text/URL source records plus deterministic knowledge draft and review behavior. | Completed | Feeds Frontend Phase 1 company/source/knowledge screens. | Planned. | UI must not imply uploaded documents, crawling, or OCR support. |
 | Phase 1: Sources + Knowledge | Source persistence, knowledge drafts, knowledge review transitions, models, schemas, repositories, services, routes, migrations, and tests for the MVP text/URL slice. | Completed | Frontend Phase 1: Company / Source / Knowledge basic UI alignment. | Planned. | Frontend should follow the current text/URL backend contract only. |
-| Phase 2: Product Card | Product Card backend contract for AI-generated and manual cards, draft/confirmed lifecycle, edit, confirm, delete, source type, company ownership, and tests. | Completed for backend contract. | Frontend Phase 2: Product Card UI. | Implemented for the supported Product Card UI lifecycle. | Real full-stack browser verification against the live backend and PostgreSQL remains pending. |
-| Phase 3: Campaign | Campaign model, migration, schemas, repository, service, routes, API contract, lifecycle, confirmed Product Card linkage, `product_card_snapshot`, duplicate-as-draft behavior, and tests. | Completed for the minimum backend vertical slice. | Frontend Phase 3: Campaign UI synchronized with Backend Phase 3 Campaign. | Implemented for the supported Campaign UI lifecycle. | Real backend runtime integration verification remains pending; Product Card to Campaign integration should be checked before Phase 4. |
-| Phase 4: Lead Discovery | Provider-driven candidate lead discovery from confirmed Campaign criteria. | Planned / future. | Lead discovery task/result UI. | Planned / future. | Start only after Product Card UI is verified in a real full-stack smoke check and Phase 4 backend contract, data model, business rules, validation rules, and provider boundaries are clarified. |
+| Phase 2: Product Card | Product Card backend contract for AI-generated and manual cards, draft/confirmed lifecycle, edit, confirm, delete, source type, company ownership, and tests. | Completed for backend contract. | Frontend Phase 2: Product Card UI. | Implemented for the supported Product Card UI lifecycle. | PostgreSQL-backed browser smoke passed for create, edit, confirm, draft delete, and Campaign-linked 409 Chinese UI messaging. |
+| Phase 3: Campaign | Campaign model, migration, schemas, repository, service, routes, API contract, lifecycle, confirmed Product Card linkage, `product_card_snapshot`, duplicate-as-draft behavior, and tests. | Completed for the minimum backend vertical slice. | Frontend Phase 3: Campaign UI synchronized with Backend Phase 3 Campaign. | Implemented for the supported Campaign UI lifecycle. | Campaign frontend live-backend browser smoke passed against local PostgreSQL for direct route reachability, create draft, confirm, status filters, and Product Card linkage. |
+| Phase 4: Lead Discovery | Provider-driven candidate lead discovery from confirmed Campaign criteria. | Planned / future. | Lead discovery task/result UI. | Planned / future. | Start after the Phase 4 backend contract, data model, business rules, validation rules, and provider boundaries are clarified. |
 | Phase 5: Lead Validation + Intelligence | Lead normalization, duplicate handling, website availability checks, intelligence capture, evidence storage, and content sufficiency. | Planned / future. | Lead validation and lead intelligence UI states. | Planned / future. | Must not pretend validation or crawling has completed before implementation exists. |
 | Phase 6: Lead Scoring | Evidence-based customer-fit scoring, recommendations, risk notes, uncertainty, and provider-mocked tests. | Planned / future. | Lead score, evidence, risk, and recommendation UI. | Planned / future. | AI recommendation remains separate from human review status. |
 | Phase 7: Lead Review | User approval, rejection, and manual-review workflow. | Planned / future. | Lead review pages and decision controls. | Planned / future. | AI must not approve leads for the user. |
@@ -74,9 +76,9 @@ implementation lane before Phase 4 Lead Discovery.
 
 - Frontend phase numbering follows backend phase numbering where possible.
 - Frontend Phase 3 corresponds to Backend Phase 3 Campaign.
-- Frontend Phase 2 Product Card UI is implemented; Phase 4 Lead Discovery
-  remains future work until Product Card real full-stack verification and the
-  Phase 4 backend contract are clarified.
+- Frontend Phase 2 Product Card UI and Frontend Phase 3 Campaign UI are
+  implemented and locally smoke-verified against the live backend; Phase 4 Lead
+  Discovery remains future work until its backend contract is clarified.
 - A backend phase being completed does not automatically mean the matching
   frontend phase is implemented.
 - At the start of each phase, backend work should define the API contract, data
@@ -108,22 +110,27 @@ implementation lane before Phase 4 Lead Discovery.
   list by company, status filter, manual create, AI generation trigger, edit,
   confirm draft, delete, detail dialog, and 409 delete messaging for confirmed
   cards used by Campaigns.
-- Product Card real full-stack browser verification against the live backend and
-  PostgreSQL data remains pending.
+- Product Card browser verification against the live backend and PostgreSQL data
+  passed for create, edit, confirm, and draft delete. Campaign-linked confirmed
+  Product Card deletion protection returned backend HTTP 409 and the Product
+  Card frontend displayed the Chinese blocking copy
+  `已被获客任务使用，无法删除。` in the browser.
 - Campaign frontend UI is implemented for the Phase 3 supported lifecycle:
   list/filter, create draft, edit draft, delete draft, confirm, duplicate
   confirmed Campaign as draft, archive confirmed Campaign, and read-only
   archived Campaign detail.
-- The Campaign frontend was browser-checked with a temporary local mock API.
-  A real full-stack browser smoke test against the live backend and PostgreSQL
-  data remains pending.
+- Campaign frontend live-backend browser smoke passed against local PostgreSQL:
+  `/campaigns` renders the Campaign workspace, a draft Campaign can be created
+  from a confirmed Product Card, confirmation saves the linked Product Card
+  state, and `全部` / `草稿` / `已确认` filters update rendered UI state.
 - Source support is limited to text and URL records. Uploaded documents,
   document parsing, OCR, file storage, and crawling are not implemented.
 - No real provider implementations exist yet for LLM, search, crawler, Gmail,
   storage, or task queue behavior.
 - No RQ worker runtime is implemented yet.
-- The migration chain has not been executed against a live isolated PostgreSQL
-  test database.
+- The migration chain was executed against a local Docker PostgreSQL test
+  database on 2026-07-08. Broader deployment/staging PostgreSQL verification
+  remains a future stabilization task.
 - Campaign-side Product Card same-company validation is implemented for
   Campaign creation and confirmation.
 - Route-level Product Card get, patch, confirm, and delete company/workspace
@@ -135,72 +142,58 @@ implementation lane before Phase 4 Lead Discovery.
 This section keeps compact records for the latest Codex tasks. Detailed task
 history should be moved to `docs/DEVELOPMENT_LOG.md`.
 
-### 2026-07-07 - Frontend Phase 2 Product Card UI Implementation
+### 2026-07-09 - Build Verification And Progress Documentation Reconciliation
 
-Completed: Implemented the Frontend Phase 2 Product Card UI against the
-finalized Product Card backend contract and the Stitch Product Card visual
-reference.
+Completed: Rechecked the Product Card / Campaign progress audit findings,
+reran frontend/backend verification, and reconciled stale documentation wording.
 
 What changed:
 
-- Added a Product Card API client for company lists, company-scoped Product Card
-  lists, manual Product Card creation, AI generation from confirmed knowledge,
-  edit, confirm, and delete.
-- Added a Product Card workspace with sidebar navigation, summary metrics,
-  company selector, status filter, Product Card table, detail/edit dialog, and
-  confirmation/delete modals.
-- Implemented Product Card lifecycle actions aligned to the backend contract:
-  draft cards can be edited, confirmed, or deleted; confirmed cards can be
-  edited or deleted, with backend 409 handling when already used by Campaigns.
-- Kept Product Card user-facing text Chinese-only and limited statuses to
-  `待确认` and `已确认`.
-- Replaced the frontend shell entry view with the Product Card workspace for
-  this phase.
-- Updated frontend styles to support the Product Card layout, table, form, and
-  modal structure while reusing the existing dashboard visual language.
-- Updated this progress tracker to mark Frontend Phase 2 Product Card UI as
-  implemented and to keep real full-stack smoke verification as pending.
+- Reran the frontend build after a one-time Vite build failure was observed
+  during the audit; the final full `npm.cmd run build` passed.
+- Updated `docs/FRONTEND_DEVELOPMENT_PLAN.md` so Frontend Phase 3 Campaign no
+  longer describes itself as the current active phase after Phase 4 became the
+  next contract-planning lane.
+- Updated `docs/DEVELOPMENT_LOG.md` so the current summary no longer says
+  Product Card UI, Campaign live-backend verification, or the local migration
+  chain are pending.
+- Added this compact progress record and kept only the three latest Codex task
+  records in this file.
+- Kept the task limited to verification and documentation reconciliation; no
+  backend API, schema, data model, business rule, or frontend workflow behavior
+  changed.
 
 Files modified:
 
-- `frontend/src/api/productCards.ts`
-- `frontend/src/pages/products/ProductCardWorkspace.tsx`
-- `frontend/src/app/App.tsx`
-- `frontend/src/styles/global.css`
+- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
+- `docs/DEVELOPMENT_LOG.md`
 - `docs/DEVELOPMENT_PROGRESS.md`
 
 Verification commands:
 
+- `npx.cmd vite build --debug`
 - `npm.cmd run build`
-- `rg -n "Product Card|Frontend Phase 2|reject|rejected|拒绝|已拒绝|待业务审核|确认生效|新建产品卡片" frontend\src\pages\products frontend\src\api\productCards.ts`
-- `rg -n "待确认|已确认|手动添加产品|确认产品卡片|保存修改|取消|已被获客任务使用" frontend\src\pages\products\ProductCardWorkspace.tsx`
-- `Invoke-WebRequest -Uri http://127.0.0.1:8000/health -UseBasicParsing`
+- `.venv\Scripts\python.exe -m pytest -q`
 - `git diff --check`
-- `git status --short`
+- `git status --short --branch`
 
 Test status:
 
-- Frontend build passed.
-- Product Card UI text scan found no disallowed `reject` / `rejected` /
-  `拒绝` / `已拒绝` Product Card wording, no `Product Card` visible English
-  copy, and no `Frontend Phase 2` visible English copy in the Product Card
-  implementation files.
-- Required Product Card Chinese UI terms were present in the Product Card
-  workspace.
-- No automated frontend tests were added because this frontend currently only
-  defines the Vite build script and no UI test runner.
-- Backend health check failed because no backend server was reachable at
-  `http://127.0.0.1:8000/health` during this task.
-- In-app browser verification was attempted, but the Browser MCP DOM snapshot
-  call failed and a follow-up evaluation timed out; live UI behavior still needs
-  a browser smoke check after the backend is running.
+- Frontend Vite debug build passed.
+- Frontend production build passed.
+- Backend full test suite passed: 57 passed, 1 warning.
+- `git diff --check` passed with LF-to-CRLF working-copy warnings only.
 
 Known limitations:
 
-- Real full-stack Product Card browser verification against the live backend and
-  PostgreSQL data remains pending.
-- Product Card to Campaign integrated workflow verification remains pending.
-- Frontend Phase 1 company/source/knowledge screens remain planned.
+- No automated frontend test runner was added.
+- No browser smoke test was rerun in this task because no frontend workflow
+  behavior changed.
+- A one-time Vite build failure was observed during the audit but did not
+  reproduce after rerunning `npx.cmd vite build --debug` and `npm.cmd run
+  build`; if it recurs, investigate the Windows path / Node / Vite combination.
+- The local PostgreSQL smoke evidence is still development-environment proof,
+  not staging or production database proof.
 
 Commit / push status:
 
@@ -209,55 +202,163 @@ Commit / push status:
 
 Next recommended step:
 
-- Start the FastAPI backend with PostgreSQL data, run a Product Card browser
-  smoke check for create/edit/confirm/delete, then verify the Product Card to
-  Campaign flow before starting Phase 4 Lead Discovery.
+- Clarify the Phase 4 Lead Discovery backend contract, data model, business
+  rules, validation rules, status boundaries, and provider interfaces before
+  implementation.
 
-### 2026-07-07 - Frontend Phase Priority Documentation Alignment
+### 2026-07-08 - Product Card and Campaign Workspace Switch Smoke
 
-Completed: Documentation-only alignment of frontend phase status and next-step
-priority.
+Completed: Added a local Product Card / Campaign workspace switch entry and
+reran the Campaign live-backend browser smoke plus the Product Card 409 UI
+screenshot check.
 
 What changed:
 
-- Updated the frontend plan so Frontend Phase 3 Campaign UI is no longer marked
-  blocked or unimplemented.
-- Marked Frontend Phase 2 Product Card UI as the current next frontend
-  implementation priority before Phase 4 Lead Discovery.
-- Clarified that Campaign real full-stack verification remains useful and
-  pending, but it does not replace the Product Card UI implementation priority.
-- Clarified that Phase 4 Lead Discovery should start only after the Product Card
-  UI gap is closed and the Phase 4 backend contract, data model, business
-  rules, validation rules, and provider boundaries are clarified.
-- Kept this task documentation-only; no backend code, frontend code, migrations,
-  package files, or runtime configuration were changed.
+- Added a tiny frontend workspace router in `frontend/src/app/App.tsx` so
+  `/campaigns`, `/products`, `#campaigns`, and `#products` can render the
+  correct local workspace.
+- Made hash-based switching override the current path so `/campaigns#products`
+  returns to the Product Card workspace and `/campaigns#campaigns` returns to
+  Campaign.
+- Added a `产品卡片` side-nav entry to the Campaign workspace, matching the
+  existing Product Card to Campaign side-nav entry.
+- Kept the change limited to local frontend reachability; no backend API,
+  schema, data model, or business rule changed.
+- Verified Campaign create and confirm through the browser against the live
+  FastAPI backend and local PostgreSQL data.
+- Verified the linked Product Card delete path returns HTTP 409 behavior in the
+  frontend and captured the Chinese UI prompt screenshot.
+- Updated this progress tracker and the frontend plan to record the closed
+  Product Card / Campaign verification gap.
+
+Files modified:
+
+- `frontend/src/app/App.tsx`
+- `frontend/src/pages/campaigns/CampaignWorkspace.tsx`
+- `docs/DEVELOPMENT_PROGRESS.md`
+- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
+
+Verification commands:
+
+- `npm.cmd run build`
+- `Invoke-WebRequest -Uri http://127.0.0.1:8000/health -UseBasicParsing`
+- `Invoke-WebRequest -Uri http://127.0.0.1:8000/health/db -UseBasicParsing`
+- `Invoke-WebRequest -Uri http://127.0.0.1:8000/health/redis -UseBasicParsing`
+- `Invoke-WebRequest -Uri http://127.0.0.1:5173/ -UseBasicParsing`
+- In-app Browser check at `http://127.0.0.1:5173/campaigns`.
+- In-app Browser Product Card / Campaign switch checks through `#products` and
+  `#campaigns`.
+- In-app Browser Campaign live-backend smoke: create draft Campaign, confirm
+  Campaign, verify status badge/actions, and verify `全部` / `草稿` / `已确认`
+  filters.
+- In-app Browser Product Card 409 UI check: attempt to delete a confirmed
+  Product Card referenced by Campaign and verify
+  `已被获客任务使用，无法删除。`.
+
+Test status:
+
+- Frontend build passed.
+- Backend health passed: `/health`, `/health/db`, and `/health/redis`.
+- Vite dev server responded at `http://127.0.0.1:5173/`.
+- Campaign direct route `/campaigns` rendered the Campaign workspace.
+- Product Card / Campaign local switching passed in both directions.
+- Campaign live-backend browser smoke passed against local PostgreSQL for
+  confirmed Product Card selection, draft creation, confirmation, rendered
+  confirmed status, and status filters.
+- Product Card 409 frontend prompt screenshot was captured at
+  `C:\Users\33351\AppData\Local\Temp\ai-b2b-campaign-smoke-20260708\03-product-card-409.png`.
+- Browser console error/warning checks returned no app errors or warnings.
+
+Known limitations:
+
+- The browser `domSnapshot()` helper still fails in this environment, so the
+  browser proof used the same Browser plugin with page evaluation, DOM click,
+  console logs, and screenshots instead of DOM snapshots.
+- The smoke data used local PostgreSQL dev data and is not staging or
+  production database proof.
+- No new automated frontend test runner was added; the frontend currently uses
+  build plus browser smoke for this check.
+
+Commit / push status:
+
+- Not committed.
+- Not pushed to GitHub.
+
+Next recommended step:
+
+- Clarify the Phase 4 Lead Discovery backend contract, data model, business
+  rules, validation rules, status boundaries, and provider interfaces before
+  implementing Lead Discovery.
+
+### 2026-07-08 - PostgreSQL Product Card and Campaign Integration Smoke
+
+Completed: Corrected the frontend plan Product Card status and ran a real local
+PostgreSQL integration smoke for the implemented Product Card and Campaign
+contracts.
+
+What changed:
+
+- Updated `docs/FRONTEND_DEVELOPMENT_PLAN.md` so Frontend Phase 2 Product Card
+  UI is no longer marked pending.
+- Changed the frontend priority wording to real PostgreSQL integration
+  verification before Phase 4 Lead Discovery.
+- Started Docker Desktop, PostgreSQL, Redis, local FastAPI, and local Vite for
+  a real backend/PostgreSQL smoke run.
+- Ran Alembic `upgrade head` against local Docker PostgreSQL.
+- Verified `/health`, `/health/db`, and `/health/redis`.
+- Created a PostgreSQL-backed smoke company and verified Product Card UI create,
+  edit, confirm, and draft delete through the browser.
+- Verified Product Card to Campaign backend/API flow: create draft Campaign,
+  confirm Campaign, capture `product_card_snapshot`, archive, duplicate as
+  draft, and filter `全部` / `草稿` / `已确认` / `已归档` through live API calls.
+- Verified Campaign-linked Product Card delete protection returns HTTP 409
+  `product_card_in_use`, and confirmed the Product Card frontend maps HTTP 409
+  to Chinese delete-blocking copy.
 
 Files modified:
 
 - `docs/FRONTEND_DEVELOPMENT_PLAN.md`
 - `docs/DEVELOPMENT_PROGRESS.md`
-- `docs/DEVELOPMENT_LOG.md`
 
 Verification commands:
 
-- `rg -n "Campaign frontend UI is implemented|current next frontend implementation priority|Frontend Phase 2 Product Card UI|Phase 4 Lead Discovery" docs`
-- `rg -n "^### [0-9]{4}-[0-9]{2}-[0-9]{2} -" docs\DEVELOPMENT_PROGRESS.md`
-- `git diff --check`
-- `git diff --name-only`
-- `git status --short --branch`
+- `Start-Process -FilePath "C:\Program Files\Docker\Docker\Docker Desktop.exe"`
+- `docker compose up -d postgres redis`
+- `.venv\Scripts\python.exe -m alembic -c alembic.ini upgrade head`
+- `.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000`
+- `Invoke-WebRequest -Uri http://127.0.0.1:8000/health -UseBasicParsing`
+- `Invoke-WebRequest -Uri http://127.0.0.1:8000/health/db -UseBasicParsing`
+- `Invoke-WebRequest -Uri http://127.0.0.1:8000/health/redis -UseBasicParsing`
+- `npm.cmd run dev -- --host 127.0.0.1 --port 5173`
+- Product Card browser smoke through the in-app Browser.
+- Campaign integration API calls against `http://127.0.0.1:8000/api/v1`.
+- `curl.exe -s -i -X DELETE http://127.0.0.1:8000/api/v1/product-cards/<id>`
+- `rg -n "product_card_in_use|已被获客任务使用|无法删除|409|ApiError" frontend\src\pages\products\ProductCardWorkspace.tsx frontend\src\api\productCards.ts backend\app\modules\products\service.py`
 
 Test status:
 
-- Documentation-only task; backend tests, frontend tests, migrations, compile
-  checks, package checks, and runtime checks were not run.
+- Alembic migration chain passed against local Docker PostgreSQL.
+- Backend health passed: `/health`, `/health/db`, and `/health/redis`.
+- Frontend dev server responded at `http://127.0.0.1:5173/`.
+- Product Card browser smoke passed for create, edit, confirm, and draft delete.
+- Campaign backend/API integration passed against PostgreSQL with expected
+  statuses and `product_card_snapshot`.
+- Campaign-linked Product Card delete returned HTTP 409 with
+  `product_card_in_use`.
+- Final browser confirmation of the 409 delete message was blocked because the
+  in-app Browser timed out and reset while reopening/reloading the Product Card
+  page.
 
 Known limitations:
 
-- At the time of this documentation-only task, Product Card frontend UI had not
-  yet been implemented.
-- Campaign real full-stack browser verification against live backend and
-  PostgreSQL data remains pending.
-- Phase 4 Lead Discovery remains future work.
+- The current app entry renders the Product Card workspace, so Campaign frontend
+  live-backend browser verification is still not directly reachable without a
+  route, switcher, or temporary test harness.
+- The linked Product Card delete 409 frontend message is verified by backend
+  response plus frontend error mapping, but not by a final browser screenshot
+  because of the Browser reconnect timeout.
+- The smoke data used local Docker PostgreSQL with temporary dev credentials;
+  it is not staging or production database proof.
 
 Commit / push status:
 
@@ -266,83 +367,7 @@ Commit / push status:
 
 Next recommended step:
 
-- At the time of this documentation-only task, the recommended next step was to
-  discuss and implement the Frontend Phase 2 Product Card UI before starting
-  Phase 4 Lead Discovery. This is superseded by the Product Card UI
-  implementation record above.
-
-### 2026-07-06 - Frontend Phase 3 Campaign UI Implementation
-
-Completed: Implemented the Frontend Phase 3 Campaign UI against the current
-Campaign backend contract and Stitch Campaign visual reference.
-
-What changed:
-
-- Added a Campaign API client for company Campaign lists, confirmed Product Card
-  selection, draft creation/update/delete, confirm, archive, and duplicate as
-  draft.
-- Replaced the frontend shell body with a Campaign workspace that supports
-  `全部` / `草稿` / `已确认` / `已归档` filtering.
-- Implemented status-based actions aligned to the backend contract:
-  draft Campaigns can be edited, confirmed, or deleted; confirmed Campaigns can
-  be duplicated as draft or archived; archived Campaigns are read-only.
-- Added Chinese-only user-facing text for buttons, labels, empty states, error
-  states, confirmation dialogs, and lifecycle hints.
-- Added a Vite `/api` proxy to the FastAPI backend at `http://127.0.0.1:8000`.
-- Kept Lead Discovery, Contacts, Outreach, Gmail Draft, execution queues,
-  automatic sending, LinkedIn API, and Google Sheets out of the Campaign UI.
-- Updated this progress tracker to reflect that Campaign frontend UI is no
-  longer blocked by missing Stitch context.
-
-Files modified:
-
-- `frontend/src/api/campaigns.ts`
-- `frontend/src/pages/campaigns/CampaignWorkspace.tsx`
-- `frontend/src/app/App.tsx`
-- `frontend/src/styles/global.css`
-- `frontend/vite.config.ts`
-- `frontend/package-lock.json`
-- `docs/DEVELOPMENT_PROGRESS.md`
-
-Verification commands:
-
-- `npm.cmd install`
-- `npm.cmd run build`
-- `.\.venv\Scripts\python.exe -m pytest tests\test_campaigns.py -q`
-- `rg -n "United States|California|cloud cost optimization|B2B 企业客户|CTO、运营|官网展示 B2B SaaS 产品|Lead Discovery|执行队列|运行中|Gmail|发送|退回|启动|LinkedIn|Google Sheets" frontend/src`
-- Browser UI check at `http://127.0.0.1:5173/` with a temporary local mock API
-  for Campaign and Product Card responses.
-- Desktop and mobile viewport checks through the in-app browser.
-
-Test status:
-
-- Frontend build passed.
-- Campaign backend tests passed: 16 passed.
-- Browser interaction checks passed for list filtering, create draft, confirm,
-  duplicate as draft, archive, archived read-only detail, and archived list
-  actions.
-- Browser console error/warning check returned no errors or warnings during the
-  mock-backed UI verification.
-
-Known limitations:
-
-- Real full-stack browser verification against a live backend server and live
-  PostgreSQL data remains pending.
-- At the time of this Campaign task, Product Card frontend UI had not yet been
-  implemented; Campaign creation depended on existing confirmed Product Card
-  data from the backend.
-- `npm.cmd install` reported npm audit vulnerabilities: 1 moderate and 1 high.
-  No forced dependency update was applied in this task.
-- Lead Discovery and later phases remain out of scope.
-
-Commit / push status:
-
-- Later committed and pushed to `origin/main` as commit
-  `452262f campaign前端已完成`.
-
-Next recommended step:
-
-- At the time of this Campaign task, the recommended next step was to implement
-  Frontend Phase 2 Product Card UI before continuing to Phase 4 Lead Discovery.
-  Campaign real full-stack verification remains pending and should be included
-  in a later integration check.
+- Add or expose a small frontend route/switcher for Campaign workspace
+  verification, then rerun the linked Product Card 409 UI check and the Campaign
+  frontend live-backend browser smoke before starting Phase 4 Lead Discovery
+  contract work.

@@ -142,7 +142,11 @@ function CampaignStatusBadge({ status }: { status: CampaignStatus }) {
   return <span className={statusTone[status]}>{statusLabels[status]}</span>;
 }
 
-function AppIcon({ name }: { name: "plus" | "tasks" | "box" | "gear" | "home" }) {
+function AppIcon({
+  name,
+}: {
+  name: "plus" | "tasks" | "box" | "gear" | "home" | "card";
+}) {
   const icons = {
     plus: (
       <path d="M12 5v14M5 12h14" />
@@ -159,6 +163,7 @@ function AppIcon({ name }: { name: "plus" | "tasks" | "box" | "gear" | "home" })
     home: (
       <path d="m4 10 8-6 8 6v9a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9Z" />
     ),
+    card: <path d="M4 6h16v12H4zM4 10h16M8 14h3M14 14h2" />,
   };
 
   return (
@@ -394,6 +399,10 @@ export default function CampaignWorkspace() {
           <a href="#knowledge">
             <AppIcon name="box" />
             知识库
+          </a>
+          <a href="#products">
+            <AppIcon name="card" />
+            产品卡片
           </a>
           <a href="#campaigns" className="active">
             <AppIcon name="tasks" />
