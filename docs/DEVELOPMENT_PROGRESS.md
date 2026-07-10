@@ -142,6 +142,60 @@ gap.
 This section keeps compact records for the latest Codex tasks. Detailed task
 history should be moved to `docs/DEVELOPMENT_LOG.md`.
 
+### 2026-07-10 - AGENTS Rule Memory Alignment
+
+Completed: Updated the project rule document using the remembered collaboration
+and verification preferences for this repository.
+
+What changed:
+
+- Added collaboration and verification rules to `AGENTS.md` for hard scope
+  boundaries, diagnosis-only requests, explicit execution order, current-status
+  checks, and honest separation of implemented, planned, verified, and blocked
+  work.
+- Added runtime command rules to keep frontend commands under `frontend/`, prefer
+  `npm.cmd` on Windows when appropriate, and distinguish live runtime
+  verification from build-only or test-only checks.
+- Added Stitch and frontend design rules that keep Stitch as visual context
+  only, require live Stitch context when relevant, avoid substitute UI paths for
+  Stitch-gated work, and preserve backend-supported Chinese-only frontend UI.
+- Kept the task limited to rule documentation and progress tracking; no backend
+  API, schema, data model, business rule, or frontend workflow behavior changed.
+
+Files modified:
+
+- `AGENTS.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+
+Verification commands:
+
+- `git diff --check`
+- `git diff --name-only`
+- `git status --short --branch`
+
+Test status:
+
+- No automated tests were added or run because this was a rules/documentation
+  alignment task with no application logic changes.
+
+Known limitations:
+
+- The new rules are governance guidance only; they do not change application
+  behavior.
+- No live backend, database, or browser smoke verification was needed for this
+  documentation-only update.
+
+Commit / push status:
+
+- Not committed.
+- Not pushed to GitHub.
+
+Next recommended step:
+
+- Clarify the Phase 4 Lead Discovery backend contract, data model, business
+  rules, validation rules, status boundaries, and provider interfaces before
+  implementation.
+
 ### 2026-07-09 - Build Verification And Progress Documentation Reconciliation
 
 Completed: Rechecked the Product Card / Campaign progress audit findings,
@@ -289,85 +343,3 @@ Next recommended step:
 - Clarify the Phase 4 Lead Discovery backend contract, data model, business
   rules, validation rules, status boundaries, and provider interfaces before
   implementing Lead Discovery.
-
-### 2026-07-08 - PostgreSQL Product Card and Campaign Integration Smoke
-
-Completed: Corrected the frontend plan Product Card status and ran a real local
-PostgreSQL integration smoke for the implemented Product Card and Campaign
-contracts.
-
-What changed:
-
-- Updated `docs/FRONTEND_DEVELOPMENT_PLAN.md` so Frontend Phase 2 Product Card
-  UI is no longer marked pending.
-- Changed the frontend priority wording to real PostgreSQL integration
-  verification before Phase 4 Lead Discovery.
-- Started Docker Desktop, PostgreSQL, Redis, local FastAPI, and local Vite for
-  a real backend/PostgreSQL smoke run.
-- Ran Alembic `upgrade head` against local Docker PostgreSQL.
-- Verified `/health`, `/health/db`, and `/health/redis`.
-- Created a PostgreSQL-backed smoke company and verified Product Card UI create,
-  edit, confirm, and draft delete through the browser.
-- Verified Product Card to Campaign backend/API flow: create draft Campaign,
-  confirm Campaign, capture `product_card_snapshot`, archive, duplicate as
-  draft, and filter `全部` / `草稿` / `已确认` / `已归档` through live API calls.
-- Verified Campaign-linked Product Card delete protection returns HTTP 409
-  `product_card_in_use`, and confirmed the Product Card frontend maps HTTP 409
-  to Chinese delete-blocking copy.
-
-Files modified:
-
-- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
-- `docs/DEVELOPMENT_PROGRESS.md`
-
-Verification commands:
-
-- `Start-Process -FilePath "C:\Program Files\Docker\Docker\Docker Desktop.exe"`
-- `docker compose up -d postgres redis`
-- `.venv\Scripts\python.exe -m alembic -c alembic.ini upgrade head`
-- `.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000`
-- `Invoke-WebRequest -Uri http://127.0.0.1:8000/health -UseBasicParsing`
-- `Invoke-WebRequest -Uri http://127.0.0.1:8000/health/db -UseBasicParsing`
-- `Invoke-WebRequest -Uri http://127.0.0.1:8000/health/redis -UseBasicParsing`
-- `npm.cmd run dev -- --host 127.0.0.1 --port 5173`
-- Product Card browser smoke through the in-app Browser.
-- Campaign integration API calls against `http://127.0.0.1:8000/api/v1`.
-- `curl.exe -s -i -X DELETE http://127.0.0.1:8000/api/v1/product-cards/<id>`
-- `rg -n "product_card_in_use|已被获客任务使用|无法删除|409|ApiError" frontend\src\pages\products\ProductCardWorkspace.tsx frontend\src\api\productCards.ts backend\app\modules\products\service.py`
-
-Test status:
-
-- Alembic migration chain passed against local Docker PostgreSQL.
-- Backend health passed: `/health`, `/health/db`, and `/health/redis`.
-- Frontend dev server responded at `http://127.0.0.1:5173/`.
-- Product Card browser smoke passed for create, edit, confirm, and draft delete.
-- Campaign backend/API integration passed against PostgreSQL with expected
-  statuses and `product_card_snapshot`.
-- Campaign-linked Product Card delete returned HTTP 409 with
-  `product_card_in_use`.
-- Final browser confirmation of the 409 delete message was blocked because the
-  in-app Browser timed out and reset while reopening/reloading the Product Card
-  page.
-
-Known limitations:
-
-- The current app entry renders the Product Card workspace, so Campaign frontend
-  live-backend browser verification is still not directly reachable without a
-  route, switcher, or temporary test harness.
-- The linked Product Card delete 409 frontend message is verified by backend
-  response plus frontend error mapping, but not by a final browser screenshot
-  because of the Browser reconnect timeout.
-- The smoke data used local Docker PostgreSQL with temporary dev credentials;
-  it is not staging or production database proof.
-
-Commit / push status:
-
-- Not committed.
-- Not pushed to GitHub.
-
-Next recommended step:
-
-- Add or expose a small frontend route/switcher for Campaign workspace
-  verification, then rerun the linked Product Card 409 UI check and the Campaign
-  frontend live-backend browser smoke before starting Phase 4 Lead Discovery
-  contract work.

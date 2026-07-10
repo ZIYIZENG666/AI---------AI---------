@@ -94,6 +94,57 @@ When modifying code:
 23. All user-facing frontend text must be Chinese, including buttons, page
     titles, hints, errors, empty states, confirmation dialogs, and form labels.
 
+## Collaboration and Verification Rules
+
+When responding to the user and reporting work:
+
+1. Treat `read-only`, `docs-only`, `diagnosis-only`, `backend-only`,
+   `frontend-only`, and similar user instructions as hard scope boundaries.
+2. If the user asks only for a reason, cause, or analysis, stop at diagnosis and
+   do not edit code unless the user asks for a fix.
+3. Follow the user's requested execution order. If an order change is necessary,
+   explain the reason before changing sequence.
+4. If current priority or implementation status is unclear, verify and align the
+   current docs before starting new implementation work.
+5. Keep these concepts separate in analysis and reports:
+   current implementation, target workflow, docs-only wording, planned future
+   work, verified runtime evidence, and blocked or unverified gaps.
+6. Do not overstate verification. Clearly distinguish static code inspection,
+   build/test success, API smoke tests, browser smoke tests, local PostgreSQL
+   proof, and staging or production proof.
+7. `docs/DEVELOPMENT_PROGRESS.md` is the compact current-truth file for active
+   phase status, known limits, and next recommended step.
+8. `docs/DEVELOPMENT_LOG.md` is the detailed historical record. Do not use
+   older history to override newer verified code, docs, or runtime evidence.
+
+## Runtime Command Rules
+
+When giving or running local commands:
+
+- Frontend commands belong under `frontend/`, or must use `npm.cmd --prefix
+  frontend ...` from the repository root.
+- Do not assume a root-level `package.json` exists.
+- Prefer `npm.cmd` on Windows when PowerShell policy or PATH behavior may make
+  `npm` unreliable.
+- If the user asks for real runtime verification, treat that as different from a
+  build-only or test-only check and verify the requested live service boundary
+  when feasible.
+
+## Stitch and Frontend Design Rules
+
+When frontend UI work involves Stitch or existing design context:
+
+1. Treat Stitch as visual and interaction context only. Stitch does not define
+   backend API contracts, database rules, business rules, or MVP scope.
+2. Use live Stitch context when it is available and relevant, especially when the
+   user asks whether Codex can see an existing design or wants UI alignment.
+3. Do not invent a substitute UI path for Stitch-gated frontend work unless the
+   user explicitly changes that rule.
+4. Frontend UI must not imply unsupported backend capabilities.
+5. Product Card and Campaign UI work must preserve the backend-supported
+   lifecycle, keep manual Product Card creation available, and keep all
+   user-facing text Chinese.
+
 ## Architecture Rules
 
 The backend must follow this structure conceptually:
