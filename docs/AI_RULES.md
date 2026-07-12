@@ -223,6 +223,12 @@ AI 必须遵守：
 7. 不允许直接使用 LinkedIn API。
 8. 不允许使用 Google Sheets 作为数据流转工具。
 
+Phase 4 first implementation may use `MockSearchProvider` for development and
+testing before a real search API is connected. Mock provider results must be
+clearly treated as mock/dev data and must not be presented as real external
+customer evidence. The first implementation must not call a real search API,
+self-build full-web search, or perform real website crawling.
+
 ---
 
 ### LinkedIn Rules

@@ -33,7 +33,37 @@ state.
 | Phase 1: Sources + Knowledge | Completed | Source persistence, knowledge draft creation, review transitions, filtering, migrations, routes, services, repositories, schemas, and tests exist for the MVP text/URL slice. |
 | Phase 2: Product Card backend contract | Completed | Product Card backend supports AI-generated and manual cards, `draft` and `confirmed` lifecycle, edit, confirm, delete, `source_type`, and tests under the finalized contract. |
 | Phase 3: Campaign | Backend and supported frontend lifecycle completed | Campaign backend supports the minimum Phase 3 contract: `draft`, `confirmed`, and `archived`; confirmed same-company Product Card validation; `product_card_snapshot`; archive; duplicate-as-draft; routes; migration; and tests. Frontend Phase 3 Campaign UI is implemented for the supported lifecycle. |
+| Phase 4: Lead Discovery contract | Documentation clarified / implementation pending | Phase 4 is documented as confirmed Campaign -> Lead Discovery task -> mock search results -> saved candidate leads. First implementation uses `MockSearchProvider`, `task_runs`, and `leads`; it does not call real search APIs, self-build full-web search, perform real website crawling, score leads, approve leads, find contacts, or create outreach/Gmail drafts. |
 | Frontend business workflow | Partially implemented | Product Card UI and Campaign UI are implemented for their supported lifecycles and locally smoke-verified against the live backend. Frontend Phase 1 company/source/knowledge screens and Phase 4+ workflow screens remain future work. |
+
+## 2026-07-12 - Phase 4 Lead Discovery Contract Documentation Pass
+
+Documentation-only alignment before backend implementation.
+
+Completed:
+
+- Clarified Phase 4 as confirmed Campaign -> Lead Discovery task -> mock search
+  results -> saved candidate leads.
+- Documented that Phase 4 first implementation uses `MockSearchProvider` and
+  does not call a real search API or self-build full-web search.
+- Documented that real website crawling, website parsing, content sufficiency,
+  and evidence extraction are reserved for later Lead Validation / Intelligence
+  work.
+- Added Lead Discovery API contract details for task creation, task listing,
+  lead listing, task lookup, error handling, duplicate-start blocking, retry
+  behavior, and zero-result completion.
+- Added data model guidance for `task_runs`, saved lead traceability fields,
+  required `website` / `source_url`, `search_query`, and per-Campaign normalized
+  website de-duplication.
+- Added Lead Discovery contract tests covering confirmed-only start, task status
+  separation, mock provider behavior, duplicate blocking, retry rules, zero
+  results, provider failure, required fields, and non-eligibility for later
+  phases.
+- Clarified in AI rules that mock provider results are development/test data and
+  must not be presented as real external customer evidence.
+
+No backend code, frontend UI, database migration, provider implementation, or
+runtime behavior changed in this task.
 
 ## Historical Implementation Summary
 

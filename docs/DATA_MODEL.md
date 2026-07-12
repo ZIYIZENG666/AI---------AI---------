@@ -294,10 +294,9 @@ Campaign field rules:
 - Archived Campaigns are not restorable. If future reuse is needed, it must be
   handled through duplicate / copy as draft rather than restore.
 - Only a `confirmed` Campaign may enter Lead Discovery.
-- Campaign status must not store Lead Discovery execution status. Future
-  LeadDiscoveryJob, CampaignJob, or background task models should own execution
-  states such as `pending`, `running`, `paused`, `completed`, `failed`, and
-  `cancelled`.
+- Campaign status must not store Lead Discovery execution status. `task_runs`
+  or future job models should own execution states such as `pending`,
+  `running`, `paused`, `completed`, `failed`, and `cancelled`.
 - Campaign is not a CRM sequence and must not perform automatic follow-up, bulk
   sending, or automatic email sending.
 
@@ -309,6 +308,7 @@ Main fields:
 
 - `id`
 - `campaign_id`
+- `task_run_id`
 - `company_name`
 - `website`
 - `normalized_name`
@@ -317,11 +317,38 @@ Main fields:
 - `country`
 - `industry`
 - `source_url`
+- `search_query`
+- `raw_snippet`
+- `discovery_reason`
+- `provider_name`
 - `discovery_status`
 - `validation_status`
 - `review_status`
 - `created_at`
 - `updated_at`
+
+Phase 4 Lead Discovery rules:
+
+- A lead may be created only from a confirmed Campaign.
+- `campaign_id`, `company_name`, `website`, `source_url`, and `search_query`
+  are required for Phase 4 discovered leads.
+- `task_run_id` links the lead to the Lead Discovery task that produced it.
+- `provider_name` records the provider implementation, such as
+  `mock_search`.
+- `raw_snippet` stores the search-result snippet or mock provider summary used
+  as discovery context.
+- `discovery_reason` stores a short system explanation for why the candidate was
+  saved.
+- Phase 4 first implementation should avoid duplicate saved leads for the same
+  Campaign and normalized website.
+- The same website may appear under a different Campaign because the Campaign
+  context can be different.
+- Real website crawling, content sufficiency checks, and extracted evidence
+  belong to `lead_intelligence`, not to the initial Phase 4 lead row.
+
+Possible `discovery_status`:
+
+- `discovered`
 
 Possible `validation_status`:
 
@@ -544,6 +571,22 @@ Main fields:
 - `finished_at`
 - `created_at`
 - `updated_at`
+
+For Lead Discovery:
+
+- `task_type` must be `lead_discovery`.
+- `related_entity_type` must be `campaign`.
+- `related_entity_id` must be the confirmed Campaign ID.
+- Task execution status must not be stored in `campaigns.status`.
+- A successful search that returns zero leads is still `completed`.
+- Provider or system failure should move the task to `failed` with
+  `error_message`.
+- `pending`, `running`, and `completed` Lead Discovery tasks block creating a
+  new Lead Discovery task for the same Campaign.
+- `failed` and `cancelled` Lead Discovery tasks may be retried by creating a new
+  task run for the same Campaign.
+- Starting a new search after a completed task should use Campaign duplicate /
+  copy as draft, then confirm the new Campaign.
 
 Possible `status`:
 

@@ -169,7 +169,8 @@ It should not generate Gmail drafts directly.
 
 It should not store Lead Discovery or background task execution state in
 Campaign status. Runtime states such as `pending`, `running`, `paused`,
-`completed`, `failed`, and `cancelled` belong to future job or task models.
+`completed`, `failed`, and `cancelled` belong to `task_runs` or future job
+models.
 
 It should not edit or delete confirmed Campaigns.
 
@@ -188,7 +189,11 @@ It handles:
 - Candidate company collection
 - Source URL collection
 - Initial lead creation
-- Lead Discovery execution state through a future job or task model
+- Lead Discovery execution state through `task_runs`
+
+Phase 4 first implementation uses `MockSearchProvider` through the provider
+interface. It must not call a real search API and must not implement a full-web
+search engine.
 
 ### Not Responsible For
 
@@ -199,6 +204,10 @@ It should not approve leads.
 It should not generate outreach drafts.
 
 It should not mutate `campaigns.status` to represent discovery execution state.
+
+It should not perform real website crawling, website text extraction, content
+sufficiency checks, or evidence extraction. Those responsibilities belong to
+the intelligence module.
 
 ## intelligence
 

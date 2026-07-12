@@ -159,7 +159,7 @@ Campaign lifecycle rules:
 
 Campaign status is limited to `draft`, `confirmed`, and `archived`. Runtime
 states such as `pending`, `running`, `paused`, `completed`, `failed`, and
-`cancelled` belong to future Lead Discovery / Campaign Job records, not to the
+`cancelled` belong to `task_runs` or future job records, not to the
 Campaign configuration itself.
 
 ### Step 7: Discover Candidate Leads
@@ -168,11 +168,22 @@ The system searches for potential customer companies based on the confirmed
 campaign. Lead Discovery should use the Campaign configuration and the
 `product_card_snapshot` captured at Campaign confirmation time.
 
-The system may use:
+Phase 4 first implementation rules:
 
-- Search provider
-- Crawler provider
-- Company website parser
+- Use a Search Provider abstraction.
+- Use `MockSearchProvider` first.
+- Do not call a real search API in the first implementation.
+- Do not self-build a full-web search engine.
+- Generate and store the `search_query` used for discovery.
+- Store candidate leads with `website` and `source_url`.
+- Treat a successful search with zero leads as a completed task, not a failed
+  task.
+- Keep Lead Discovery execution status in task records, not in Campaign status.
+
+Real website crawling, website parsing, content sufficiency checks, and website
+evidence extraction belong to later Lead Validation / Intelligence work. The
+Crawler Provider interface may be reserved, but Phase 4 first implementation
+must not imply that real crawling has already happened.
 
 The system stores candidate leads.
 

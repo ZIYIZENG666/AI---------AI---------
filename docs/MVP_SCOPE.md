@@ -77,9 +77,17 @@ The MVP must include the following:
 
 ### 7. Lead Discovery
 
-- Search for candidate companies based on campaign
-- Store discovered leads
-- Store source URL and website
+- Search for candidate companies based on a confirmed Campaign
+- Use the Campaign configuration and confirmed-time `product_card_snapshot`
+- Store discovered candidate leads
+- Store source URL, website, search query, and provider trace fields
+- Track Lead Discovery execution through task records, not `campaigns.status`
+- Phase 4 first implementation must use a mock Search Provider and must not call
+  a real search API
+- Do not self-build a full-web search engine for MVP
+- Do not perform real website crawling in the Phase 4 first implementation;
+  crawler interfaces may be reserved, but real website crawling and content
+  analysis belong to later Lead Validation / Intelligence work
 
 ### 8. Lead Validation
 
@@ -118,8 +126,8 @@ The MVP must include the following:
 - Record background task status
 - Show whether tasks are pending, running, completed, or failed
 - Keep task execution status separate from Campaign status. Runtime states such
-  as running, paused, completed, failed, or cancelled belong to future
-  LeadDiscoveryJob / CampaignJob / task records, not to `campaigns.status`
+  as running, paused, completed, failed, or cancelled belong to `task_runs` or
+  future job records, not to `campaigns.status`
 
 ## Should Have
 

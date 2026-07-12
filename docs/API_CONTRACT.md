@@ -220,8 +220,8 @@ Rules:
    endpoint.
 6. Campaign status values are limited to `draft`, `confirmed`, and `archived`.
    `running`, `paused`, `completed`, `failed`, and `cancelled` are job or task
-   execution states for future Lead Discovery / Campaign Job models, not
-   Campaign status values.
+   execution states for `task_runs` or future job models, not Campaign status
+   values.
 7. `GET /api/v1/companies/{company_id}/campaigns` returns all Campaigns by
    default, including `draft`, `confirmed`, and `archived` Campaigns. It may
    accept `status=draft`, `status=confirmed`, or `status=archived` to return a
@@ -274,6 +274,138 @@ Campaign error handling:
 - Product Card not confirmed: HTTP `409` with `product_card_not_confirmed`.
 - Invalid status transition: HTTP `409` with `invalid_campaign_status_transition`.
 - Unsupported status filter: HTTP `422` with validation details.
+
+## Phase 4 Lead Discovery Contract
+
+Phase 4 discovers candidate leads from a confirmed Campaign. It does not perform
+Lead Validation, website intelligence extraction, AI scoring, human review,
+contact discovery, Outreach Draft, Gmail Draft, or CRM automation.
+
+Phase 4 first implementation rules:
+
+1. Use `MockSearchProvider` through a Search Provider interface.
+2. Do not call a real search API.
+3. Do not self-build a full-web search engine.
+4. Reserve crawler/provider interfaces where useful, but do not perform real
+   website crawling or website content analysis in the first implementation.
+5. Use `task_runs` for execution status with `task_type = lead_discovery`.
+6. Store discovered candidate leads in `leads`.
+
+Current endpoints:
+
+- `POST /api/v1/campaigns/{campaign_id}/lead-discovery`
+- `GET /api/v1/campaigns/{campaign_id}/lead-discovery/tasks`
+- `GET /api/v1/campaigns/{campaign_id}/leads`
+- `GET /api/v1/tasks/{task_id}`
+
+`POST /api/v1/campaigns/{campaign_id}/lead-discovery`
+
+Creates a Lead Discovery task for a confirmed Campaign and returns a task
+reference. The response must not imply the search has already completed.
+
+Request fields:
+
+- none required in the first implementation
+
+System-generated fields:
+
+- `search_query`
+- `provider_name = mock_search`
+- `task_type = lead_discovery`
+- `related_entity_type = campaign`
+- `related_entity_id = campaign_id`
+
+Response:
+
+```json
+{
+  "data": {
+    "task_id": "task_123",
+    "status": "pending",
+    "task_type": "lead_discovery",
+    "campaign_id": "campaign_123"
+  },
+  "message": "Lead Discovery task created successfully."
+}
+```
+
+Lead Discovery task rules:
+
+1. Only `confirmed` Campaigns may start Lead Discovery.
+2. Lead Discovery must use the Campaign configuration and
+   `product_card_snapshot` captured at confirmation time.
+3. A `draft` Campaign cannot start Lead Discovery.
+4. An `archived` Campaign cannot start new Lead Discovery.
+5. A Campaign with an existing `pending`, `running`, or `completed`
+   Lead Discovery task cannot start another Lead Discovery task.
+6. A Campaign with only `failed` or `cancelled` Lead Discovery task runs may
+   retry by creating a new task run.
+7. After a completed Lead Discovery task, a new search should use Campaign
+   duplicate / copy as draft, then confirm the new Campaign.
+8. A successful search that returns zero leads is `completed`, not `failed`.
+9. `failed` is reserved for provider errors, system errors, invalid execution,
+   or other task failures.
+10. Task status must not be written to `campaigns.status`.
+
+Saved lead fields:
+
+- `campaign_id`
+- `task_run_id`
+- `company_name`
+- `website`
+- `normalized_website`
+- `source_url`
+- `search_query`
+- `raw_snippet`
+- `discovery_reason`
+- `provider_name`
+- `discovery_status`
+- `validation_status`
+- `review_status`
+
+Saved lead rules:
+
+1. `website` and `source_url` are required.
+2. `search_query` must be stored for traceability.
+3. `provider_name` records the provider implementation, for example
+   `mock_search`.
+4. `raw_snippet` stores the search result snippet or mock summary used as
+   discovery context.
+5. `discovery_reason` stores why the system saved the candidate.
+6. `validation_status` starts as `pending`.
+7. `review_status` starts as `unreviewed`.
+8. The same Campaign should not save duplicate leads with the same normalized
+   website.
+9. The same website may be discovered under different Campaigns.
+10. Saved candidate leads are not yet validated, scored, approved, or eligible
+    for outreach.
+
+`GET /api/v1/campaigns/{campaign_id}/lead-discovery/tasks`
+
+Returns Lead Discovery task runs for the Campaign.
+
+`GET /api/v1/campaigns/{campaign_id}/leads`
+
+Returns candidate leads discovered for the Campaign. Phase 4 lead responses must
+not imply validation, website intelligence, scoring, contact finding, outreach,
+or Gmail Draft work has completed.
+
+`GET /api/v1/tasks/{task_id}`
+
+Returns task status and error information for long-running operations. For
+Lead Discovery, it should include `task_type = lead_discovery` and the related
+Campaign reference.
+
+Lead Discovery error handling:
+
+- Missing Campaign: HTTP `404` with `campaign_not_found`.
+- Draft Campaign: HTTP `409` with `campaign_not_confirmed`.
+- Archived Campaign: HTTP `409` with `campaign_archived`.
+- Existing `pending`, `running`, or `completed` Lead Discovery task: HTTP `409`
+  with `lead_discovery_already_exists`.
+- Provider failure: mark the task `failed` and expose `error_message` on the
+  task response.
+- Invalid request shape: HTTP `422` with validation details.
 
 ## Lead Recommendation and Review Status Contract
 
