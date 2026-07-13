@@ -11,9 +11,10 @@ the latest Codex task record required by `AGENTS.md`.
 ## Current Active Phase
 
 Phase 4 Lead Discovery backend first implementation with mock provider-backed
-search is implemented in code and covered by focused backend tests. The next
-active lane is local PostgreSQL migration / API smoke verification for this
-Phase 4 slice before starting Frontend Phase 4 UI work.
+search is implemented in code, covered by focused backend tests, and locally
+smoke-verified against PostgreSQL through the live API. The current active lane
+is Frontend Phase 4 Lead Discovery planning from the verified backend task and
+lead APIs before UI implementation.
 
 - Backend Phase 2 = Product Card backend/API/data contract work. The Product
   Card backend contract is implemented.
@@ -36,10 +37,9 @@ Phase 4 slice before starting Frontend Phase 4 UI work.
   interaction reference, not a backend business logic source.
 - Current verification priority for Product Card / Campaign is closed for local
   PostgreSQL live-backend browser smoke. The Phase 4 Lead Discovery contract is
-  clarified and the first backend slice is implemented with
-  `MockSearchProvider`; the next recommended work is local PostgreSQL migration
-  and API smoke verification for the new `task_runs` / `leads` tables and
-  endpoints.
+  clarified, the first backend slice is implemented with `MockSearchProvider`,
+  and local PostgreSQL migration / API smoke verification has passed for the
+  new `task_runs` / `leads` tables and endpoints.
 
 ## Required Status Alignment
 
@@ -66,7 +66,7 @@ Phase 4 slice before starting Frontend Phase 4 UI work.
 | Phase 1: Sources + Knowledge | Source persistence, knowledge drafts, knowledge review transitions, models, schemas, repositories, services, routes, migrations, and tests for the MVP text/URL slice. | Completed | Frontend Phase 1: Company / Source / Knowledge basic UI alignment. | Planned. | Frontend should follow the current text/URL backend contract only. |
 | Phase 2: Product Card | Product Card backend contract for AI-generated and manual cards, draft/confirmed lifecycle, edit, confirm, delete, source type, company ownership, and tests. | Completed for backend contract. | Frontend Phase 2: Product Card UI. | Implemented for the supported Product Card UI lifecycle. | PostgreSQL-backed browser smoke passed for create, edit, confirm, draft delete, and Campaign-linked 409 Chinese UI messaging. |
 | Phase 3: Campaign | Campaign model, migration, schemas, repository, service, routes, API contract, lifecycle, confirmed Product Card linkage, `product_card_snapshot`, duplicate-as-draft behavior, and tests. | Completed for the minimum backend vertical slice. | Frontend Phase 3: Campaign UI synchronized with Backend Phase 3 Campaign. | Implemented for the supported Campaign UI lifecycle. | Campaign frontend live-backend browser smoke passed against local PostgreSQL for direct route reachability, create draft, confirm, status filters, and Product Card linkage. |
-| Phase 4: Lead Discovery | Provider-driven candidate lead discovery from confirmed Campaign criteria, using `task_runs`, `leads`, and `MockSearchProvider` first. | Implemented for the first mock-provider backend vertical slice; local PostgreSQL migration / API smoke remains pending. | Lead discovery task/result UI. | Planned / future. | Verify the migration and endpoints against local PostgreSQL before frontend UI work. |
+| Phase 4: Lead Discovery | Provider-driven candidate lead discovery from confirmed Campaign criteria, using `task_runs`, `leads`, and `MockSearchProvider` first. | Implemented for the first mock-provider backend vertical slice; local PostgreSQL migration / API smoke passed for the verified endpoints. | Lead discovery task/result UI. | Planning from verified backend APIs; implementation pending. | Frontend Phase 4 should use only the verified task and lead APIs and must not imply validation, scoring, contacts, outreach, Gmail, real search, or real crawling. |
 | Phase 5: Lead Validation + Intelligence | Lead normalization, duplicate handling, website availability checks, intelligence capture, evidence storage, and content sufficiency. | Planned / future. | Lead validation and lead intelligence UI states. | Planned / future. | Must not pretend validation or crawling has completed before implementation exists. |
 | Phase 6: Lead Scoring | Evidence-based customer-fit scoring, recommendations, risk notes, uncertainty, and provider-mocked tests. | Planned / future. | Lead score, evidence, risk, and recommendation UI. | Planned / future. | AI recommendation remains separate from human review status. |
 | Phase 7: Lead Review | User approval, rejection, and manual-review workflow. | Planned / future. | Lead review pages and decision controls. | Planned / future. | AI must not approve leads for the user. |
@@ -81,9 +81,9 @@ Phase 4 slice before starting Frontend Phase 4 UI work.
 - Frontend phase numbering follows backend phase numbering where possible.
 - Frontend Phase 3 corresponds to Backend Phase 3 Campaign.
 - Frontend Phase 2 Product Card UI and Frontend Phase 3 Campaign UI are
-  implemented and locally smoke-verified against the live backend; Phase 4 Lead
-  Discovery UI remains future work until the backend task and lead APIs are
-  smoke-verified enough for frontend consumption.
+  implemented and locally smoke-verified against the live backend; Frontend
+  Phase 4 Lead Discovery UI planning has started from the smoke-verified
+  backend task and lead APIs.
 - A backend phase being completed does not automatically mean the matching
   frontend phase is implemented.
 - At the start of each phase, backend work should define the API contract, data
@@ -144,11 +144,15 @@ Phase 4 slice before starting Frontend Phase 4 UI work.
   not call a real search API, self-build full-web search, or perform real
   website crawling.
 - No RQ worker runtime is implemented yet.
-- The new Phase 4 migration has not yet been smoke-verified against local
-  PostgreSQL in this task.
+- The Phase 4 migration and API smoke were verified on 2026-07-13 against a
+  disposable local PostgreSQL database on port `55432` and a live FastAPI
+  backend on `127.0.0.1:8000`. This is local development proof, not staging or
+  production proof.
 - The migration chain was executed against a local Docker PostgreSQL test
   database on 2026-07-08. Broader deployment/staging PostgreSQL verification
   remains a future stabilization task.
+- Frontend Phase 4 Lead Discovery planning has started from the verified
+  backend APIs, but no Frontend Phase 4 UI has been implemented yet.
 - Campaign-side Product Card same-company validation is implemented for
   Campaign creation and confirmation.
 - Route-level Product Card get, patch, confirm, and delete company/workspace
@@ -159,6 +163,78 @@ Phase 4 slice before starting Frontend Phase 4 UI work.
 
 This section keeps compact records for the latest Codex tasks. Detailed task
 history should be moved to `docs/DEVELOPMENT_LOG.md`.
+
+### 2026-07-13 - Phase 4 PostgreSQL Smoke And Frontend Planning Start
+
+Completed: Ran local PostgreSQL migration / API smoke verification for the
+Phase 4 Lead Discovery endpoints, then started Frontend Phase 4 planning from
+the verified backend APIs.
+
+What changed:
+
+- Verified the full Alembic chain through
+  `20260712_0006_create_lead_discovery.py` against a disposable local
+  PostgreSQL database.
+- Verified the `task_runs` and `leads` tables and key Phase 4 constraint names
+  in PostgreSQL.
+- Started a live FastAPI backend against the smoke database and verified:
+  - `/health`
+  - `/health/db`
+  - `POST /api/v1/campaigns/{campaign_id}/lead-discovery`
+  - `GET /api/v1/tasks/{task_id}`
+  - `GET /api/v1/campaigns/{campaign_id}/lead-discovery/tasks`
+  - `GET /api/v1/campaigns/{campaign_id}/leads`
+- Confirmed draft Campaign rejection, confirmed Campaign task creation,
+  pending create response, completed mock-provider task status, three saved
+  candidate leads, duplicate task blocking, and Campaign status separation.
+- Updated frontend planning and UI requirements so Frontend Phase 4 is planned
+  from the verified task/lead APIs only.
+
+Files modified:
+
+- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
+- `docs/UI_REQUIREMENTS.md`
+- `docs/DEVELOPMENT_LOG.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+
+Verification commands:
+
+- `docker run --name ai-b2b-sales-phase4-smoke-postgres --rm -e POSTGRES_DB=ai_b2b_sales_phase4_smoke -e POSTGRES_USER=phase4_smoke -e POSTGRES_PASSWORD=phase4_smoke_password -p 55432:5432 -d postgres:16-alpine`
+- `.venv\Scripts\python.exe -m alembic upgrade head`
+- `.venv\Scripts\python.exe -m alembic upgrade head`
+- PostgreSQL schema inspection for `task_runs`, `leads`, and key constraints.
+- `.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000`
+- Live HTTP smoke script against the verified Phase 4 endpoints.
+
+Test status:
+
+- No automated tests were added or updated in this task.
+- Local PostgreSQL migration smoke passed.
+- Live FastAPI API smoke passed against local PostgreSQL.
+
+Known limitations:
+
+- The existing Docker Compose `postgres` volume was not used because it was
+  initialized with credentials that did not match `.env.example`; the smoke used
+  a separate disposable PostgreSQL container to avoid mutating existing data.
+- This is local development proof only, not staging or production proof.
+- The first implementation still executes `MockSearchProvider` synchronously
+  because no RQ worker runtime exists yet.
+- Frontend Phase 4 planning has started, but no Frontend Phase 4 UI was
+  implemented.
+- Lead Validation, website intelligence, scoring, review, contacts, outreach,
+  Gmail Draft, real search APIs, and real crawling remain future phases.
+
+Commit / push status:
+
+- Not committed.
+- Not pushed to GitHub.
+
+Next recommended step:
+
+- Provide or authorize the required Lead Discovery UI design context, then
+  implement Frontend Phase 4 using only the verified task/lead APIs and
+  Chinese user-facing text.
 
 ### 2026-07-12 - Backend Phase 4 Lead Discovery First Implementation
 
@@ -315,58 +391,3 @@ Next recommended step at the time:
   `MockSearchProvider`, the documented duplicate-start rules, and focused tests.
   This recommendation has been completed by the later implementation record
   above.
-
-### 2026-07-10 - AGENTS Rule Memory Alignment
-
-Completed: Updated the project rule document using the remembered collaboration
-and verification preferences for this repository.
-
-What changed:
-
-- Added collaboration and verification rules to `AGENTS.md` for hard scope
-  boundaries, diagnosis-only requests, explicit execution order, current-status
-  checks, and honest separation of implemented, planned, verified, and blocked
-  work.
-- Added runtime command rules to keep frontend commands under `frontend/`, prefer
-  `npm.cmd` on Windows when appropriate, and distinguish live runtime
-  verification from build-only or test-only checks.
-- Added Stitch and frontend design rules that keep Stitch as visual context
-  only, require live Stitch context when relevant, avoid substitute UI paths for
-  Stitch-gated work, and preserve backend-supported Chinese-only frontend UI.
-- Kept the task limited to rule documentation and progress tracking; no backend
-  API, schema, data model, business rule, or frontend workflow behavior changed.
-
-Files modified:
-
-- `AGENTS.md`
-- `docs/DEVELOPMENT_PROGRESS.md`
-
-Verification commands:
-
-- `git diff --check`
-- `git diff --name-only`
-- `git status --short --branch`
-
-Test status:
-
-- No automated tests were added or run because this was a rules/documentation
-  alignment task with no application logic changes.
-
-Known limitations:
-
-- The new rules are governance guidance only; they do not change application
-  behavior.
-- No live backend, database, or browser smoke verification was needed for this
-  documentation-only update.
-
-Commit / push status:
-
-- Not committed.
-- Not pushed to GitHub.
-
-Next recommended step at the time:
-
-- Clarify the Phase 4 Lead Discovery backend contract, data model, business
-  rules, validation rules, status boundaries, and provider interfaces before
-  implementation. This was completed by the later Phase 4 contract
-  documentation and backend implementation records above.

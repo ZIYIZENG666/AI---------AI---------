@@ -33,8 +33,80 @@ state.
 | Phase 1: Sources + Knowledge | Completed | Source persistence, knowledge draft creation, review transitions, filtering, migrations, routes, services, repositories, schemas, and tests exist for the MVP text/URL slice. |
 | Phase 2: Product Card backend contract | Completed | Product Card backend supports AI-generated and manual cards, `draft` and `confirmed` lifecycle, edit, confirm, delete, `source_type`, and tests under the finalized contract. |
 | Phase 3: Campaign | Backend and supported frontend lifecycle completed | Campaign backend supports the minimum Phase 3 contract: `draft`, `confirmed`, and `archived`; confirmed same-company Product Card validation; `product_card_snapshot`; archive; duplicate-as-draft; routes; migration; and tests. Frontend Phase 3 Campaign UI is implemented for the supported lifecycle. |
-| Phase 4: Lead Discovery | First backend slice implemented | Phase 4 now has models, schemas, repositories, services, routes, migration, `MockSearchProvider`, and focused tests for confirmed Campaign -> Lead Discovery task -> mock search results -> saved candidate leads. It does not call real search APIs, self-build full-web search, perform real website crawling, score leads, approve leads, find contacts, or create outreach/Gmail drafts. Local PostgreSQL migration / API smoke remains pending. |
-| Frontend business workflow | Partially implemented | Product Card UI and Campaign UI are implemented for their supported lifecycles and locally smoke-verified against the live backend. Frontend Phase 1 company/source/knowledge screens and Phase 4+ workflow screens remain future work. |
+| Phase 4: Lead Discovery | First backend slice implemented and locally smoke-verified | Phase 4 now has models, schemas, repositories, services, routes, migration, `MockSearchProvider`, focused tests, and local PostgreSQL / live API smoke proof for confirmed Campaign -> Lead Discovery task -> mock search results -> saved candidate leads. It does not call real search APIs, self-build full-web search, perform real website crawling, score leads, approve leads, find contacts, or create outreach/Gmail drafts. |
+| Frontend business workflow | Partially implemented | Product Card UI and Campaign UI are implemented for their supported lifecycles and locally smoke-verified against the live backend. Frontend Phase 4 Lead Discovery planning has started from the verified backend APIs; Frontend Phase 1 company/source/knowledge screens and Phase 4+ implementation remain future work. |
+
+## 2026-07-13 - Phase 4 PostgreSQL Migration/API Smoke And Frontend Planning Start
+
+Type: Local runtime verification and frontend planning documentation.
+
+Completed:
+
+- Started a disposable PostgreSQL 16 container on `localhost:55432` for an
+  isolated Phase 4 smoke database, leaving the existing Docker Compose
+  PostgreSQL volume untouched.
+- Ran `alembic upgrade head` against the smoke database and reached
+  `20260712_0006_create_lead_discovery.py`.
+- Ran `alembic upgrade head` a second time to verify idempotent head state.
+- Inspected PostgreSQL schema presence for `campaigns`, `product_cards`,
+  `task_runs`, and `leads`, including key Phase 4 constraints such as
+  `ck_task_runs_task_type`, `ck_task_runs_status`,
+  `ck_leads_discovery_status`, `ck_leads_validation_status`,
+  `ck_leads_review_status`, and
+  `uq_leads_campaign_id_normalized_website`.
+- Started a live FastAPI backend on `127.0.0.1:8000` against the smoke
+  database.
+- Verified `/health` and `/health/db`.
+- Created a company, manual Product Card, confirmed Product Card, draft
+  Campaign, and confirmed Campaign through live HTTP APIs.
+- Verified draft Campaign Lead Discovery rejection with HTTP `409` and
+  `campaign_not_confirmed`.
+- Verified `POST /api/v1/campaigns/{campaign_id}/lead-discovery` returned HTTP
+  `201` with a `pending` task reference.
+- Verified `GET /api/v1/tasks/{task_id}` returned `completed`,
+  `task_type = lead_discovery`, `provider_name = mock_search`, and a
+  `search_query` containing the confirmed Product Card snapshot name.
+- Verified `GET /api/v1/campaigns/{campaign_id}/lead-discovery/tasks` returned
+  one Lead Discovery task.
+- Verified `GET /api/v1/campaigns/{campaign_id}/leads` returned three mock
+  candidate leads with `discovery_status = discovered`,
+  `validation_status = pending`, `review_status = unreviewed`,
+  `provider_name = mock_search`, and matching `search_query`.
+- Verified Campaign status remained `confirmed` after discovery.
+- Verified duplicate Lead Discovery start returned HTTP `409` with
+  `lead_discovery_already_exists`.
+- Updated frontend planning and UI requirements to start Frontend Phase 4 from
+  the verified task/lead API surfaces only.
+
+Files modified:
+
+- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
+- `docs/UI_REQUIREMENTS.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+- `docs/DEVELOPMENT_LOG.md`
+
+Verification:
+
+- Local PostgreSQL readiness check against the disposable smoke database passed.
+- Alembic migration smoke passed.
+- Idempotent second Alembic head check passed.
+- PostgreSQL schema inspection passed for the Phase 4 tables and constraints.
+- Live FastAPI API smoke passed for the Phase 4 endpoint path.
+
+Known limits:
+
+- The existing Docker Compose `postgres` volume was not used because it was
+  initialized with credentials that did not match `.env.example`; this task
+  avoided mutating existing local data by using a separate disposable PostgreSQL
+  container.
+- This is local development proof, not staging or production proof.
+- No automated tests were added or updated in this task.
+- No Frontend Phase 4 UI was implemented.
+- No RQ worker runtime exists yet; the first implementation still executes the
+  mock provider synchronously after creating a pending task reference.
+- Lead Validation, website intelligence, scoring, human review, contacts,
+  outreach, Gmail Draft, real search APIs, and real crawling remain future
+  phases.
 
 ## 2026-07-12 - Backend Phase 4 Lead Discovery First Implementation
 
@@ -60,8 +132,9 @@ Completed:
   provider failure recording, Campaign-status separation, and per-Campaign lead
   website de-duplication.
 - Added `backend/tests/test_lead_discovery.py` with focused Phase 4 coverage.
-- Updated current docs to reflect that the first backend slice is implemented
-  and that local PostgreSQL migration / API smoke remains pending.
+- Updated current docs to reflect that the first backend slice was implemented
+  and that local PostgreSQL migration / API smoke was still pending at that
+  time.
 
 Verification:
 

@@ -128,9 +128,9 @@ Confirmed Campaign pages may show:
 - 复制为草稿
 
 Start / use for Lead Discovery belongs to Frontend Phase 4 and must not be shown
-or wired inside the Phase 3 Campaign UI. Frontend Phase 4 should wait until the
-backend Lead Discovery APIs are smoke-verified and the required UI design
-context is available.
+or wired inside the Phase 3 Campaign UI. The backend Lead Discovery APIs have
+been smoke-verified for Frontend Phase 4 planning; implementation still requires
+the appropriate UI design context or explicit user authorization.
 
 Confirmed Campaign pages must not show:
 
@@ -152,6 +152,44 @@ the original confirmed Campaign.
 Campaign UI text shown to users must be Chinese, including page titles, buttons,
 form labels, status badges, empty states, error messages, success messages,
 confirmation dialogs, tooltips, and table headers.
+
+## Lead Discovery UI Rules
+
+Lead Discovery UI must follow the backend Phase 4 Lead Discovery contract.
+
+Supported Phase 4 UI behavior:
+
+- Show a start Lead Discovery action only for confirmed Campaigns.
+- Draft Campaigns must not appear eligible to start Lead Discovery.
+- Archived Campaigns must not appear eligible to start Lead Discovery.
+- After `POST /api/v1/campaigns/{campaign_id}/lead-discovery`, show the
+  returned task reference as pending and then read task status from
+  `GET /api/v1/tasks/{task_id}`.
+- Task history should come from
+  `GET /api/v1/campaigns/{campaign_id}/lead-discovery/tasks`.
+- Candidate lead results should come from
+  `GET /api/v1/campaigns/{campaign_id}/leads`.
+- Candidate leads must be presented as discovered leads with pending validation
+  and unreviewed human status.
+- Duplicate task conflicts from `lead_discovery_already_exists` must be shown as
+  a clear Chinese error or existing-task state.
+- A completed task with zero leads must be shown as a completed empty result,
+  not as a failed search.
+
+Phase 4 Lead Discovery UI must not show or imply:
+
+- Lead Validation completion.
+- Website intelligence, crawling, or extracted evidence.
+- AI fit score, recommendation, matching reasons, or risk notes.
+- Lead approval, rejection, or manual review actions.
+- Contact finding, selected email contact, Outreach Draft, Gmail Draft, email
+  sending, auto-send, follow-up sequence, or CRM pipeline actions.
+- Real search API results or real customer evidence when the backend uses
+  `MockSearchProvider`.
+
+All Lead Discovery page titles, buttons, labels, task statuses, table headers,
+empty states, errors, success messages, confirmation dialogs, and tooltips must
+be Chinese.
 
 ## Product Card UI Rules
 
