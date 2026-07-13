@@ -127,9 +127,10 @@ Confirmed Campaign pages may show:
 - 归档
 - 复制为草稿
 
-Start / use for Lead Discovery must not be shown or wired until the
-corresponding backend Lead Discovery API contract exists. The UI must not imply
-that unsupported discovery work has already run.
+Start / use for Lead Discovery belongs to Frontend Phase 4 and must not be shown
+or wired inside the Phase 3 Campaign UI. Frontend Phase 4 should wait until the
+backend Lead Discovery APIs are smoke-verified and the required UI design
+context is available.
 
 Confirmed Campaign pages must not show:
 

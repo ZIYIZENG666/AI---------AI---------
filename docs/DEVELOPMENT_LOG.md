@@ -33,8 +33,51 @@ state.
 | Phase 1: Sources + Knowledge | Completed | Source persistence, knowledge draft creation, review transitions, filtering, migrations, routes, services, repositories, schemas, and tests exist for the MVP text/URL slice. |
 | Phase 2: Product Card backend contract | Completed | Product Card backend supports AI-generated and manual cards, `draft` and `confirmed` lifecycle, edit, confirm, delete, `source_type`, and tests under the finalized contract. |
 | Phase 3: Campaign | Backend and supported frontend lifecycle completed | Campaign backend supports the minimum Phase 3 contract: `draft`, `confirmed`, and `archived`; confirmed same-company Product Card validation; `product_card_snapshot`; archive; duplicate-as-draft; routes; migration; and tests. Frontend Phase 3 Campaign UI is implemented for the supported lifecycle. |
-| Phase 4: Lead Discovery contract | Documentation clarified / implementation pending | Phase 4 is documented as confirmed Campaign -> Lead Discovery task -> mock search results -> saved candidate leads. First implementation uses `MockSearchProvider`, `task_runs`, and `leads`; it does not call real search APIs, self-build full-web search, perform real website crawling, score leads, approve leads, find contacts, or create outreach/Gmail drafts. |
+| Phase 4: Lead Discovery | First backend slice implemented | Phase 4 now has models, schemas, repositories, services, routes, migration, `MockSearchProvider`, and focused tests for confirmed Campaign -> Lead Discovery task -> mock search results -> saved candidate leads. It does not call real search APIs, self-build full-web search, perform real website crawling, score leads, approve leads, find contacts, or create outreach/Gmail drafts. Local PostgreSQL migration / API smoke remains pending. |
 | Frontend business workflow | Partially implemented | Product Card UI and Campaign UI are implemented for their supported lifecycles and locally smoke-verified against the live backend. Frontend Phase 1 company/source/knowledge screens and Phase 4+ workflow screens remain future work. |
+
+## 2026-07-12 - Backend Phase 4 Lead Discovery First Implementation
+
+Implemented the first backend Lead Discovery vertical slice.
+
+Completed:
+
+- Added `task_runs` and `leads` ORM models with status/check constraints,
+  traceability fields, timestamps, foreign keys, and per-Campaign normalized
+  website uniqueness.
+- Added Alembic revision `20260712_0006_create_lead_discovery.py`.
+- Replaced `tasks` and `discovery` placeholders with repositories, schemas,
+  services, and routes.
+- Registered the new Discovery and Task routers in `backend/app/main.py`.
+- Added `MockSearchProvider` through the Search Provider abstraction.
+- Implemented:
+  - `POST /api/v1/campaigns/{campaign_id}/lead-discovery`
+  - `GET /api/v1/campaigns/{campaign_id}/lead-discovery/tasks`
+  - `GET /api/v1/campaigns/{campaign_id}/leads`
+  - `GET /api/v1/tasks/{task_id}`
+- Enforced confirmed-Campaign-only start, archived/draft rejection, duplicate
+  task blocking, retry after failed/cancelled tasks, zero-result completion,
+  provider failure recording, Campaign-status separation, and per-Campaign lead
+  website de-duplication.
+- Added `backend/tests/test_lead_discovery.py` with focused Phase 4 coverage.
+- Updated current docs to reflect that the first backend slice is implemented
+  and that local PostgreSQL migration / API smoke remains pending.
+
+Verification:
+
+- `.venv\Scripts\python.exe -m pytest tests\test_lead_discovery.py -q` passed:
+  8 passed, 1 warning.
+- `.venv\Scripts\python.exe -m pytest -q` passed: 65 passed, 1 warning.
+
+Known limits:
+
+- The first implementation executes `MockSearchProvider` synchronously after
+  returning a pending task reference because no RQ worker runtime exists yet.
+- The new Alembic migration was not smoke-verified against local PostgreSQL in
+  this task.
+- Lead Validation, website intelligence, scoring, human review, contacts,
+  outreach, Gmail Draft, real search APIs, and real crawling remain future
+  phases.
 
 ## 2026-07-12 - Phase 4 Lead Discovery Contract Documentation Pass
 

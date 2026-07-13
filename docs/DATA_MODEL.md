@@ -564,6 +564,8 @@ Main fields:
 - `task_type`
 - `related_entity_type`
 - `related_entity_id`
+- `search_query`
+- `provider_name`
 - `status`
 - `progress`
 - `error_message`
@@ -577,6 +579,9 @@ For Lead Discovery:
 - `task_type` must be `lead_discovery`.
 - `related_entity_type` must be `campaign`.
 - `related_entity_id` must be the confirmed Campaign ID.
+- `search_query` stores the generated query used for discovery, including for
+  zero-result completed tasks.
+- `provider_name` records the provider implementation, such as `mock_search`.
 - Task execution status must not be stored in `campaigns.status`.
 - A successful search that returns zero leads is still `completed`.
 - Provider or system failure should move the task to `failed` with

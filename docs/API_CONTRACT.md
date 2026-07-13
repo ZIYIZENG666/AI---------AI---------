@@ -302,6 +302,11 @@ Current endpoints:
 
 Creates a Lead Discovery task for a confirmed Campaign and returns a task
 reference. The response must not imply the search has already completed.
+The first backend implementation returns a `pending` task reference and, until
+the worker runtime exists, executes the `MockSearchProvider` immediately in the
+service layer. Clients should poll `GET /api/v1/tasks/{task_id}` for the final
+task status and read `GET /api/v1/campaigns/{campaign_id}/leads` for saved
+candidate leads.
 
 Request fields:
 
@@ -394,7 +399,8 @@ or Gmail Draft work has completed.
 
 Returns task status and error information for long-running operations. For
 Lead Discovery, it should include `task_type = lead_discovery` and the related
-Campaign reference.
+Campaign reference, plus the generated `search_query` and `provider_name` for
+traceability.
 
 Lead Discovery error handling:
 

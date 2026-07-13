@@ -1,5 +1,49 @@
-"""Repository placeholders for the discovery module."""
+"""Repository logic for the discovery module."""
+
+from sqlalchemy import func, select
+from sqlalchemy.orm import Session
+
+from app.modules.discovery.models import Lead
 
 
 class DiscoveryRepository:
-    """Data access entrypoint placeholder for discovery."""
+    """Database access for discovered leads."""
+
+    def __init__(self, session: Session) -> None:
+        self.session = session
+
+    def create_many(self, leads_data: list[dict]) -> list[Lead]:
+        leads = [Lead(**data) for data in leads_data]
+        self.session.add_all(leads)
+        self.session.commit()
+        for lead in leads:
+            self.session.refresh(lead)
+        return leads
+
+    def list_by_campaign(
+        self,
+        campaign_id: str,
+        limit: int,
+        offset: int,
+    ) -> tuple[list[Lead], int]:
+        filters = [Lead.campaign_id == campaign_id]
+        total = self.session.scalar(
+            select(func.count()).select_from(Lead).where(*filters)
+        ) or 0
+        items = list(
+            self.session.scalars(
+                select(Lead)
+                .where(*filters)
+                .order_by(Lead.created_at.desc(), Lead.id.desc())
+                .limit(limit)
+                .offset(offset)
+            )
+        )
+        return items, total
+
+    def existing_normalized_websites(self, campaign_id: str) -> set[str]:
+        return set(
+            self.session.scalars(
+                select(Lead.normalized_website).where(Lead.campaign_id == campaign_id)
+            )
+        )
