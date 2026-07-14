@@ -297,6 +297,53 @@ Must test:
 
 ---
 
+## 9.5 Lead Validation + Intelligence Contract Tests
+
+Phase 5 tests must stay limited to Lead Validation and factual website
+intelligence. They must not test AI scoring, human review, contact discovery,
+Outreach Draft, Gmail Draft, auto-send, CRM automation, LinkedIn crawling, or
+real external crawling as if those phases already exist.
+
+Must test:
+
+1. A discovered Lead with `validation_status = pending` can create a Lead
+   Validation task.
+2. A missing Lead returns `lead_not_found`.
+3. A Lead under an archived Campaign cannot start a new validation task.
+4. A Lead that is already `valid`, `invalid`, `duplicate`, or
+   `insufficient_content` cannot start first-slice validation again.
+5. `pending`, `running`, and `completed` Lead Validation tasks block a duplicate
+   task for the same Lead.
+6. `failed` and `cancelled` Lead Validation tasks may be retried only while the
+   Lead still has `validation_status = pending`.
+7. Task execution status is stored in `task_runs`, not in
+   `leads.validation_status`.
+8. Phase 5 task records use `task_type = lead_validation`,
+   `related_entity_type = lead`, and `related_entity_id = lead_id`.
+9. Lead Validation must not store the lead website URL in the Lead Discovery
+   `search_query` field.
+10. Reachable website with sufficient factual content sets
+    `validation_status = valid` and creates a `lead_intelligence` record.
+11. Malformed, unsupported, prohibited, unreachable, or obvious-mismatch website
+    sets `validation_status = invalid`.
+12. Duplicate found after canonical normalization sets
+    `validation_status = duplicate`.
+13. Reachable website with too little usable content sets
+    `validation_status = insufficient_content`.
+14. Provider or system failure marks the task `failed`, records
+    `error_message`, and does not claim final validation success.
+15. `lead_intelligence` stores source URL, provider name, factual extracted
+    fields, content quality, crawl status, and traceable evidence.
+16. Intelligence extraction must not invent evidence or claim real crawling when
+    the provider is mock-only.
+17. Phase 5 must not change `review_status`.
+18. Phase 5 must not create `lead_scores`, contacts, outreach drafts, or Gmail
+    drafts.
+19. Tests must mock Crawler Provider behavior and must not call real websites,
+    real paid crawler APIs, LinkedIn, Gmail, or LLM APIs.
+
+---
+
 ## 10. AI Output Validation Tests
 
 AI 输出不能直接信任，必须测试 schema validation。

@@ -191,6 +191,39 @@ All Lead Discovery page titles, buttons, labels, task statuses, table headers,
 empty states, errors, success messages, confirmation dialogs, and tooltips must
 be Chinese.
 
+## Lead Validation + Intelligence UI Planning Rules
+
+Lead Validation + Intelligence UI must follow the backend Phase 5 contract once
+that backend implementation exists.
+
+Supported Phase 5 UI behavior:
+
+- Show Lead Validation actions only for backend-supported discovered leads.
+- Show validation task status from `task_runs`.
+- Show `leads.validation_status` as the business validation result.
+- Supported validation result labels are valid, invalid, duplicate, and
+  insufficient content, rendered in Chinese.
+- Show factual website intelligence only from backend `lead_intelligence`
+  responses.
+- Show evidence traceability when the backend provides source URL or snippet
+  data.
+- Show provider failure, unavailable backend, no-intelligence, and
+  insufficient-content states honestly.
+
+Phase 5 UI must not show or imply:
+
+- AI fit score, recommendation, matching reasons, or risk notes.
+- Lead approval, rejection, or manual review actions.
+- Contact finding, selected email contact, Outreach Draft, Gmail Draft, email
+  sending, auto-send, follow-up sequence, or CRM pipeline actions.
+- Real crawling or real website evidence when the backend uses a mock provider.
+- LinkedIn crawling, LinkedIn automation, or LinkedIn-derived Gmail Draft
+  eligibility.
+
+All Lead Validation + Intelligence page titles, buttons, labels, task statuses,
+table headers, empty states, errors, success messages, confirmation dialogs, and
+tooltips must be Chinese.
+
 ## Product Card UI Rules
 
 The Product Card UI must support:

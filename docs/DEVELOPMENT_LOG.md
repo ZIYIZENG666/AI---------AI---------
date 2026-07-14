@@ -34,7 +34,80 @@ state.
 | Phase 2: Product Card backend contract | Completed | Product Card backend supports AI-generated and manual cards, `draft` and `confirmed` lifecycle, edit, confirm, delete, `source_type`, and tests under the finalized contract. |
 | Phase 3: Campaign | Backend and supported frontend lifecycle completed | Campaign backend supports the minimum Phase 3 contract: `draft`, `confirmed`, and `archived`; confirmed same-company Product Card validation; `product_card_snapshot`; archive; duplicate-as-draft; routes; migration; and tests. Frontend Phase 3 Campaign UI is implemented for the supported lifecycle. |
 | Phase 4: Lead Discovery | Backend implemented and frontend UI live-smoke verified | Phase 4 now has models, schemas, repositories, services, routes, migration, `MockSearchProvider`, focused tests, local PostgreSQL / live API smoke proof, and a Frontend Phase 4 UI that passed local PostgreSQL live-backend browser smoke for confirmed Campaign -> Lead Discovery task -> mock search results -> saved candidate leads. It does not call real search APIs, self-build full-web search, perform real website crawling, score leads, approve leads, find contacts, or create outreach/Gmail drafts. |
+| Phase 5: Lead Validation + Intelligence | Contract planned; backend implementation pending | Phase 5 is now documented as Lead Validation + factual website intelligence from discovered leads. Planned work includes `lead_validation` task runs, `lead_intelligence`, validation status transitions, mock Crawler Provider usage, and tests. No Phase 5 backend implementation has started yet. |
 | Frontend business workflow | Partially implemented | Product Card UI, Campaign UI, and Frontend Phase 4 Lead Discovery UI are implemented for their supported lifecycles and locally smoke-verified against the live backend. Frontend Phase 1 company/source/knowledge screens remain future work. |
+
+## 2026-07-14 - Phase 5 Lead Validation + Intelligence Contract Planning
+
+Type: Documentation-only contract planning before backend implementation.
+
+Completed:
+
+- Formally moved the active planning lane from completed Phase 4 local smoke
+  verification into Phase 5 Lead Validation + Intelligence contract planning.
+- Documented Phase 5 scope as validation and factual website intelligence from
+  existing discovered leads.
+- Added the planned Phase 5 endpoints:
+  - `POST /api/v1/leads/{lead_id}/validation`
+  - `GET /api/v1/leads/{lead_id}/validation/tasks`
+  - `GET /api/v1/leads/{lead_id}/intelligence`
+  - `GET /api/v1/tasks/{task_id}`
+- Documented allowed first-slice validation transitions:
+  - `pending -> valid`
+  - `pending -> invalid`
+  - `pending -> duplicate`
+  - `pending -> insufficient_content`
+- Clarified that provider/system failures should fail the task and should not
+  be recorded as completed validation outcomes.
+- Documented `lead_intelligence` as factual website intelligence with source
+  traceability, provider name, content quality, crawl status, and evidence.
+- Documented that Phase 5 backend implementation must extend `task_runs` for
+  `task_type = lead_validation`, `related_entity_type = lead`, and a generic
+  website input field; it must not reuse Lead Discovery `search_query` to store
+  website URLs.
+- Updated module boundaries so the intelligence module owns Phase 5 validation
+  and website intelligence while qualification, reviews, contacts, and outreach
+  remain separate phases.
+- Added Phase 5 testing expectations for mock Crawler Provider behavior,
+  validation outcomes, intelligence evidence traceability, and strict
+  out-of-scope boundaries.
+- Updated frontend planning/UI requirements to keep Frontend Phase 5 pending
+  backend implementation and Stitch or user-provided design context.
+
+Files modified:
+
+- `docs/MVP_SCOPE.md`
+- `docs/API_CONTRACT.md`
+- `docs/DATA_MODEL.md`
+- `docs/MODULE_BOUNDARIES.md`
+- `docs/WORKFLOW.md`
+- `docs/TESTING_STRATEGY.md`
+- `docs/UI_REQUIREMENTS.md`
+- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
+- `docs/DEVELOPMENT_LOG.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+
+Verification:
+
+- `rg -n "Phase 5|lead_validation|lead_intelligence|search_query|Gmail Draft|LinkedIn|Outreach Draft|lead_scores|review_status" docs`
+- `git diff --check`
+
+Known limits:
+
+- This was a documentation-only contract planning task.
+- No Phase 5 backend models, schemas, repositories, services, routes,
+  migrations, or tests were implemented.
+- No frontend Phase 5 UI was implemented.
+- No automated tests were run because no implementation code changed.
+- Real crawler provider integration remains future work and was not authorized
+  by this task.
+
+Next recommended step:
+
+- Implement Backend Phase 5 first slice with a mock Crawler Provider, extend
+  `task_runs`, add `lead_intelligence`, implement service/repository/routes,
+  add focused tests, then run PostgreSQL migration and live API smoke
+  verification.
 
 ## 2026-07-14 - Frontend Phase 4 Live-Backend Browser Smoke
 

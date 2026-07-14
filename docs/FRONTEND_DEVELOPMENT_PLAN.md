@@ -45,8 +45,10 @@ local PostgreSQL smoke database and live FastAPI API. Frontend Phase 4 Lead
 Discovery UI is implemented from the verified backend API surfaces and the
 available Stitch design context, and local PostgreSQL live-backend browser
 smoke verification has passed for the confirmed Campaign discovery workflow.
-The current frontend priority can move to Phase 5 contract planning, or to
-targeted Phase 4 hardening if review finds specific UI polish items.
+Phase 5 Lead Validation + Intelligence contract planning has started at the
+docs/contract level. Frontend Phase 5 implementation must wait for the backend
+Phase 5 API contract, data model, business rules, validation rules, allowed
+status transitions, and Stitch or user-provided design context.
 
 Lead Discovery UI is implemented only from the verified backend task and lead
 APIs. It does not use frontend-only fake data and must not imply Lead
@@ -383,6 +385,58 @@ Status:
   start, completed task status/history, three mock candidate leads,
   duplicate-task conflict handling, and hidden start action for draft /
   archived Campaign details.
+
+### Frontend Phase 5: Lead Validation + Intelligence
+
+Backend alignment:
+
+- Backend Phase 5 Lead Validation + Intelligence.
+- Planned API surfaces:
+  - `POST /api/v1/leads/{lead_id}/validation`
+  - `GET /api/v1/leads/{lead_id}/validation/tasks`
+  - `GET /api/v1/leads/{lead_id}/intelligence`
+  - `GET /api/v1/tasks/{task_id}`
+
+Human Stitch design scope:
+
+- Lead validation start and task status states.
+- Validation result states: valid, invalid, duplicate, and insufficient
+  content.
+- Website intelligence summary and evidence display.
+- Empty, loading, provider-failure, and no-intelligence states.
+- Clear separation from scoring, review, contacts, outreach, and Gmail Draft.
+
+Codex implementation scope:
+
+- Implement only after the backend Phase 5 contract and implementation exist.
+- Use backend task and intelligence APIs only; do not use frontend-only fake
+  validation data.
+- Show Lead Validation task status from `task_runs`.
+- Show `leads.validation_status` as the business validation result.
+- Show `lead_intelligence` factual fields and evidence traceability when the
+  backend returns them.
+- Keep all user-facing text Chinese.
+
+Out of scope for Frontend Phase 5:
+
+- AI fit score, recommendations, matching reasons, or risk notes.
+- Human lead approval or rejection controls.
+- Contact discovery, selected email contact, Outreach Draft, Gmail Draft,
+  email sending, auto-send, follow-up sequence, or CRM pipeline actions.
+- Any claim that real crawling or extracted website evidence exists when the
+  backend uses a mock provider.
+
+Dependencies:
+
+- Phase 5 API contract and data model.
+- Phase 5 validation status transitions.
+- `docs/UI_REQUIREMENTS.md`.
+- Stitch or user-provided design context for Lead Validation + Intelligence UI.
+
+Status:
+
+- Contract planning started.
+- Frontend implementation is pending backend implementation and design context.
 
 ## Handoff Requirements
 

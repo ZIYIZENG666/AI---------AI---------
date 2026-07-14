@@ -346,6 +346,27 @@ Phase 4 Lead Discovery rules:
 - Real website crawling, content sufficiency checks, and extracted evidence
   belong to `lead_intelligence`, not to the initial Phase 4 lead row.
 
+Phase 5 Lead Validation rules:
+
+- Phase 5 starts from Phase 4 discovered leads.
+- A lead may enter validation only when `discovery_status = discovered` and
+  `validation_status = pending`.
+- Validation must not change `review_status`.
+- Validation must not create lead scores, contacts, outreach drafts, or Gmail
+  drafts.
+- A provider or system failure should leave `validation_status` unchanged and
+  record failure on the related task run.
+- A reachable website with sufficient factual content sets
+  `validation_status = valid`.
+- A malformed URL, unsupported or prohibited URL, unreachable website, or
+  obvious mismatch sets `validation_status = invalid`.
+- A duplicate detected after canonical normalization sets
+  `validation_status = duplicate`.
+- A reachable website with too little usable content sets
+  `validation_status = insufficient_content`.
+- `valid`, `invalid`, `duplicate`, and `insufficient_content` are terminal for
+  the first Phase 5 slice. Revalidation or manual override is future hardening.
+
 Possible `discovery_status`:
 
 - `discovered`
@@ -380,6 +401,9 @@ Main fields:
 
 - `id`
 - `lead_id`
+- `task_run_id`
+- `source_url`
+- `provider_name`
 - `website_summary`
 - `products_or_services`
 - `target_customers`
@@ -391,6 +415,31 @@ Main fields:
 - `error_message`
 - `created_at`
 - `updated_at`
+
+Phase 5 Lead Intelligence rules:
+
+- `lead_id` links intelligence to the validated lead.
+- `task_run_id` links intelligence to the Lead Validation task that produced
+  the record.
+- `source_url` stores the website URL or final fetched URL used for evidence.
+- `provider_name` records the crawler/provider implementation, such as
+  `mock_crawler`.
+- `evidence` should be structured data, preferably JSON/JSONB, with source URL
+  and snippet traceability.
+- `content_quality` describes content sufficiency and must not be used as a fit
+  score.
+- Website summaries and extracted fields must stay factual. They must not
+  contain customer-fit scoring, approval decisions, contact discovery, outreach
+  draft content, or Gmail Draft state.
+- The intelligence module must not invent website evidence or claim crawling
+  happened when the provider returned mock data.
+
+Possible `crawl_status`:
+
+- `completed`
+- `failed`
+- `insufficient_content`
+- `skipped`
 
 ## lead_scores
 
@@ -593,6 +642,27 @@ For Lead Discovery:
 - Starting a new search after a completed task should use Campaign duplicate /
   copy as draft, then confirm the new Campaign.
 
+Planned Phase 5 extension:
+
+- `task_type` must allow `lead_validation`.
+- `related_entity_type` must allow `lead`.
+- `related_entity_id` stores the Lead ID for Lead Validation tasks.
+- Phase 5 tasks should add a generic `input_url` or task input field for the
+  lead website.
+- `search_query` remains Lead Discovery-specific and should not be reused to
+  store website URLs for Lead Validation.
+- A Lead Validation task uses `provider_name` to record the crawler/provider
+  implementation, such as `mock_crawler`.
+- Task execution status must not be stored in `leads.validation_status`.
+  `validation_status` stores only the completed business outcome.
+- Provider or system failure should move the task to `failed` with
+  `error_message` and should not mark the Lead invalid unless validation
+  actually completed.
+- `pending`, `running`, and `completed` Lead Validation tasks block creating a
+  duplicate Lead Validation task for the same Lead.
+- `failed` and `cancelled` Lead Validation tasks may be retried only while the
+  Lead still has `validation_status = pending`.
+
 Possible `status`:
 
 - `pending`
@@ -619,7 +689,7 @@ Possible `status`:
 1. A product card must belong to a company.
 2. A campaign must belong to a product card.
 3. A lead must belong to a campaign.
-4. Lead scoring should only happen after validation.
+4. Lead scoring should only happen after `validation_status = valid`.
 5. Outreach draft should only happen after user approval.
 6. Gmail draft should only be created from an outreach draft.
 7. Confirmed knowledge should be separated from draft knowledge.

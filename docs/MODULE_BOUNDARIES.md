@@ -217,17 +217,39 @@ The intelligence module collects and processes lead website information.
 
 It handles:
 
+- Lead Validation execution from discovered leads
+- Website URL normalization for validation
+- Website availability checks
 - Website crawling
 - Website text extraction
 - Company website summary
 - Evidence extraction
 - Content sufficiency check
+- `leads.validation_status` transitions from `pending` to `valid`, `invalid`,
+  `duplicate`, or `insufficient_content`
+- `lead_intelligence` persistence
+- Crawler Provider usage through provider interfaces
+
+Phase 5 first implementation may use a mock Crawler Provider. Automated tests
+must mock crawler behavior and must not call real websites or paid crawler
+APIs.
 
 ### Not Responsible For
 
 It should not decide final lead approval.
 
+It should not calculate AI fit scores or write `lead_scores`.
+
+It should not mutate `leads.review_status`.
+
+It should not discover contacts.
+
+It should not generate outreach drafts.
+
 It should not generate Gmail drafts.
+
+It should not crawl LinkedIn, use LinkedIn API, automate a browser against
+LinkedIn, or treat a LinkedIn URL as evidence for Gmail Draft eligibility.
 
 ## qualification
 

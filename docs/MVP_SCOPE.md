@@ -89,12 +89,16 @@ The MVP must include the following:
   crawler interfaces may be reserved, but real website crawling and content
   analysis belong to later Lead Validation / Intelligence work
 
-### 8. Lead Validation
+### 8. Lead Validation + Intelligence
 
 - Normalize company name and website
 - Remove duplicates
 - Check website availability
+- Check content sufficiency
+- Store factual website intelligence and evidence for later scoring
 - Filter obvious invalid leads
+- Do not generate fit scores, approval decisions, contacts, outreach drafts, or
+  Gmail Drafts in this phase
 
 ### 9. Lead Scoring
 

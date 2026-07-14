@@ -189,7 +189,8 @@ The system stores candidate leads.
 
 ### Step 8: Validate Leads
 
-The system performs basic lead validation before AI scoring.
+The system performs Lead Validation before AI scoring. Phase 5 validation starts
+from discovered leads created by Lead Discovery.
 
 Validation includes:
 
@@ -200,11 +201,23 @@ Validation includes:
 - Check whether content is sufficient
 - Filter obvious mismatch
 
-Invalid leads should not be sent to AI scoring.
+Allowed first-slice validation outcomes:
+
+- `valid`
+- `invalid`
+- `duplicate`
+- `insufficient_content`
+
+Invalid, duplicate, or insufficient-content leads should not be sent to AI
+scoring.
+
+Provider or system failure should be recorded as a failed task, not as a final
+lead validation outcome.
 
 ### Step 9: Analyze Lead Website
 
-For valid leads, the system collects and summarizes useful website information.
+For valid leads, the system stores factual website intelligence in
+`lead_intelligence`.
 
 The system should extract information such as:
 
@@ -215,6 +228,10 @@ The system should extract information such as:
 - Business model
 - Possible pain points
 - Relevant evidence
+
+Website intelligence must stay factual. It must not assign a fit score, approve
+or reject the lead, discover contacts, generate outreach drafts, or create Gmail
+Drafts.
 
 ### Step 10: AI Customer Matching Score
 

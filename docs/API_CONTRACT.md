@@ -413,6 +413,169 @@ Lead Discovery error handling:
   task response.
 - Invalid request shape: HTTP `422` with validation details.
 
+## Phase 5 Lead Validation + Intelligence Contract
+
+Phase 5 validates candidate leads created by Phase 4 and captures factual
+website intelligence for later scoring. It does not perform AI fit scoring,
+human lead review, contact discovery, Outreach Draft, Gmail Draft, or CRM
+automation.
+
+Phase 5 first implementation rules:
+
+1. Work only from existing `leads` created by Lead Discovery.
+2. Use a Crawler Provider interface for website availability/content checks.
+3. Automated tests must mock the Crawler Provider and must not call real
+   external websites or paid crawler APIs.
+4. The first implementation may use a `MockCrawlerProvider` until a real
+   crawler provider is explicitly approved.
+5. Do not crawl LinkedIn, browser-only social pages, or any prohibited external
+   source.
+6. Do not use Phase 5 to score, approve, reject, contact, or email a lead.
+7. Store execution status in `task_runs`, not in `campaigns.status`.
+8. Store factual website extraction in `lead_intelligence`.
+9. Update `leads.validation_status` only through the allowed Phase 5 validation
+   transitions.
+
+Planned endpoints:
+
+- `POST /api/v1/leads/{lead_id}/validation`
+- `GET /api/v1/leads/{lead_id}/validation/tasks`
+- `GET /api/v1/leads/{lead_id}/intelligence`
+- `GET /api/v1/tasks/{task_id}`
+
+Before backend implementation, `task_runs` must be extended for Phase 5:
+
+- Allow `task_type = lead_validation`.
+- Allow `related_entity_type = lead`.
+- Link `related_entity_id` to `lead_id`.
+- Add a generic `input_url` or task input field for the lead website.
+- Keep `search_query` as Lead Discovery-specific data. Do not store the lead
+  website URL in `search_query`.
+
+`POST /api/v1/leads/{lead_id}/validation`
+
+Creates a Lead Validation + Intelligence task for a discovered lead and returns
+a task reference. The response must not imply validation, website crawling, or
+intelligence extraction has already completed.
+
+Request fields:
+
+- none required in the first implementation
+
+System-generated fields:
+
+- `task_type = lead_validation`
+- `related_entity_type = lead`
+- `related_entity_id = lead_id`
+- `input_url = lead.website`
+- `provider_name = mock_crawler` for the first mock-provider implementation
+
+Response:
+
+```json
+{
+  "data": {
+    "task_id": "task_456",
+    "status": "pending",
+    "task_type": "lead_validation",
+    "lead_id": "lead_123"
+  },
+  "message": "Lead validation task created successfully."
+}
+```
+
+Lead Validation task rules:
+
+1. The Lead must exist.
+2. The Lead must belong to a `confirmed` Campaign.
+3. Leads under archived Campaigns must not start new validation tasks.
+4. The Lead must have `discovery_status = discovered`.
+5. The Lead must have `validation_status = pending` to start first validation.
+6. Existing `pending`, `running`, or `completed` Lead Validation tasks block a
+   duplicate task for the same Lead.
+7. `failed` or `cancelled` Lead Validation tasks may be retried only while the
+   Lead still has `validation_status = pending`.
+8. A provider or system failure marks the task `failed` and should leave
+   `validation_status` unchanged.
+9. A reachable website with sufficient factual content marks the Lead `valid`.
+10. A malformed URL, blocked unsupported URL, unreachable website, or obvious
+    mismatch marks the Lead `invalid`.
+11. A duplicate found after canonical normalization marks the Lead `duplicate`.
+12. A reachable website with too little usable content marks the Lead
+    `insufficient_content`.
+13. `invalid`, `duplicate`, and `insufficient_content` are completed validation
+    outcomes, not provider failures.
+14. Phase 5 must not change `review_status`.
+15. Phase 5 must not create `lead_scores`, contacts, outreach drafts, or Gmail
+    drafts.
+
+Allowed `leads.validation_status` transitions for the first implementation:
+
+- `pending -> valid`
+- `pending -> invalid`
+- `pending -> duplicate`
+- `pending -> insufficient_content`
+
+`valid`, `invalid`, `duplicate`, and `insufficient_content` are terminal for
+the first Phase 5 slice. Revalidation, reset, or manual override is future
+hardening unless explicitly requested later.
+
+`GET /api/v1/leads/{lead_id}/validation/tasks`
+
+Returns Lead Validation task runs for the Lead.
+
+`GET /api/v1/leads/{lead_id}/intelligence`
+
+Returns factual website intelligence records for the Lead. If validation has
+not produced intelligence yet, the response should return an empty collection
+or a clear `lead_intelligence_not_found` response; it must not fabricate website
+evidence.
+
+Lead Intelligence fields:
+
+- `lead_id`
+- `task_run_id`
+- `source_url`
+- `provider_name`
+- `website_summary`
+- `products_or_services`
+- `target_customers`
+- `business_model`
+- `pain_points`
+- `evidence`
+- `content_quality`
+- `crawl_status`
+- `error_message`
+- `created_at`
+- `updated_at`
+
+Lead Intelligence rules:
+
+1. `evidence` must be based on fetched or provider-returned website content.
+2. Evidence must keep traceability to the source URL or extracted snippet.
+3. Website summaries must stay factual and must not claim customer fit.
+4. `content_quality` describes content sufficiency only, not sales fit.
+5. `crawl_status` describes website/content extraction outcome only.
+6. Any AI-assisted extraction must go through an LLM Provider, pass schema
+   validation, and preserve evidence traceability.
+7. Phase 5 intelligence must not invent evidence, infer unvisited pages, or
+   imply live crawling when the provider is mock-only.
+
+Lead Validation + Intelligence error handling:
+
+- Missing Lead: HTTP `404` with `lead_not_found`.
+- Lead Campaign missing: HTTP `404` with `campaign_not_found`.
+- Lead Campaign not confirmed: HTTP `409` with `campaign_not_confirmed`.
+- Lead Campaign archived: HTTP `409` with `campaign_archived`.
+- Lead already validated: HTTP `409` with `lead_already_validated`.
+- Existing `pending`, `running`, or `completed` Lead Validation task: HTTP
+  `409` with `lead_validation_already_exists`.
+- Unsupported or prohibited URL: completed task that sets `validation_status`
+  to `invalid`, unless the request itself is malformed.
+- Provider failure: mark the task `failed` and expose `error_message` on the
+  task response.
+- Invalid request shape: HTTP `422` with validation details.
+
 ## Lead Recommendation and Review Status Contract
 
 AI recommendation and human review status are separate concepts.
