@@ -18,6 +18,7 @@ import {
   listConfirmedProductCards,
   updateCampaign,
 } from "../../api/campaigns";
+import LeadDiscoveryPanel from "./LeadDiscoveryPanel";
 
 type StatusFilter = "all" | CampaignStatus;
 type WorkspaceView = "list" | "create" | "detail" | "edit";
@@ -890,6 +891,7 @@ function CampaignDetail({
             <p>{campaign.outreach_angle ?? "未填写开发信角度。"}</p>
           </InfoCard>
         </div>
+        {isConfirmed ? <LeadDiscoveryPanel campaign={campaign} /> : null}
       </div>
 
       <aside className="detail-side">
