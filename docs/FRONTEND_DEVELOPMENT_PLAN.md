@@ -45,10 +45,9 @@ local PostgreSQL smoke database and live FastAPI API. Frontend Phase 4 Lead
 Discovery UI is implemented from the verified backend API surfaces and the
 available Stitch design context, and local PostgreSQL live-backend browser
 smoke verification has passed for the confirmed Campaign discovery workflow.
-Phase 5 Lead Validation + Intelligence contract planning has started at the
-docs/contract level. Frontend Phase 5 implementation must wait for the backend
-Phase 5 API contract, data model, business rules, validation rules, allowed
-status transitions, and Stitch or user-provided design context.
+Backend Phase 5 Lead Validation + Intelligence first slice is implemented with
+`MockCrawlerProvider`. Frontend Phase 5 implementation must still wait for
+Stitch or user-provided design context before adding UI.
 
 Lead Discovery UI is implemented only from the verified backend task and lead
 APIs. It does not use frontend-only fake data and must not imply Lead
@@ -84,7 +83,7 @@ The completed verification covered:
 | Frontend Phase 2 | Backend Phase 2 Product Card | Product Card list, detail, manual creation, editing, confirmation, and deletion UI. | Implemented Product Card UI according to finalized backend contract. | Implemented for the supported Product Card UI lifecycle. | Local PostgreSQL live-backend browser smoke passed, including Campaign-linked 409 UI messaging. |
 | Frontend Phase 3 | Backend Phase 3 Campaign; minimum backend vertical slice completed. | Campaign create, draft edit/delete, confirm, archive, duplicate as draft, list/detail, archived filter, and criteria review UI. | Implemented for the supported Campaign lifecycle using the backend Campaign contract and Stitch Campaign visual context. | Implemented for the supported Campaign UI lifecycle. | Local PostgreSQL live-backend browser smoke passed for direct route reachability, create, confirm, and filters. Future Campaign UI changes must remain contract-backed and must not introduce Lead Discovery actions inside the Phase 3 Campaign UI. |
 | Frontend Phase 4 | Backend Phase 4 Lead Discovery | Lead discovery task initiation and discovery result UI. | Implemented Lead Discovery UI from verified mock-provider-backed backend APIs and Stitch design context. | Implemented; live-backend browser smoke passed. | Depends on backend task and lead APIs, not frontend-only fake data. Must not imply validation, scoring, contacts, outreach, Gmail, real search, or real crawling. |
-| Frontend Phase 5 | Backend Phase 5 Lead Validation + Intelligence | Lead validation, intelligence, evidence, and content sufficiency states. | Implement validation and intelligence UI after backend contract exists. | Future. | Must show uncertainty and incomplete data honestly. |
+| Frontend Phase 5 | Backend Phase 5 Lead Validation + Intelligence | Lead validation, intelligence, evidence, and content sufficiency states. | Implement validation and intelligence UI after backend implementation and design context are available. | Future. | Backend first slice is implemented with mock crawler data; UI must show uncertainty and incomplete data honestly. |
 | Frontend Phase 6 | Backend Phase 6 Lead Scoring | Lead score, recommendation, matching reasons, risk notes, uncertainty, and evidence UI. | Implement scoring UI after AI scoring contract exists. | Future. | AI recommendation must stay separate from human review status. |
 | Frontend Phase 7 | Backend Phase 7 Lead Review | Lead review pages and human decision controls. | Implement user review UI after review API contract exists. | Future. | User review remains required before outreach. |
 | Frontend Phase 8 | Backend Phase 8 Contacts | Contact records, contact status, selected valid email contact, and manual reference review UI. | Implement contact selection UI after contact contract exists. | Future. | Manual references cannot be draft recipients. |
@@ -435,8 +434,8 @@ Dependencies:
 
 Status:
 
-- Contract planning started.
-- Frontend implementation is pending backend implementation and design context.
+- Backend first slice is implemented with `MockCrawlerProvider`.
+- Frontend implementation is pending Stitch or user-provided design context.
 
 ## Handoff Requirements
 

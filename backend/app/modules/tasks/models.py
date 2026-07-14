@@ -22,11 +22,11 @@ class TaskRun(Base):
     __tablename__ = "task_runs"
     __table_args__ = (
         CheckConstraint(
-            "task_type IN ('lead_discovery')",
+            "task_type IN ('lead_discovery', 'lead_validation')",
             name=conv("ck_task_runs_task_type"),
         ),
         CheckConstraint(
-            "related_entity_type IN ('campaign')",
+            "related_entity_type IN ('campaign', 'lead')",
             name=conv("ck_task_runs_related_entity_type"),
         ),
         CheckConstraint(
@@ -47,7 +47,8 @@ class TaskRun(Base):
     task_type: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
     related_entity_type: Mapped[str] = mapped_column(String(50), nullable=False)
     related_entity_id: Mapped[str] = mapped_column(String(36), nullable=False, index=True)
-    search_query: Mapped[str] = mapped_column(Text, nullable=False)
+    search_query: Mapped[str | None] = mapped_column(Text, nullable=True)
+    input_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
     provider_name: Mapped[str] = mapped_column(String(100), nullable=False)
     status: Mapped[str] = mapped_column(
         String(20),

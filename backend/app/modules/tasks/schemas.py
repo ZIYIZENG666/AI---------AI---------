@@ -7,8 +7,8 @@ from pydantic import BaseModel
 
 
 TaskStatus = Literal["pending", "running", "completed", "failed", "cancelled"]
-TaskType = Literal["lead_discovery"]
-RelatedEntityType = Literal["campaign"]
+TaskType = Literal["lead_discovery", "lead_validation"]
+RelatedEntityType = Literal["campaign", "lead"]
 
 
 class PaginationMeta(BaseModel):
@@ -26,7 +26,8 @@ class TaskRunRead(BaseModel):
     task_type: TaskType
     related_entity_type: RelatedEntityType
     related_entity_id: str
-    search_query: str
+    search_query: str | None
+    input_url: str | None
     provider_name: str
     status: TaskStatus
     progress: int

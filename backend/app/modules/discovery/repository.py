@@ -20,6 +20,18 @@ class DiscoveryRepository:
             self.session.refresh(lead)
         return leads
 
+    def get_by_id(self, lead_id: str) -> Lead | None:
+        return self.session.get(Lead, lead_id)
+
+    def update(self, lead: Lead, data: dict) -> Lead:
+        for field_name, value in data.items():
+            setattr(lead, field_name, value)
+
+        self.session.add(lead)
+        self.session.commit()
+        self.session.refresh(lead)
+        return lead
+
     def list_by_campaign(
         self,
         campaign_id: str,
@@ -47,3 +59,20 @@ class DiscoveryRepository:
                 select(Lead.normalized_website).where(Lead.campaign_id == campaign_id)
             )
         )
+
+    def has_other_lead_with_normalized_website(
+        self,
+        campaign_id: str,
+        normalized_website: str,
+        exclude_lead_id: str,
+    ) -> bool:
+        count = self.session.scalar(
+            select(func.count())
+            .select_from(Lead)
+            .where(
+                Lead.campaign_id == campaign_id,
+                Lead.normalized_website == normalized_website,
+                Lead.id != exclude_lead_id,
+            )
+        )
+        return bool(count)

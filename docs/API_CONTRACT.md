@@ -426,8 +426,8 @@ Phase 5 first implementation rules:
 2. Use a Crawler Provider interface for website availability/content checks.
 3. Automated tests must mock the Crawler Provider and must not call real
    external websites or paid crawler APIs.
-4. The first implementation may use a `MockCrawlerProvider` until a real
-   crawler provider is explicitly approved.
+4. The first implementation uses a `MockCrawlerProvider`. A real crawler
+   provider must wait for explicit approval.
 5. Do not crawl LinkedIn, browser-only social pages, or any prohibited external
    source.
 6. Do not use Phase 5 to score, approve, reject, contact, or email a lead.
@@ -436,19 +436,19 @@ Phase 5 first implementation rules:
 9. Update `leads.validation_status` only through the allowed Phase 5 validation
    transitions.
 
-Planned endpoints:
+Current endpoints:
 
 - `POST /api/v1/leads/{lead_id}/validation`
 - `GET /api/v1/leads/{lead_id}/validation/tasks`
 - `GET /api/v1/leads/{lead_id}/intelligence`
 - `GET /api/v1/tasks/{task_id}`
 
-Before backend implementation, `task_runs` must be extended for Phase 5:
+The Phase 5 implementation extends `task_runs` with:
 
 - Allow `task_type = lead_validation`.
 - Allow `related_entity_type = lead`.
 - Link `related_entity_id` to `lead_id`.
-- Add a generic `input_url` or task input field for the lead website.
+- Use `input_url` for the lead website.
 - Keep `search_query` as Lead Discovery-specific data. Do not store the lead
   website URL in `search_query`.
 
@@ -500,7 +500,8 @@ Lead Validation task rules:
 9. A reachable website with sufficient factual content marks the Lead `valid`.
 10. A malformed URL, blocked unsupported URL, unreachable website, or obvious
     mismatch marks the Lead `invalid`.
-11. A duplicate found after canonical normalization marks the Lead `duplicate`.
+11. A duplicate found in the same Campaign after canonical normalization marks
+    the Lead `duplicate`.
 12. A reachable website with too little usable content marks the Lead
     `insufficient_content`.
 13. `invalid`, `duplicate`, and `insufficient_content` are completed validation
@@ -527,9 +528,8 @@ Returns Lead Validation task runs for the Lead.
 `GET /api/v1/leads/{lead_id}/intelligence`
 
 Returns factual website intelligence records for the Lead. If validation has
-not produced intelligence yet, the response should return an empty collection
-or a clear `lead_intelligence_not_found` response; it must not fabricate website
-evidence.
+not produced intelligence yet, the response should return an empty collection;
+it must not fabricate website evidence.
 
 Lead Intelligence fields:
 

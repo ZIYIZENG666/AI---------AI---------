@@ -360,7 +360,7 @@ Phase 5 Lead Validation rules:
   `validation_status = valid`.
 - A malformed URL, unsupported or prohibited URL, unreachable website, or
   obvious mismatch sets `validation_status = invalid`.
-- A duplicate detected after canonical normalization sets
+- A same-Campaign duplicate detected after canonical normalization sets
   `validation_status = duplicate`.
 - A reachable website with too little usable content sets
   `validation_status = insufficient_content`.
@@ -642,13 +642,12 @@ For Lead Discovery:
 - Starting a new search after a completed task should use Campaign duplicate /
   copy as draft, then confirm the new Campaign.
 
-Planned Phase 5 extension:
+Phase 5 extension:
 
 - `task_type` must allow `lead_validation`.
 - `related_entity_type` must allow `lead`.
 - `related_entity_id` stores the Lead ID for Lead Validation tasks.
-- Phase 5 tasks should add a generic `input_url` or task input field for the
-  lead website.
+- Phase 5 tasks use `input_url` for the lead website.
 - `search_query` remains Lead Discovery-specific and should not be reused to
   store website URLs for Lead Validation.
 - A Lead Validation task uses `provider_name` to record the crawler/provider

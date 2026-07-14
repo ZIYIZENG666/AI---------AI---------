@@ -13,6 +13,7 @@ from app.core.logging import configure_logging
 from app.modules.campaigns.routes import router as campaigns_router
 from app.modules.company.routes import router as company_router
 from app.modules.discovery.routes import router as discovery_router
+from app.modules.intelligence.routes import router as intelligence_router
 from app.modules.knowledge.routes import router as knowledge_router
 from app.modules.products.routes import router as products_router
 from app.modules.sources.routes import router as sources_router
@@ -41,6 +42,7 @@ app.include_router(knowledge_router, prefix="/api/v1")
 app.include_router(products_router, prefix="/api/v1")
 app.include_router(campaigns_router, prefix="/api/v1")
 app.include_router(discovery_router, prefix="/api/v1")
+app.include_router(intelligence_router, prefix="/api/v1")
 app.include_router(tasks_router, prefix="/api/v1")
 
 

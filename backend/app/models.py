@@ -3,6 +3,7 @@
 from app.modules.campaigns.models import Campaign
 from app.modules.company.models import CompanyProfile
 from app.modules.discovery.models import Lead
+from app.modules.intelligence.models import LeadIntelligence
 from app.modules.knowledge.models import KnowledgeItem
 from app.modules.products.models import ProductCard
 from app.modules.sources.models import CompanySource
@@ -14,6 +15,7 @@ __all__ = [
     "CompanySource",
     "KnowledgeItem",
     "Lead",
+    "LeadIntelligence",
     "ProductCard",
     "TaskRun",
 ]

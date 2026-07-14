@@ -319,14 +319,15 @@ Must test:
 7. Task execution status is stored in `task_runs`, not in
    `leads.validation_status`.
 8. Phase 5 task records use `task_type = lead_validation`,
-   `related_entity_type = lead`, and `related_entity_id = lead_id`.
+   `related_entity_type = lead`, `related_entity_id = lead_id`, and
+   `input_url = lead.website`.
 9. Lead Validation must not store the lead website URL in the Lead Discovery
    `search_query` field.
 10. Reachable website with sufficient factual content sets
     `validation_status = valid` and creates a `lead_intelligence` record.
 11. Malformed, unsupported, prohibited, unreachable, or obvious-mismatch website
     sets `validation_status = invalid`.
-12. Duplicate found after canonical normalization sets
+12. Same-Campaign duplicate found after canonical normalization sets
     `validation_status = duplicate`.
 13. Reachable website with too little usable content sets
     `validation_status = insufficient_content`.

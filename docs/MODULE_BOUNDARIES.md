@@ -230,9 +230,8 @@ It handles:
 - `lead_intelligence` persistence
 - Crawler Provider usage through provider interfaces
 
-Phase 5 first implementation may use a mock Crawler Provider. Automated tests
-must mock crawler behavior and must not call real websites or paid crawler
-APIs.
+Phase 5 first implementation uses `MockCrawlerProvider`. Automated tests must
+mock crawler behavior and must not call real websites or paid crawler APIs.
 
 ### Not Responsible For
 
