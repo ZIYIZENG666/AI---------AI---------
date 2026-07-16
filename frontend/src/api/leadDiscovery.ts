@@ -7,8 +7,8 @@ export type TaskStatus =
   | "failed"
   | "cancelled";
 
-export type TaskType = "lead_discovery";
-export type RelatedEntityType = "campaign";
+export type TaskType = "lead_discovery" | "lead_validation";
+export type RelatedEntityType = "campaign" | "lead";
 
 export type DiscoveryStatus = "discovered";
 export type ValidationStatus =
@@ -26,8 +26,15 @@ export type ReviewStatus =
 export interface LeadDiscoveryStartData {
   task_id: string;
   status: "pending";
-  task_type: TaskType;
+  task_type: "lead_discovery";
   campaign_id: string;
+}
+
+export interface LeadValidationStartData {
+  task_id: string;
+  status: "pending";
+  task_type: "lead_validation";
+  lead_id: string;
 }
 
 export interface TaskRun {
@@ -35,13 +42,39 @@ export interface TaskRun {
   task_type: TaskType;
   related_entity_type: RelatedEntityType;
   related_entity_id: string;
-  search_query: string;
+  search_query: string | null;
+  input_url: string | null;
   provider_name: string;
   status: TaskStatus;
   progress: number;
   error_message: string | null;
   started_at: string | null;
   finished_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type CrawlStatus =
+  | "completed"
+  | "failed"
+  | "insufficient_content"
+  | "skipped";
+
+export interface LeadIntelligence {
+  id: string;
+  lead_id: string;
+  task_run_id: string;
+  source_url: string;
+  provider_name: string;
+  website_summary: string | null;
+  products_or_services: string[];
+  target_customers: string[];
+  business_model: string | null;
+  pain_points: string[];
+  evidence: Array<Record<string, unknown>>;
+  content_quality: string;
+  crawl_status: CrawlStatus;
+  error_message: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -154,6 +187,38 @@ export async function listCampaignLeads(
 ) {
   const response = await request<Envelope<Collection<Lead>>>(
     `/campaigns/${campaignId}/leads${buildQuery({ limit, offset })}`,
+  );
+  return response.data;
+}
+
+export async function startLeadValidation(leadId: string) {
+  const response = await request<Envelope<LeadValidationStartData>>(
+    `/leads/${leadId}/validation`,
+    {
+      method: "POST",
+    },
+  );
+  return response.data;
+}
+
+export async function listLeadValidationTasks(
+  leadId: string,
+  limit = 20,
+  offset = 0,
+) {
+  const response = await request<Envelope<Collection<TaskRun>>>(
+    `/leads/${leadId}/validation/tasks${buildQuery({ limit, offset })}`,
+  );
+  return response.data;
+}
+
+export async function listLeadIntelligence(
+  leadId: string,
+  limit = 20,
+  offset = 0,
+) {
+  const response = await request<Envelope<Collection<LeadIntelligence>>>(
+    `/leads/${leadId}/intelligence${buildQuery({ limit, offset })}`,
   );
   return response.data;
 }
