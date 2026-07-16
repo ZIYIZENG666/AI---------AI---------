@@ -48,8 +48,8 @@ smoke verification has passed for the confirmed Campaign discovery workflow.
 Backend Phase 5 Lead Validation + Intelligence first slice is implemented with
 `MockCrawlerProvider`. Frontend Phase 5 Lead Validation + Intelligence UI is
 implemented from the corrected Stitch Phase 5 screens and the verified backend
-Phase 5 API surfaces. Frontend build verification has passed; local PostgreSQL
-live-backend browser smoke remains pending.
+Phase 5 API surfaces. Frontend build verification and local PostgreSQL
+live-backend browser smoke have passed.
 
 Lead Discovery UI is implemented only from the verified backend task and lead
 APIs. It does not use frontend-only fake data and must not imply Lead
@@ -85,6 +85,10 @@ The completed verification covered:
    validation task status/history, factual `lead_intelligence` display, and
    invalid / duplicate / insufficient-content / no-intelligence states compile
    against the current TypeScript contracts.
+7. Frontend Phase 5 live-backend browser smoke against local PostgreSQL:
+   confirmed Campaign -> candidate Leads -> start validation -> display
+   `lead_intelligence` -> repeated validation `409` ->
+   insufficient-content and provider-failure states.
 
 ## Frontend Phase Overview
 
@@ -95,7 +99,7 @@ The completed verification covered:
 | Frontend Phase 2 | Backend Phase 2 Product Card | Product Card list, detail, manual creation, editing, confirmation, and deletion UI. | Implemented Product Card UI according to finalized backend contract. | Implemented for the supported Product Card UI lifecycle. | Local PostgreSQL live-backend browser smoke passed, including Campaign-linked 409 UI messaging. |
 | Frontend Phase 3 | Backend Phase 3 Campaign; minimum backend vertical slice completed. | Campaign create, draft edit/delete, confirm, archive, duplicate as draft, list/detail, archived filter, and criteria review UI. | Implemented for the supported Campaign lifecycle using the backend Campaign contract and Stitch Campaign visual context. | Implemented for the supported Campaign UI lifecycle. | Local PostgreSQL live-backend browser smoke passed for direct route reachability, create, confirm, and filters. Future Campaign UI changes must remain contract-backed and must not introduce Lead Discovery actions inside the Phase 3 Campaign UI. |
 | Frontend Phase 4 | Backend Phase 4 Lead Discovery | Lead discovery task initiation and discovery result UI. | Implemented Lead Discovery UI from verified mock-provider-backed backend APIs and Stitch design context. | Implemented; live-backend browser smoke passed. | Depends on backend task and lead APIs, not frontend-only fake data. Must not imply validation, scoring, contacts, outreach, Gmail, real search, or real crawling. |
-| Frontend Phase 5 | Backend Phase 5 Lead Validation + Intelligence | Lead validation, intelligence, evidence, and content sufficiency states. | Implemented inside the confirmed Campaign Lead Discovery workspace from corrected Stitch screens and backend Phase 5 APIs. | Implemented; frontend build passed, live-backend browser smoke pending. | Backend first slice is implemented with mock crawler data; UI shows uncertainty and incomplete data honestly and keeps scoring/review/contacts/outreach/Gmail out of scope. |
+| Frontend Phase 5 | Backend Phase 5 Lead Validation + Intelligence | Lead validation, intelligence, evidence, and content sufficiency states. | Implemented inside the confirmed Campaign Lead Discovery workspace from corrected Stitch screens and backend Phase 5 APIs. | Implemented; frontend build and local PostgreSQL live-backend browser smoke passed. | Backend first slice is implemented with mock crawler data; UI shows uncertainty and incomplete data honestly and keeps scoring/review/contacts/outreach/Gmail out of scope. |
 | Frontend Phase 6 | Backend Phase 6 Lead Scoring | Lead score, recommendation, matching reasons, risk notes, uncertainty, and evidence UI. | Implement scoring UI after AI scoring contract exists. | Future. | AI recommendation must stay separate from human review status. |
 | Frontend Phase 7 | Backend Phase 7 Lead Review | Lead review pages and human decision controls. | Implement user review UI after review API contract exists. | Future. | User review remains required before outreach. |
 | Frontend Phase 8 | Backend Phase 8 Contacts | Contact records, contact status, selected valid email contact, and manual reference review UI. | Implement contact selection UI after contact contract exists. | Future. | Manual references cannot be draft recipients. |
@@ -452,7 +456,10 @@ Status:
 - Backend first slice is implemented with `MockCrawlerProvider`.
 - Frontend implementation is complete for the supported Phase 5 UI slice.
 - Frontend build verification passed with `npm.cmd --prefix frontend run build`.
-- Local PostgreSQL live-backend browser smoke remains pending.
+- Local PostgreSQL live-backend browser smoke passed for confirmed Campaign to
+  candidate Leads, Lead Validation start, `lead_intelligence` display,
+  repeated validation `409`, `insufficient_content`, and provider-failure task
+  state.
 
 ## Handoff Requirements
 
