@@ -35,7 +35,232 @@ state.
 | Phase 3: Campaign | Backend and supported frontend lifecycle completed | Campaign backend supports the minimum Phase 3 contract: `draft`, `confirmed`, and `archived`; confirmed same-company Product Card validation; `product_card_snapshot`; archive; duplicate-as-draft; routes; migration; and tests. Frontend Phase 3 Campaign UI is implemented for the supported lifecycle. |
 | Phase 4: Lead Discovery | Backend implemented and frontend UI live-smoke verified | Phase 4 now has models, schemas, repositories, services, routes, migration, `MockSearchProvider`, focused tests, local PostgreSQL / live API smoke proof, and a Frontend Phase 4 UI that passed local PostgreSQL live-backend browser smoke for confirmed Campaign -> Lead Discovery task -> mock search results -> saved candidate leads. It does not call real search APIs, self-build full-web search, perform real website crawling, score leads, approve leads, find contacts, or create outreach/Gmail drafts. |
 | Phase 5: Lead Validation + Intelligence | Backend first slice and frontend UI live-smoke verified | Phase 5 now has `lead_validation` task runs, `input_url`, `lead_intelligence`, `MockCrawlerProvider`, service/repository/routes, migration, focused tests, independent local PostgreSQL / live FastAPI smoke proof, a build-verified Frontend Phase 5 UI, and local PostgreSQL live-backend browser smoke proof for the supported UI workflow. It remains mock-crawler-only and does not perform AI scoring, human review, contact discovery, Outreach Draft, Gmail Draft, LinkedIn crawling, or real crawler integration. |
-| Frontend business workflow | Partially implemented | Frontend Phase 1 Company / Sources / Knowledge UI, Product Card UI, Campaign UI, Frontend Phase 4 Lead Discovery UI, and Frontend Phase 5 Lead Validation + Intelligence UI are implemented for their supported lifecycles. Product Card, Campaign, Phase 4, and Frontend Phase 5 are locally smoke-verified against the live backend. Frontend Phase 1 is build-verified and still needs live-backend browser smoke. |
+| Frontend business workflow | Partially implemented | Frontend Phase 1 Company / Sources / Knowledge UI, Product Card UI, Campaign UI, Frontend Phase 4 Lead Discovery UI, and Frontend Phase 5 Lead Validation + Intelligence UI are implemented for their supported lifecycles. Product Card, Campaign, Frontend Phase 1, Phase 4, Frontend Phase 5, and an integrated Phase 1 through Phase 5 workflow are locally smoke-verified against the live backend. |
+
+## 2026-07-19 - Integrated Phase 1 Through Phase 5 Browser Smoke
+
+Type: Local PostgreSQL live-backend browser smoke verification and progress
+documentation update.
+
+Completed:
+
+- Started a disposable PostgreSQL 16 container on `localhost:55437`.
+- Ran the full Alembic migration chain against the smoke database and reached
+  `20260714_0007 (head)`.
+- Started a live FastAPI backend on `127.0.0.1:8000` against the smoke
+  database.
+- Verified `GET /health` returned HTTP `200`.
+- Started Vite on `127.0.0.1:5173`.
+- Used the browser UI to create a company profile, then update its industry and
+  website.
+- Added one text source and one URL source through the browser UI.
+- Verified the URL-source boundary remained visible: URL records are saved only
+  and are not crawled, parsed, or read in Phase 1.
+- Generated one knowledge draft from each source.
+- Confirmed the text-source draft and rejected the URL-source draft.
+- Opened Product Card management, generated one AI Product Card from confirmed
+  knowledge, and confirmed the Product Card.
+- Opened Campaign management, created one Campaign from the confirmed Product
+  Card, and confirmed the Campaign.
+- Verified Campaign confirmation exposed the Lead Discovery workspace and
+  locked a Product Card snapshot.
+- Started Lead Discovery through the browser UI.
+- Verified the completed `lead_discovery` task used `mock_search` and displayed
+  three candidate Leads.
+- Started Lead Validation for `Helio Factory Automation`.
+- Verified the completed `lead_validation` task used `mock_crawler`,
+  preserved `input_url = https://helio-factory.example.com`, marked the Lead
+  `valid`, and displayed one factual `lead_intelligence` record with
+  `content_quality = sufficient`.
+- Verified browser-visible Phase 4 and Phase 5 scope-boundary copy: mock search
+  only, no real crawler/search, no scoring, no human review, no contacts, and
+  no Gmail Draft.
+- Verified the browser console had no captured errors.
+- Verified the live API final state:
+  - one updated company
+  - two ready sources: one `text`, one `url`
+  - two knowledge items: one `confirmed`, one `rejected`
+  - one confirmed AI-generated Product Card with one source knowledge ID
+  - one confirmed Campaign with `product_card_snapshot`
+  - one completed `lead_discovery` task from `mock_search`
+  - three discovered Leads, all still `review_status = unreviewed`
+  - one valid Lead with a completed `lead_validation` task from `mock_crawler`
+  - one `lead_intelligence` record with `crawl_status = completed`
+- Updated `docs/DEVELOPMENT_PROGRESS.md` to mark the integrated Phase 1 through
+  Phase 5 smoke as passed and to keep only the latest three task records.
+
+Files modified:
+
+- `docs/DEVELOPMENT_LOG.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+
+Verification:
+
+- `docker run --name ai-b2b-sales-integrated-smoke-postgres-20260719 --rm -e POSTGRES_DB=ai_b2b_sales_integrated_smoke -e POSTGRES_USER=integrated_smoke -e POSTGRES_PASSWORD=integrated_smoke -p 55437:5432 -d postgres:16-alpine`
+- `docker exec ai-b2b-sales-integrated-smoke-postgres-20260719 pg_isready -U integrated_smoke -d ai_b2b_sales_integrated_smoke`
+- `.venv\Scripts\python.exe -m alembic upgrade head`
+- `.venv\Scripts\python.exe -m alembic current`
+- `.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000`
+- `Invoke-WebRequest -UseBasicParsing -Uri http://127.0.0.1:8000/health`
+- `npm.cmd --prefix frontend run dev -- --host 127.0.0.1 --port 5173`
+- Browser smoke across `http://127.0.0.1:5173/#knowledge`, `#products`, and
+  `#campaigns`
+- Browser console error check
+- Live API final state checks against `http://127.0.0.1:8000`
+
+Results:
+
+- PostgreSQL migration smoke passed.
+- Alembic current reached `20260714_0007 (head)`.
+- FastAPI health check passed.
+- Vite served the browser workflow.
+- Integrated browser smoke passed across Phase 1 company/source/knowledge,
+  Phase 2 Product Card, Phase 3 Campaign, Phase 4 Lead Discovery, and Phase 5
+  Lead Validation + Intelligence.
+- Browser console error check returned no errors.
+- No automated tests were added or updated because this was runtime smoke
+  verification and documentation update only.
+
+API contract alignment:
+
+- Phase 1 used only supported text/URL sources and draft-only knowledge
+  confirm/reject transitions.
+- Phase 2 generated a Product Card only from confirmed company knowledge,
+  stored `source_type = ai_generated`, and confirmed the draft Product Card.
+- Phase 3 created a Campaign only from a confirmed same-company Product Card and
+  confirmed the Campaign with a saved Product Card snapshot.
+- Phase 4 created a `lead_discovery` task, used `MockSearchProvider`, and saved
+  discovered candidate Leads without validation, scoring, review, contacts, or
+  outreach.
+- Phase 5 created a `lead_validation` task, used `MockCrawlerProvider`, stored
+  the Lead website in `input_url`, marked one Lead `valid`, and saved factual
+  `lead_intelligence`.
+
+Stitch design alignment:
+
+- Smoke verified the existing Stitch-aligned frontend screens for the supported
+  lifecycle; no visual redesign was performed.
+
+User-facing Chinese text verification:
+
+- Browser-visible workflow navigation, form labels, buttons, empty states,
+  confirmation dialogs, status labels, Lead Discovery states, Lead Validation
+  states, and scope-boundary copy were Chinese.
+
+Known limits:
+
+- This is local development proof only, not staging or production proof.
+- The integrated smoke covers the implemented Phase 1 through Phase 5 workflow
+  only.
+- The run used deterministic/mock providers only. It did not use a real LLM,
+  real search API, real crawler, AI scoring, human lead review, contact
+  discovery, Outreach Draft, Gmail Draft, LinkedIn crawling, or CRM automation.
+- No RQ worker runtime exists yet; mock provider tasks still complete
+  synchronously in service logic.
+
+Next recommended step:
+
+- Start Phase 6 Lead Scoring contract planning and implementation, keeping AI
+  recommendation separate from human review status.
+
+## 2026-07-19 - Frontend Phase 1 Live-Backend Browser Smoke
+
+Type: Local PostgreSQL live-backend browser smoke verification and progress
+documentation update.
+
+Completed:
+
+- Started Docker Desktop and a disposable PostgreSQL 16 container on
+  `localhost:55436`.
+- Ran the full Alembic migration chain against the smoke database and reached
+  `20260714_0007 (head)`.
+- Started a live FastAPI backend on `127.0.0.1:8000` against the smoke
+  database.
+- Verified `GET /health` returned HTTP `200`.
+- Started Vite on `127.0.0.1:5173`.
+- Opened `/knowledge` in the browser and verified the empty company state.
+- Created a company profile through the browser UI.
+- Updated the company industry and website through the browser UI.
+- Added one text source and one URL source through the browser UI.
+- Verified the browser-visible source scope boundary remained clear: URL
+  records are saved only and are not crawled, parsed, or read in Phase 1.
+- Generated one knowledge draft from the URL source and one knowledge draft
+  from the text source.
+- Confirmed the text-source draft through the browser confirmation dialog.
+- Rejected the URL-source draft through the browser rejection dialog.
+- Verified the browser counters showed two sources, zero remaining drafts, one
+  confirmed knowledge item, and one rejected knowledge item.
+- Verified the live API returned:
+  - one company with the updated website and industry
+  - two ready sources, one `url` and one `text`
+  - two knowledge items with statuses `confirmed` and `rejected`
+- Updated `docs/DEVELOPMENT_PROGRESS.md` to mark Frontend Phase 1
+  live-backend browser smoke as passed and to keep only the latest three task
+  records.
+
+Files modified:
+
+- `docs/DEVELOPMENT_LOG.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+
+Verification:
+
+- `docker run --name ai-b2b-sales-phase1-smoke-postgres-20260719 --rm -e POSTGRES_DB=ai_b2b_sales_phase1_smoke -e POSTGRES_USER=phase1_smoke -e POSTGRES_PASSWORD=phase1_smoke -p 55436:5432 -d postgres:16-alpine`
+- `docker exec ai-b2b-sales-phase1-smoke-postgres-20260719 pg_isready -U phase1_smoke -d ai_b2b_sales_phase1_smoke`
+- `.venv\Scripts\python.exe -m alembic upgrade head`
+- `.venv\Scripts\python.exe -m alembic current`
+- `.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000`
+- `Invoke-WebRequest -UseBasicParsing -Uri http://127.0.0.1:8000/health`
+- `npm.cmd --prefix frontend run dev -- --host 127.0.0.1 --port 5173`
+- Browser smoke at `http://127.0.0.1:5173/knowledge`
+- Live API final state checks against `http://127.0.0.1:8000`
+
+Results:
+
+- PostgreSQL migration smoke passed.
+- Alembic current reached `20260714_0007 (head)`.
+- FastAPI health check passed.
+- Vite served `/knowledge`.
+- Browser smoke passed for company create/update, text source creation, URL
+  source creation, source-to-knowledge draft generation, draft confirmation,
+  and draft rejection.
+- No automated tests were added or updated because this was runtime smoke
+  verification and documentation update only.
+
+API contract alignment:
+
+- The smoke used the documented Backend Phase 1B source and knowledge workflow:
+  company create/update, text/URL source creation, deterministic
+  source-to-knowledge draft generation, draft confirm, and draft reject.
+- Only `source_type = text` and `source_type = url` were used.
+- Confirm and reject were performed only on `draft` knowledge items.
+- The UI did not expose uploads, OCR, file parsing, crawler behavior, source
+  edit/delete, knowledge edit, Gmail, LinkedIn, Google Sheets, scoring,
+  contacts, outreach, or CRM behavior.
+
+Stitch design alignment:
+
+- Smoke verified the existing Stitch-aligned Frontend Phase 1 UI; no visual
+  redesign was performed.
+
+User-facing Chinese text verification:
+
+- Browser-visible controls, page titles, tabs, form labels, empty/source states,
+  knowledge review states, confirmation/rejection dialogs, success messages,
+  and scope-boundary copy were Chinese.
+
+Known limits:
+
+- This is local development proof only, not staging or production proof.
+- The smoke used the deterministic Phase 1B generator; no real LLM, crawler, or
+  webpage reading was used.
+- URL source records remained saved-link records only.
+
+Next recommended step:
+
+- Continue with Phase 6 Lead Scoring contract planning, or run an integrated
+  frontend workflow smoke across Phase 1 through Phase 5 if demo readiness is
+  the next priority.
 
 ## 2026-07-17 - Frontend Phase 1 Company / Sources / Knowledge UI
 
