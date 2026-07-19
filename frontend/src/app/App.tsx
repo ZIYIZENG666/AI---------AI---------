@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
 
 import CampaignWorkspace from "../pages/campaigns/CampaignWorkspace";
+import KnowledgeWorkspace from "../pages/knowledge/KnowledgeWorkspace";
 import ProductCardWorkspace from "../pages/products/ProductCardWorkspace";
 
-type WorkspaceRoute = "products" | "campaigns";
+type WorkspaceRoute = "knowledge" | "products" | "campaigns";
 
 function resolveWorkspaceRoute(): WorkspaceRoute {
   const path = window.location.pathname.toLowerCase();
   const hash = window.location.hash.toLowerCase();
+
+  if (hash === "#knowledge") {
+    return "knowledge";
+  }
 
   if (hash === "#campaigns") {
     return "campaigns";
@@ -21,7 +26,11 @@ function resolveWorkspaceRoute(): WorkspaceRoute {
     return "campaigns";
   }
 
-  return "products";
+  if (path.endsWith("/knowledge")) {
+    return "knowledge";
+  }
+
+  return "knowledge";
 }
 
 function App() {
@@ -44,6 +53,10 @@ function App() {
 
   if (workspaceRoute === "campaigns") {
     return <CampaignWorkspace />;
+  }
+
+  if (workspaceRoute === "knowledge") {
+    return <KnowledgeWorkspace />;
   }
 
   return <ProductCardWorkspace />;

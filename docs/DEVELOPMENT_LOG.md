@@ -35,7 +35,109 @@ state.
 | Phase 3: Campaign | Backend and supported frontend lifecycle completed | Campaign backend supports the minimum Phase 3 contract: `draft`, `confirmed`, and `archived`; confirmed same-company Product Card validation; `product_card_snapshot`; archive; duplicate-as-draft; routes; migration; and tests. Frontend Phase 3 Campaign UI is implemented for the supported lifecycle. |
 | Phase 4: Lead Discovery | Backend implemented and frontend UI live-smoke verified | Phase 4 now has models, schemas, repositories, services, routes, migration, `MockSearchProvider`, focused tests, local PostgreSQL / live API smoke proof, and a Frontend Phase 4 UI that passed local PostgreSQL live-backend browser smoke for confirmed Campaign -> Lead Discovery task -> mock search results -> saved candidate leads. It does not call real search APIs, self-build full-web search, perform real website crawling, score leads, approve leads, find contacts, or create outreach/Gmail drafts. |
 | Phase 5: Lead Validation + Intelligence | Backend first slice and frontend UI live-smoke verified | Phase 5 now has `lead_validation` task runs, `input_url`, `lead_intelligence`, `MockCrawlerProvider`, service/repository/routes, migration, focused tests, independent local PostgreSQL / live FastAPI smoke proof, a build-verified Frontend Phase 5 UI, and local PostgreSQL live-backend browser smoke proof for the supported UI workflow. It remains mock-crawler-only and does not perform AI scoring, human review, contact discovery, Outreach Draft, Gmail Draft, LinkedIn crawling, or real crawler integration. |
-| Frontend business workflow | Partially implemented | Product Card UI, Campaign UI, Frontend Phase 4 Lead Discovery UI, and Frontend Phase 5 Lead Validation + Intelligence UI are implemented for their supported lifecycles. Product Card, Campaign, Phase 4, and Frontend Phase 5 are locally smoke-verified against the live backend. Frontend Phase 1 company/source/knowledge screens remain future work. |
+| Frontend business workflow | Partially implemented | Frontend Phase 1 Company / Sources / Knowledge UI, Product Card UI, Campaign UI, Frontend Phase 4 Lead Discovery UI, and Frontend Phase 5 Lead Validation + Intelligence UI are implemented for their supported lifecycles. Product Card, Campaign, Phase 4, and Frontend Phase 5 are locally smoke-verified against the live backend. Frontend Phase 1 is build-verified and still needs live-backend browser smoke. |
+
+## 2026-07-17 - Frontend Phase 1 Company / Sources / Knowledge UI
+
+Type: Frontend implementation, Stitch design alignment, and progress
+documentation update.
+
+Completed:
+
+- Read the current Stitch project `AI 获客任务管理系统`.
+- Used the Phase 1 final corrected Stitch screens as design context:
+  - `公司资料维护 - Phase 1 最终修正版`
+  - `资料来源管理 - Phase 1 最终修正版`
+  - `知识审核工作台 - Phase 1 最终修正版`
+- Added `frontend/src/api/knowledgeBase.ts` with API client methods for:
+  - company list/create/update
+  - source list/create
+  - source-to-knowledge draft creation
+  - knowledge list
+  - knowledge confirm/reject
+- Added a new `KnowledgeWorkspace` with three tabs:
+  - company profile create/edit and read view
+  - text/URL source creation, list, detail, and knowledge-draft generation
+  - knowledge list, status filters, detail, confirm, and reject
+- Updated app routing so `/knowledge` and `#knowledge` open the Phase 1
+  workspace, while `/products`, `#products`, `/campaigns`, and `#campaigns`
+  continue to route to their existing workspaces.
+- Added CSS for the Phase 1 tabs, summary cards, company profile layout,
+  source/knowledge tables, right-side drawers, detail modals, and review
+  modals.
+- Corrected Stitch design issues during implementation:
+  - Removed unsupported settings/help navigation from the new Phase 1 workspace.
+  - Replaced static sample-only table data with backend-bound state.
+  - Kept only text and URL source creation.
+  - Added explicit copy that URL records are saved only and are not crawled,
+    parsed, or read in the current phase.
+  - Did not add upload, OCR, file parsing, crawler, Gmail, LinkedIn, Google
+    Sheets, scoring, contact, outreach, or CRM behavior.
+- Updated `docs/FRONTEND_DEVELOPMENT_PLAN.md` and
+  `docs/DEVELOPMENT_PROGRESS.md` to mark Frontend Phase 1 implemented and
+  build-verified.
+
+Files modified:
+
+- `frontend/src/api/knowledgeBase.ts`
+- `frontend/src/pages/knowledge/KnowledgeWorkspace.tsx`
+- `frontend/src/app/App.tsx`
+- `frontend/src/styles/global.css`
+- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
+- `docs/DEVELOPMENT_LOG.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+
+Verification:
+
+- `npm.cmd --prefix frontend run build`
+- `rg -n "上传|文件|PDF|Word|OCR|爬|抓取|解析|读取网页|发送邮件|自动发送|LinkedIn|Google Sheets|系统设置" frontend/src/pages/knowledge frontend/src/api/knowledgeBase.ts frontend/src/app/App.tsx`
+
+Results:
+
+- Frontend TypeScript compilation passed.
+- Vite production build passed.
+- Unsupported-scope search found only explicit negative-scope copy for
+  crawling/parsing/webpage reading.
+- No backend tests were run because this task changed frontend UI and docs only.
+- No live-backend browser smoke was run in this task.
+
+API contract alignment:
+
+- UI uses only documented Backend Phase 1B endpoints and fields.
+- Source creation supports only `source_type = text` and `source_type = url`.
+- Text sources require raw content; URL sources require a URL.
+- Knowledge confirm/reject controls are shown only for `draft` items.
+- Confirmed and rejected knowledge items are read-only in the UI because the
+  backend does not expose edit or retry transitions for them.
+
+Stitch design alignment:
+
+- Preserved the Phase 1 Stitch visual direction: tabbed knowledge-base
+  workspace, source list table, right-side create drawers, status badges, detail
+  modals, and confirm/reject modals.
+- Treated Stitch as design context only; API contract and project rules remained
+  authoritative.
+
+User-facing Chinese text verification:
+
+- New Phase 1 visible text is Chinese, including navigation, page titles, form
+  labels, buttons, empty states, error text, success toasts, modals, and scope
+  notices.
+
+Known limits:
+
+- This is build proof only, not local PostgreSQL live-backend browser smoke,
+  staging proof, or production proof.
+- The backend Phase 1B knowledge draft generator is deterministic and
+  synchronous; no real LLM or crawler is used.
+- Source edit/delete and knowledge edit are not implemented because the current
+  backend contract does not expose those endpoints.
+
+Next recommended step:
+
+- Run local live-backend browser smoke for Frontend Phase 1:
+  create/update company -> add text and URL sources -> generate knowledge draft
+  -> confirm and reject draft knowledge.
 
 ## 2026-07-16 - Frontend Phase 5 Live-Backend Browser Smoke
 

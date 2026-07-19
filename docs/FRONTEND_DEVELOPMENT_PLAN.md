@@ -51,6 +51,12 @@ implemented from the corrected Stitch Phase 5 screens and the verified backend
 Phase 5 API surfaces. Frontend build verification and local PostgreSQL
 live-backend browser smoke have passed.
 
+Frontend Phase 1 Company / Sources / Knowledge UI is now implemented from the
+Stitch Phase 1 final corrected screens and the Backend Phase 1B API contract.
+It supports company profile create/edit, text/URL source creation, source list
+and detail review, deterministic knowledge draft generation from sources, and
+draft knowledge confirm/reject review. Build verification has passed.
+
 Lead Discovery UI is implemented only from the verified backend task and lead
 APIs. It does not use frontend-only fake data and must not imply Lead
 Validation, website intelligence, scoring, review, contact discovery, Outreach
@@ -95,7 +101,7 @@ The completed verification covered:
 | Frontend phase | Backend alignment | Human Stitch design | Codex frontend implementation | Status | Notes |
 |---|---|---|---|---|---|
 | Frontend Foundation | Foundation stabilization | Not required / optional. | React + TypeScript + Vite shell, dashboard layout foundation, API client foundation, loading/error/empty-state patterns. | Basic shell present; business workflow UI pending. | Keep user-facing text Chinese. |
-| Frontend Phase 1 | Backend Phase 1 / Phase 1B Sources + Knowledge | Company / Source / Knowledge basic pages. | Implement Company, Source, and Knowledge UI according to current API contract. | Planned / pending alignment. | Must show current text/URL source scope only. Do not imply uploaded documents, OCR, crawling, or file parsing support. |
+| Frontend Phase 1 | Backend Phase 1 / Phase 1B Sources + Knowledge | Company / Source / Knowledge basic pages. | Implemented Company, Source, and Knowledge UI according to current API contract. | Implemented; frontend build passed. | Shows current text/URL source scope only. Does not imply uploaded documents, OCR, crawling, or file parsing support. |
 | Frontend Phase 2 | Backend Phase 2 Product Card | Product Card list, detail, manual creation, editing, confirmation, and deletion UI. | Implemented Product Card UI according to finalized backend contract. | Implemented for the supported Product Card UI lifecycle. | Local PostgreSQL live-backend browser smoke passed, including Campaign-linked 409 UI messaging. |
 | Frontend Phase 3 | Backend Phase 3 Campaign; minimum backend vertical slice completed. | Campaign create, draft edit/delete, confirm, archive, duplicate as draft, list/detail, archived filter, and criteria review UI. | Implemented for the supported Campaign lifecycle using the backend Campaign contract and Stitch Campaign visual context. | Implemented for the supported Campaign UI lifecycle. | Local PostgreSQL live-backend browser smoke passed for direct route reachability, create, confirm, and filters. Future Campaign UI changes must remain contract-backed and must not introduce Lead Discovery actions inside the Phase 3 Campaign UI. |
 | Frontend Phase 4 | Backend Phase 4 Lead Discovery | Lead discovery task initiation and discovery result UI. | Implemented Lead Discovery UI from verified mock-provider-backed backend APIs and Stitch design context. | Implemented; live-backend browser smoke passed. | Depends on backend task and lead APIs, not frontend-only fake data. Must not imply validation, scoring, contacts, outreach, Gmail, real search, or real crawling. |
@@ -198,12 +204,21 @@ Human Stitch design scope:
 
 Codex implementation scope:
 
-- Implement Company, Source, and Knowledge pages based on the current API
+- Implemented Company, Source, and Knowledge pages based on the current API
   contract.
-- Implement API client integration for current supported fields only.
-- Implement form validation that matches backend validation.
-- Implement loading, error, empty, and success states.
-- Keep all user-facing text Chinese.
+- Implemented API client integration for current supported fields only:
+  company create/update/list, source create/list, source-to-knowledge draft,
+  knowledge list, confirm, and reject.
+- Implemented form validation that matches the current backend validation:
+  company name is required, text sources require raw content, and URL sources
+  require URL.
+- Implemented loading, error, empty, success, source detail, knowledge detail,
+  and confirmation states.
+- Kept all user-facing text Chinese.
+- Corrected Stitch design issues during implementation by removing unsupported
+  settings/help navigation from the new Phase 1 workspace, replacing static
+  sample data with backend data, and making URL source scope explicit as
+  "saved only, not crawled or parsed."
 
 Dependencies:
 
@@ -214,7 +229,9 @@ Dependencies:
 
 Status:
 
-- Planned / pending alignment.
+- Implemented for the supported Company / Sources / Knowledge workflow.
+- Frontend TypeScript and Vite production build passed with
+  `npm.cmd --prefix frontend run build`.
 - Current backend supports text and URL source records only.
 
 ### Frontend Phase 2: Product Card
