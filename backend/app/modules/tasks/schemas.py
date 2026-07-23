@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 
 TaskStatus = Literal["pending", "running", "completed", "failed", "cancelled"]
-TaskType = Literal["lead_discovery", "lead_validation"]
+TaskType = Literal["lead_discovery", "lead_validation", "lead_scoring"]
 RelatedEntityType = Literal["campaign", "lead"]
 
 

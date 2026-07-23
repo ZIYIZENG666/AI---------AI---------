@@ -106,3 +106,41 @@ class TaskRepository:
             )
         )
         return bool(count)
+
+    def list_lead_scoring_tasks_for_lead(
+        self,
+        lead_id: str,
+        limit: int,
+        offset: int,
+    ) -> tuple[list[TaskRun], int]:
+        filters = [
+            TaskRun.task_type == "lead_scoring",
+            TaskRun.related_entity_type == "lead",
+            TaskRun.related_entity_id == lead_id,
+        ]
+        total = self.session.scalar(
+            select(func.count()).select_from(TaskRun).where(*filters)
+        ) or 0
+        items = list(
+            self.session.scalars(
+                select(TaskRun)
+                .where(*filters)
+                .order_by(TaskRun.created_at.desc(), TaskRun.id.desc())
+                .limit(limit)
+                .offset(offset)
+            )
+        )
+        return items, total
+
+    def has_blocking_lead_scoring_task(self, lead_id: str) -> bool:
+        count = self.session.scalar(
+            select(func.count())
+            .select_from(TaskRun)
+            .where(
+                TaskRun.task_type == "lead_scoring",
+                TaskRun.related_entity_type == "lead",
+                TaskRun.related_entity_id == lead_id,
+                TaskRun.status.in_(("pending", "running", "completed")),
+            )
+        )
+        return bool(count)

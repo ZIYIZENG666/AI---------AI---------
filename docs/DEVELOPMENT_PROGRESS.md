@@ -25,6 +25,11 @@ Frontend Phase 5 Lead Validation + Intelligence UI is implemented inside the
 confirmed Campaign Lead Discovery workspace using the available Stitch Phase 5
 corrected design screens and the verified backend Phase 5 APIs. Frontend build
 verification and local PostgreSQL live-backend browser smoke have passed.
+Backend Phase 6 Lead Scoring first slice is implemented with
+`MockLeadScoringProvider`, `lead_scoring` task runs, `lead_scores`, service /
+repository / routes / schemas, migration, and focused tests. It remains
+mock-LLM-only; real PostgreSQL migration smoke was not run because the Docker
+daemon was unavailable in this task.
 Frontend Phase 1 Company / Sources / Knowledge UI is implemented from the
 Stitch Phase 1 final corrected screens and the Backend Phase 1B API contract.
 Frontend build verification and local PostgreSQL live-backend browser smoke
@@ -86,6 +91,11 @@ through Frontend Phase 5 has passed for demo-readiness proof.
 - Frontend Phase 5 Lead Validation + Intelligence: Implemented from Stitch
   corrected design context and backend Phase 5 APIs; build verification and
   local PostgreSQL live-backend browser smoke passed.
+- Backend Phase 6 Lead Scoring: First mock-LLM backend slice implemented with
+  API contract, data model, migration, routes, services, repositories, schemas,
+  provider, and focused tests.
+- Frontend Phase 6 Lead Scoring: Future; must wait for Stitch design context
+  and use only the implemented Phase 6 backend APIs.
 - Integrated Phase 1 through Phase 5 workflow smoke: Passed locally against
   PostgreSQL, live FastAPI, Vite, and the browser UI.
 
@@ -100,7 +110,7 @@ through Frontend Phase 5 has passed for demo-readiness proof.
 | Phase 3: Campaign | Campaign model, migration, schemas, repository, service, routes, API contract, lifecycle, confirmed Product Card linkage, `product_card_snapshot`, duplicate-as-draft behavior, and tests. | Completed for the minimum backend vertical slice. | Frontend Phase 3: Campaign UI synchronized with Backend Phase 3 Campaign. | Implemented for the supported Campaign UI lifecycle. | Campaign frontend live-backend browser smoke passed against local PostgreSQL for direct route reachability, create draft, confirm, status filters, and Product Card linkage. |
 | Phase 4: Lead Discovery | Provider-driven candidate lead discovery from confirmed Campaign criteria, using `task_runs`, `leads`, and `MockSearchProvider` first. | Implemented for the first mock-provider backend vertical slice; local PostgreSQL migration / API smoke passed for the verified endpoints. | Lead discovery task/result UI. | Implemented and local PostgreSQL live-backend browser smoke passed for confirmed Campaign start, task status/history, candidate leads, duplicate conflict, and draft/archived action hiding. | Phase 4 remains limited to mock search candidate discovery. The UI must not imply validation, scoring, contacts, outreach, Gmail, real search, or real crawling. |
 | Phase 5: Lead Validation + Intelligence | Lead normalization, duplicate handling, website availability checks, intelligence capture, evidence storage, and content sufficiency. | Implemented for the first mock-crawler backend slice; independent local PostgreSQL migration/API smoke passed. | Lead validation and lead intelligence UI states. | Implemented from Stitch corrected design screens and backend Phase 5 APIs; frontend build and local PostgreSQL live-backend browser smoke passed. | Backend uses `MockCrawlerProvider`, `input_url`, `lead_intelligence`, and task status APIs. UI must not imply real crawling, scoring, review, contacts, outreach, or Gmail Draft work. |
-| Phase 6: Lead Scoring | Evidence-based customer-fit scoring, recommendations, risk notes, uncertainty, and provider-mocked tests. | Planned / future. | Lead score, evidence, risk, and recommendation UI. | Planned / future. | AI recommendation remains separate from human review status. |
+| Phase 6: Lead Scoring | Evidence-based customer-fit scoring, recommendations, risk notes, uncertainty, and provider-mocked tests. | Implemented for the first mock-LLM backend vertical slice; PostgreSQL migration smoke pending. | Lead score, evidence, risk, uncertainty, and recommendation UI. | Planned / future. | AI recommendation remains separate from human review status; Frontend Phase 6 needs Stitch design context before implementation. |
 | Phase 7: Lead Review | User approval, rejection, and manual-review workflow. | Planned / future. | Lead review pages and decision controls. | Planned / future. | AI must not approve leads for the user. |
 | Phase 8: Contacts | Contact records, contact type/status, manual LinkedIn reference storage, and selected valid email contact boundary. | Planned / future. | Contact selection and contact validation UI. | Planned / future. | Gmail Draft eligibility requires a selected valid email contact. |
 | Phase 9: Outreach Draft + Gmail Draft | Outreach draft records, Gmail Draft provider boundary, duplicate prevention, and draft-only Gmail behavior. | Planned / future. | Outreach draft status and Gmail Draft review UI. | Planned / future. | Gmail behavior must remain draft-only and user-reviewed. |
@@ -118,7 +128,9 @@ through Frontend Phase 5 has passed for demo-readiness proof.
   Phase 4 Lead Discovery UI are implemented and locally smoke-verified against
   the live backend. Frontend Phase 5 Lead Validation + Intelligence UI is
   implemented, build-verified, and locally smoke-verified against the live
-  backend.
+  backend. Backend Phase 6 Lead Scoring is implemented for the first mock-LLM
+  backend slice; Frontend Phase 6 remains future work pending Stitch design
+  context.
 - A backend phase being completed does not automatically mean the matching
   frontend phase is implemented.
 - At the start of each phase, backend work should define the API contract, data
@@ -140,8 +152,9 @@ through Frontend Phase 5 has passed for demo-readiness proof.
 - Backend implementation is real through `company`, `sources`, `knowledge`,
   `products`, the minimum `campaigns` vertical slice, the first
   mock-provider-backed Lead Discovery backend slice, and the first
-  mock-crawler-backed Lead Validation + Intelligence slice; later modules
-  beyond Phase 5 remain placeholders.
+  mock-crawler-backed Lead Validation + Intelligence slice, and the first
+  mock-LLM-backed Lead Scoring slice; later modules beyond Phase 6 remain
+  placeholders.
 - Campaign persistence and APIs are implemented for the Phase 3 minimum backend
   contract: `draft` / `confirmed` / `archived`, same-company confirmed Product
   Card validation, `product_card_snapshot`, archive, and duplicate-as-draft.
@@ -259,6 +272,23 @@ through Frontend Phase 5 has passed for demo-readiness proof.
   `409` with `lead_already_validated`, `insufficient_content` displayed the
   content-insufficient state, and a mock provider failure displayed the failed
   validation task while leaving the Lead `pending`.
+- Phase 6 Lead Scoring first backend slice is implemented. Endpoints are
+  `POST /api/v1/leads/{lead_id}/scoring`,
+  `GET /api/v1/leads/{lead_id}/scoring/tasks`,
+  `GET /api/v1/leads/{lead_id}/scores`, and the existing
+  `GET /api/v1/tasks/{task_id}`.
+- Phase 6 scoring uses `MockLeadScoringProvider`, creates `lead_scoring`
+  `task_runs`, writes `lead_scores`, validates provider output, requires
+  `validation_status = valid`, requires completed `lead_intelligence` evidence,
+  blocks duplicate first-slice scoring, and keeps `leads.review_status`
+  unchanged.
+- Phase 6 remains out of scope for human Lead Review decisions, contact
+  discovery, Outreach Draft, Gmail Draft, email sending, real LLM provider
+  integration unless explicitly authorized, LinkedIn automation, and CRM
+  automation.
+- Phase 6 PostgreSQL migration smoke is pending. `alembic heads` reached
+  `20260720_0008 (head)`, but Docker daemon was unavailable in this task, so a
+  real PostgreSQL migration/API smoke was not run.
 - Integrated Phase 1 through Phase 5 local PostgreSQL live-backend browser
   smoke passed on 2026-07-19 against a disposable PostgreSQL database on port
   `55437`, live FastAPI on `127.0.0.1:8000`, and Vite on
@@ -278,6 +308,112 @@ through Frontend Phase 5 has passed for demo-readiness proof.
 
 This section keeps compact records for the latest Codex tasks. Detailed task
 history should be moved to `docs/DEVELOPMENT_LOG.md`.
+
+### 2026-07-20 - Backend Phase 6 Lead Scoring First Slice
+
+Completed: Implemented Backend Phase 6 Lead Scoring first slice with mock LLM
+scoring, evidence-backed Lead Score persistence, task tracking, API contract,
+migration, and focused tests.
+
+What changed:
+
+- Added Phase 6 API contract, data model rules, module boundary rules, testing
+  expectations, UI planning boundaries, and frontend phase planning updates.
+- Added `lead_scores` ORM model and Alembic migration `20260720_0008`.
+- Extended `task_runs.task_type` to allow `lead_scoring`.
+- Added `MockLeadScoringProvider` behind the LLM/scoring provider interface.
+- Replaced `qualification` placeholders with repository, service, schemas, and
+  routes for:
+  `POST /api/v1/leads/{lead_id}/scoring`,
+  `GET /api/v1/leads/{lead_id}/scoring/tasks`, and
+  `GET /api/v1/leads/{lead_id}/scores`.
+- Enforced Phase 6 business rules: score only `valid` Leads, require completed
+  `lead_intelligence` evidence, block duplicate first-slice scoring, validate
+  provider output, keep `review_status` unchanged, and keep contacts /
+  outreach / Gmail / LinkedIn out of scope.
+
+Files modified:
+
+- `backend/app/providers/llm_provider.py`
+- `backend/app/modules/qualification/models.py`
+- `backend/app/modules/qualification/repository.py`
+- `backend/app/modules/qualification/schemas.py`
+- `backend/app/modules/qualification/service.py`
+- `backend/app/modules/qualification/routes.py`
+- `backend/app/modules/tasks/models.py`
+- `backend/app/modules/tasks/repository.py`
+- `backend/app/modules/tasks/schemas.py`
+- `backend/app/main.py`
+- `backend/app/models.py`
+- `backend/alembic/versions/20260720_0008_create_lead_scores.py`
+- `backend/tests/test_lead_scoring.py`
+- `docs/API_CONTRACT.md`
+- `docs/DATA_MODEL.md`
+- `docs/MODULE_BOUNDARIES.md`
+- `docs/TESTING_STRATEGY.md`
+- `docs/UI_REQUIREMENTS.md`
+- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+- `docs/DEVELOPMENT_LOG.md`
+
+Verification commands:
+
+- `.\\.venv\\Scripts\\python.exe -m pytest tests\\test_lead_scoring.py tests\\test_lead_validation.py tests\\test_lead_discovery.py`
+- `.\\.venv\\Scripts\\python.exe -m pytest`
+- `.\\.venv\\Scripts\\python.exe -m alembic heads`
+- `docker --version`
+- `docker ps`
+- `rg -n 'review_status\\s*=|approved|gmail|Gmail|send|LinkedIn|linkedin|contact|outreach' backend\\app\\modules\\qualification backend\\app\\providers\\llm_provider.py backend\\tests\\test_lead_scoring.py`
+
+Test status:
+
+- Phase 4/5/6 focused backend tests passed: 29 passed.
+- Full backend test suite passed: 86 passed, 1 existing Starlette/httpx
+  deprecation warning.
+- Alembic head check passed: `20260720_0008 (head)`.
+- Real PostgreSQL migration smoke was not run because Docker daemon was not
+  running / unavailable.
+
+API contract alignment:
+
+- Implemented the documented Phase 6 endpoints and response envelopes.
+- Lead Scoring uses `task_type = lead_scoring`, `related_entity_type = lead`,
+  and `provider_name = mock_llm`.
+- Lead Scoring reads confirmed Campaign context, the confirmed-time
+  `product_card_snapshot`, Lead data, and factual `lead_intelligence`.
+- Lead Scoring writes `lead_scores` only after provider output validation.
+- AI recommendation remains separate from human `review_status`.
+
+Stitch design alignment:
+
+- No frontend UI was implemented in this task. Frontend Phase 6 remains future
+  work pending Stitch design context.
+
+User-facing Chinese text verification:
+
+- No frontend user-facing text was added or changed in this task.
+
+Known limitations:
+
+- This is backend automated-test proof only, not live PostgreSQL API smoke,
+  browser smoke, staging proof, or production proof.
+- Phase 6 uses deterministic `MockLeadScoringProvider`; no real LLM API is
+  integrated or called.
+- No RQ worker runtime exists yet; mock scoring still completes synchronously in
+  service logic after returning the task reference.
+- Phase 6 does not implement human Lead Review, contacts, Outreach Draft, Gmail
+  Draft, email sending, LinkedIn automation, or CRM behavior.
+
+Commit / push status:
+
+- Not committed.
+- Not pushed to GitHub.
+
+Next recommended step:
+
+- Run a real PostgreSQL migration/API smoke for Phase 6 when Docker/PostgreSQL
+  is available, then prepare Stitch design context before implementing Frontend
+  Phase 6 Lead Scoring UI.
 
 ### 2026-07-19 - Integrated Phase 1 Through Phase 5 Browser Smoke
 
@@ -466,101 +602,3 @@ Next recommended step:
 - Continue with Phase 6 Lead Scoring contract planning, or run an integrated
   frontend workflow smoke across Phase 1 through Phase 5 if the next priority
   is demo readiness.
-
-### 2026-07-17 - Frontend Phase 1 Company / Sources / Knowledge UI
-
-Completed: Implemented Frontend Phase 1 for company profile, source input, and
-knowledge review from Stitch Phase 1 final corrected screens and the Backend
-Phase 1B contract.
-
-What changed:
-
-- Read the Stitch project `AI 获客任务管理系统` and used these Phase 1 final
-  corrected screens as visual context:
-  `公司资料维护 - Phase 1 最终修正版`,
-  `资料来源管理 - Phase 1 最终修正版`, and
-  `知识审核工作台 - Phase 1 最终修正版`.
-- Added a Phase 1 API client for company list/create/update, source
-  list/create, source-to-knowledge draft creation, knowledge list, confirm, and
-  reject.
-- Added a new `/knowledge` / `#knowledge` workspace with tabs for company
-  profile, sources, and knowledge review.
-- Added company create/edit drawer, source text/URL create drawer, source
-  detail modal, knowledge detail modal, and knowledge confirm/reject modals.
-- Corrected Stitch design issues during implementation: removed unsupported
-  settings/help navigation from the new Phase 1 workspace, replaced static
-  sample rows with backend-bound state, and made the URL source boundary
-  explicit as saved-only with no crawling, parsing, or webpage reading.
-
-Files modified:
-
-- `frontend/src/api/knowledgeBase.ts`
-- `frontend/src/pages/knowledge/KnowledgeWorkspace.tsx`
-- `frontend/src/app/App.tsx`
-- `frontend/src/styles/global.css`
-- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
-- `docs/DEVELOPMENT_LOG.md`
-- `docs/DEVELOPMENT_PROGRESS.md`
-
-Verification commands:
-
-- `npm.cmd --prefix frontend run build`
-- `rg -n "上传|文件|PDF|Word|OCR|爬|抓取|解析|读取网页|发送邮件|自动发送|LinkedIn|Google Sheets|系统设置" frontend/src/pages/knowledge frontend/src/api/knowledgeBase.ts frontend/src/app/App.tsx`
-
-Test status:
-
-- Frontend TypeScript and Vite production build passed.
-- No backend tests were run because this task changed frontend UI and docs only.
-- No local PostgreSQL live-backend browser smoke was run in this task.
-
-API contract alignment:
-
-- UI uses only the documented Backend Phase 1B endpoints:
-  `POST /api/v1/companies`, `PATCH /api/v1/companies/{company_id}`,
-  `GET /api/v1/companies`, `POST /api/v1/companies/{company_id}/sources`,
-  `GET /api/v1/companies/{company_id}/sources`,
-  `POST /api/v1/sources/{source_id}/knowledge-drafts`,
-  `GET /api/v1/companies/{company_id}/knowledge`,
-  `POST /api/v1/knowledge/{knowledge_id}/confirm`, and
-  `POST /api/v1/knowledge/{knowledge_id}/reject`.
-- UI supports only `source_type = text` and `source_type = url`.
-- Knowledge confirmation and rejection actions are shown only for `draft`
-  knowledge items.
-- UI does not expose upload, OCR, file parsing, crawler, Gmail, LinkedIn,
-  Google Sheets, scoring, review, contact, or outreach behavior.
-
-Stitch design alignment:
-
-- Preserved the Stitch Phase 1 three-tab layout, table/list direction, drawer
-  forms, status badges, detail modals, and confirm/reject review flow.
-- Used Stitch as visual and interaction context only; backend contract and
-  project rules remained authoritative.
-
-User-facing Chinese text verification:
-
-- New Phase 1 page titles, tabs, buttons, labels, empty states, errors,
-  success toasts, detail modals, and confirmation dialogs are Chinese.
-- Scope-boundary copy explicitly says URL records are not crawled, parsed, or
-  read in the current phase.
-
-Known limitations:
-
-- This is build proof only, not live-backend browser smoke, staging, or
-  production proof.
-- The backend Phase 1B generator remains deterministic and synchronous; no real
-  LLM or crawler provider is used.
-- Sources cannot be edited or deleted because the current backend contract does
-  not expose source edit/delete endpoints.
-- Knowledge content cannot be edited because the current backend contract only
-  supports confirm/reject transitions.
-
-Commit / push status:
-
-- Not committed.
-- Not pushed to GitHub.
-
-Next recommended step:
-
-- Run local live-backend browser smoke for Frontend Phase 1:
-  create/update company -> add text and URL sources -> generate knowledge draft
-  -> confirm and reject draft knowledge.

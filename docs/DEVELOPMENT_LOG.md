@@ -35,7 +35,104 @@ state.
 | Phase 3: Campaign | Backend and supported frontend lifecycle completed | Campaign backend supports the minimum Phase 3 contract: `draft`, `confirmed`, and `archived`; confirmed same-company Product Card validation; `product_card_snapshot`; archive; duplicate-as-draft; routes; migration; and tests. Frontend Phase 3 Campaign UI is implemented for the supported lifecycle. |
 | Phase 4: Lead Discovery | Backend implemented and frontend UI live-smoke verified | Phase 4 now has models, schemas, repositories, services, routes, migration, `MockSearchProvider`, focused tests, local PostgreSQL / live API smoke proof, and a Frontend Phase 4 UI that passed local PostgreSQL live-backend browser smoke for confirmed Campaign -> Lead Discovery task -> mock search results -> saved candidate leads. It does not call real search APIs, self-build full-web search, perform real website crawling, score leads, approve leads, find contacts, or create outreach/Gmail drafts. |
 | Phase 5: Lead Validation + Intelligence | Backend first slice and frontend UI live-smoke verified | Phase 5 now has `lead_validation` task runs, `input_url`, `lead_intelligence`, `MockCrawlerProvider`, service/repository/routes, migration, focused tests, independent local PostgreSQL / live FastAPI smoke proof, a build-verified Frontend Phase 5 UI, and local PostgreSQL live-backend browser smoke proof for the supported UI workflow. It remains mock-crawler-only and does not perform AI scoring, human review, contact discovery, Outreach Draft, Gmail Draft, LinkedIn crawling, or real crawler integration. |
+| Phase 6: Lead Scoring | Backend first slice implemented | Phase 6 now has `lead_scoring` task runs, `lead_scores`, `MockLeadScoringProvider`, service/repository/routes, migration, and focused tests. It remains mock-LLM-only and does not perform human review, contact discovery, Outreach Draft, Gmail Draft, email sending, LinkedIn automation, or real LLM integration. PostgreSQL migration/API smoke is pending because Docker daemon was unavailable during implementation. |
 | Frontend business workflow | Partially implemented | Frontend Phase 1 Company / Sources / Knowledge UI, Product Card UI, Campaign UI, Frontend Phase 4 Lead Discovery UI, and Frontend Phase 5 Lead Validation + Intelligence UI are implemented for their supported lifecycles. Product Card, Campaign, Frontend Phase 1, Phase 4, Frontend Phase 5, and an integrated Phase 1 through Phase 5 workflow are locally smoke-verified against the live backend. |
+
+## 2026-07-20 - Backend Phase 6 Lead Scoring First Slice
+
+Type: Backend implementation, contract documentation, migration, and automated
+test coverage.
+
+Completed:
+
+- Implemented Backend Phase 6 Lead Scoring first slice.
+- Documented the Phase 6 Lead Scoring API contract, data model, business rules,
+  validation rules, task status rules, error codes, module boundaries, testing
+  expectations, and UI planning boundaries.
+- Added `lead_scores` with fit score, AI recommendation, matching reasons, risk
+  notes, uncertainty notes, evidence, suggested outreach angle, model name, and
+  task traceability.
+- Extended `task_runs.task_type` to include `lead_scoring`.
+- Added `MockLeadScoringProvider` behind the LLM/scoring provider boundary.
+- Replaced qualification placeholders with service, repository, schemas, and
+  routes for starting Lead Scoring, listing scoring tasks, and listing Lead
+  Scores.
+- Registered the qualification router and ORM model.
+- Added focused Phase 6 tests for success, missing Lead, archived Campaign,
+  non-valid Lead blocking, missing intelligence evidence, duplicate task
+  blocking, retry after failed/cancelled task, existing score blocking,
+  provider failure, invalid provider output, and `review_status` separation.
+- Updated `docs/DEVELOPMENT_PROGRESS.md` to mark Backend Phase 6 first slice
+  implemented and keep only the latest three Codex task records.
+
+Files changed:
+
+- `backend/app/providers/llm_provider.py`
+- `backend/app/modules/qualification/models.py`
+- `backend/app/modules/qualification/repository.py`
+- `backend/app/modules/qualification/schemas.py`
+- `backend/app/modules/qualification/service.py`
+- `backend/app/modules/qualification/routes.py`
+- `backend/app/modules/tasks/models.py`
+- `backend/app/modules/tasks/repository.py`
+- `backend/app/modules/tasks/schemas.py`
+- `backend/app/main.py`
+- `backend/app/models.py`
+- `backend/alembic/versions/20260720_0008_create_lead_scores.py`
+- `backend/tests/test_lead_scoring.py`
+- `docs/API_CONTRACT.md`
+- `docs/DATA_MODEL.md`
+- `docs/MODULE_BOUNDARIES.md`
+- `docs/TESTING_STRATEGY.md`
+- `docs/UI_REQUIREMENTS.md`
+- `docs/FRONTEND_DEVELOPMENT_PLAN.md`
+- `docs/DEVELOPMENT_PROGRESS.md`
+- `docs/DEVELOPMENT_LOG.md`
+
+Verification:
+
+- `.\\.venv\\Scripts\\python.exe -m pytest tests\\test_lead_scoring.py tests\\test_lead_validation.py tests\\test_lead_discovery.py`
+  - Passed: 29 tests.
+- `.\\.venv\\Scripts\\python.exe -m pytest`
+  - Passed: 86 tests.
+  - Warning: existing Starlette/httpx deprecation warning from FastAPI
+    TestClient dependency behavior.
+- `.\\.venv\\Scripts\\python.exe -m alembic heads`
+  - Passed: `20260720_0008 (head)`.
+- Docker check:
+  - `docker --version` worked.
+  - `docker ps` could not connect because the Docker daemon was unavailable.
+
+API contract alignment:
+
+- Implemented `POST /api/v1/leads/{lead_id}/scoring`.
+- Implemented `GET /api/v1/leads/{lead_id}/scoring/tasks`.
+- Implemented `GET /api/v1/leads/{lead_id}/scores`.
+- Reused `GET /api/v1/tasks/{task_id}` for Lead Scoring task status.
+- Lead Scoring requires `validation_status = valid` and completed
+  `lead_intelligence` evidence.
+- Lead Scoring validates provider output before persistence.
+- AI recommendation remains separate from human `leads.review_status`.
+
+Known limitations:
+
+- This is backend automated-test proof only.
+- Real PostgreSQL migration/API smoke was not run because Docker daemon was
+  unavailable.
+- The implementation uses deterministic `MockLeadScoringProvider`; no real LLM
+  provider is integrated or called.
+- No RQ worker runtime exists yet; mock scoring completes synchronously inside
+  service logic.
+- Frontend Phase 6 UI is not implemented and still requires Stitch design
+  context.
+- Phase 6 does not implement human Lead Review, contacts, Outreach Draft, Gmail
+  Draft, email sending, LinkedIn automation, or CRM behavior.
+
+Next recommended step:
+
+- Run a real PostgreSQL migration/API smoke for Phase 6 when Docker/PostgreSQL
+  is available, then prepare Stitch design context before implementing Frontend
+  Phase 6 Lead Scoring UI.
 
 ## 2026-07-19 - Integrated Phase 1 Through Phase 5 Browser Smoke
 

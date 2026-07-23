@@ -345,6 +345,50 @@ Must test:
 
 ---
 
+## 9.6 Lead Scoring Contract Tests
+
+Phase 6 tests must stay limited to evidence-based AI Lead Scoring. They must
+not test human Lead Review, contact discovery, Outreach Draft, Gmail Draft,
+auto-send, CRM automation, LinkedIn automation, or real external LLM calls as if
+those phases already exist.
+
+Must test:
+
+1. A discovered Lead with `validation_status = valid` and completed factual
+   intelligence evidence can create a Lead Scoring task.
+2. A missing Lead returns `lead_not_found`.
+3. A Lead under an archived Campaign cannot start a new scoring task.
+4. Leads with `validation_status = pending`, `invalid`, `duplicate`, or
+   `insufficient_content` cannot start Lead Scoring.
+5. A valid Lead without completed intelligence evidence cannot start Lead
+   Scoring.
+6. `pending`, `running`, and `completed` Lead Scoring tasks block a duplicate
+   task for the same Lead.
+7. Existing Lead Score records block duplicate first-slice scoring for the same
+   Lead.
+8. `failed` and `cancelled` Lead Scoring tasks may be retried only while the
+   Lead remains `validation_status = valid` and no score exists.
+9. Task execution status is stored in `task_runs`, not in `campaigns.status` or
+   `leads.review_status`.
+10. Phase 6 task records use `task_type = lead_scoring`,
+    `related_entity_type = lead`, and `related_entity_id = lead_id`.
+11. Successful scoring creates a `lead_scores` record with fit score,
+    recommendation, matching reasons, risk notes, uncertainty notes, evidence,
+    suggested outreach angle, and model name.
+12. `fit_score` must be between `0` and `100`.
+13. Recommendation mapping must follow the documented rubric.
+14. Provider failure marks the task `failed`, records `error_message`, and does
+    not create a Lead Score.
+15. Invalid provider output marks the task `failed` and does not create a Lead
+    Score.
+16. Phase 6 must not change `review_status`.
+17. Phase 6 must not create contacts, outreach drafts, Gmail drafts, or email
+    sends.
+18. Tests must mock LLM / scoring provider behavior and must not call real LLM
+    APIs, search APIs, crawlers, Gmail, LinkedIn, or paid external APIs.
+
+---
+
 ## 10. AI Output Validation Tests
 
 AI 输出不能直接信任，必须测试 schema validation。

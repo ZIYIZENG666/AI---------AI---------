@@ -22,7 +22,7 @@ class TaskRun(Base):
     __tablename__ = "task_runs"
     __table_args__ = (
         CheckConstraint(
-            "task_type IN ('lead_discovery', 'lead_validation')",
+            "task_type IN ('lead_discovery', 'lead_validation', 'lead_scoring')",
             name=conv("ck_task_runs_task_type"),
         ),
         CheckConstraint(

@@ -224,6 +224,36 @@ All Lead Validation + Intelligence page titles, buttons, labels, task statuses,
 table headers, empty states, errors, success messages, confirmation dialogs, and
 tooltips must be Chinese.
 
+## Lead Scoring UI Planning Rules
+
+Lead Scoring UI must follow the backend Phase 6 contract once that backend
+implementation exists and the required Stitch design context is available.
+
+Supported Phase 6 UI behavior:
+
+- Show Lead Scoring actions only for backend-supported valid Leads.
+- Show scoring task status from `task_runs`.
+- Show Lead Score records only from backend `lead_scores` responses.
+- Show fit score, AI recommendation, matching reasons, risk notes, uncertainty
+  notes, evidence, and suggested outreach angle.
+- Keep AI recommendation visually and behaviorally separate from human
+  `review_status`.
+- Show no-score, provider failure, unavailable backend, missing-intelligence,
+  and invalid-status states honestly.
+
+Phase 6 UI must not show or imply:
+
+- Human approval, rejection, or manual review decision controls.
+- Contact finding, selected email contact, Outreach Draft, Gmail Draft, email
+  sending, auto-send, follow-up sequence, or CRM pipeline actions.
+- Real LLM scoring when the backend uses a mock provider.
+- LinkedIn crawling, LinkedIn automation, or LinkedIn-derived Gmail Draft
+  eligibility.
+
+All Lead Scoring page titles, buttons, labels, task statuses, table headers,
+empty states, errors, success messages, confirmation dialogs, and tooltips must
+be Chinese.
+
 ## Product Card UI Rules
 
 The Product Card UI must support:

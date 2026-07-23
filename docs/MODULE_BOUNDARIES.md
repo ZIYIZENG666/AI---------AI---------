@@ -261,9 +261,15 @@ It handles:
 - AI lead scoring
 - Matching reasons
 - Risk notes
+- Uncertainty notes
 - Recommendation level
 - Fit explanation
 - Evidence-based judgment
+
+Phase 6 first implementation uses a mock LLM / scoring provider through the
+provider interface. It may score only Leads that have completed Lead Validation
+with `validation_status = valid` and have factual `lead_intelligence` evidence.
+It writes `lead_scores` and Lead Scoring `task_runs`.
 
 ### Not Responsible For
 
@@ -272,6 +278,14 @@ It should not search new leads.
 It should not create Gmail drafts directly.
 
 It should not approve leads on behalf of the user.
+
+It should not mutate `leads.review_status`.
+
+It should not create contacts.
+
+It should not create outreach drafts.
+
+It should not create Gmail drafts or send email.
 
 ## reviews
 

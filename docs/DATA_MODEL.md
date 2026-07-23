@@ -450,10 +450,12 @@ Main fields:
 - `id`
 - `lead_id`
 - `campaign_id`
+- `task_run_id`
 - `fit_score`
 - `recommendation`
 - `matching_reasons`
 - `risk_notes`
+- `uncertainty_notes`
 - `evidence`
 - `suggested_outreach_angle`
 - `model_name`
@@ -474,6 +476,37 @@ Recommendation rules:
   approval states.
 - `needs_manual_review` may appear here as an AI uncertainty signal, while
   `leads.review_status = needs_manual_review` is a human workflow state.
+
+Phase 6 Lead Scoring rules:
+
+- Phase 6 starts from Phase 5 validated Leads.
+- A Lead may enter scoring only when `discovery_status = discovered` and
+  `validation_status = valid`.
+- Lead Scoring must use the confirmed Campaign and the Campaign's
+  confirmed-time `product_card_snapshot`.
+- Lead Scoring must use factual `lead_intelligence` evidence. A valid Lead with
+  no completed intelligence evidence is not eligible for scoring in the first
+  implementation.
+- Lead Scoring must not change `leads.review_status`.
+- Lead Scoring must not create contacts, outreach drafts, Gmail drafts, or email
+  sends.
+- Provider or system failure should leave existing Lead data unchanged and
+  record failure on the related task run.
+- The first Phase 6 slice stores at most one completed Lead Score per Lead
+  through service-level duplicate checks. The table does not add a uniqueness
+  constraint so later explicit re-scoring can keep history.
+- `fit_score` must be an integer from `0` through `100`.
+- Recommendation mapping for the first implementation:
+  - `80-100` = `recommended`
+  - `60-79` = `maybe`
+  - `40-59` = `needs_manual_review`
+  - `0-39` = `not_recommended`
+- `matching_reasons`, `risk_notes`, `uncertainty_notes`, and `evidence` are
+  stored as JSON lists.
+- `evidence` must remain traceable to provider-returned factual intelligence.
+  It must not invent website evidence.
+- `suggested_outreach_angle` is an AI suggestion only. It is not an Outreach
+  Draft and does not create a Gmail Draft.
 
 ## contacts
 
@@ -661,6 +694,21 @@ Phase 5 extension:
   duplicate Lead Validation task for the same Lead.
 - `failed` and `cancelled` Lead Validation tasks may be retried only while the
   Lead still has `validation_status = pending`.
+
+Phase 6 extension:
+
+- `task_type` must allow `lead_scoring`.
+- `related_entity_type = lead` and `related_entity_id` stores the Lead ID for
+  Lead Scoring tasks.
+- A Lead Scoring task records `provider_name`, such as `mock_llm`.
+- Lead Scoring tasks do not reuse `search_query` or `input_url` for scoring
+  context; Campaign, Lead, and intelligence records provide the scoring input.
+- `pending`, `running`, and `completed` Lead Scoring tasks block creating a
+  duplicate Lead Scoring task for the same Lead.
+- `failed` and `cancelled` Lead Scoring tasks may be retried only while the Lead
+  remains `validation_status = valid` and no Lead Score exists.
+- Provider or system failure should move the task to `failed` with
+  `error_message` and should not create a fake Lead Score.
 
 Possible `status`:
 

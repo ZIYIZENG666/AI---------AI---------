@@ -576,6 +576,166 @@ Lead Validation + Intelligence error handling:
   task response.
 - Invalid request shape: HTTP `422` with validation details.
 
+## Phase 6 Lead Scoring Contract
+
+Phase 6 scores valid Leads by comparing the confirmed Campaign, its
+confirmed-time `product_card_snapshot`, and factual `lead_intelligence`. It
+does not perform human Lead Review, approve or reject leads, discover contacts,
+create Outreach Drafts, create Gmail Drafts, send email, or call real LLM APIs
+in the first implementation.
+
+Phase 6 first implementation rules:
+
+1. Work only from existing Leads created by Lead Discovery.
+2. Score only Leads with `validation_status = valid`.
+3. Require at least one completed factual `lead_intelligence` record with
+   traceable evidence before scoring.
+4. Use an LLM / scoring provider interface. The first implementation uses
+   `MockLeadScoringProvider`.
+5. Automated tests must use mock providers and must not call real LLM APIs,
+   search APIs, crawlers, Gmail APIs, LinkedIn, or paid external services.
+6. Store execution status in `task_runs`, not in `campaigns.status` or
+   `leads.review_status`.
+7. Store AI matching output in `lead_scores`.
+8. Do not change `leads.review_status`; human review remains Phase 7.
+9. Do not create contacts, outreach drafts, Gmail drafts, or email sends.
+10. Validate provider output before persistence. Invalid provider output must
+    fail the task and must not create a fake score.
+
+Current endpoints:
+
+- `POST /api/v1/leads/{lead_id}/scoring`
+- `GET /api/v1/leads/{lead_id}/scoring/tasks`
+- `GET /api/v1/leads/{lead_id}/scores`
+- `GET /api/v1/tasks/{task_id}`
+
+The Phase 6 implementation extends `task_runs` with:
+
+- Allow `task_type = lead_scoring`.
+- Use `related_entity_type = lead`.
+- Link `related_entity_id` to `lead_id`.
+- Use `provider_name = mock_llm` for the first mock-provider implementation.
+- `search_query` remains Lead Discovery-specific.
+- `input_url` remains Lead Validation-specific and is not required for Lead
+  Scoring tasks.
+
+`POST /api/v1/leads/{lead_id}/scoring`
+
+Creates a Lead Scoring task for a valid Lead and returns a task reference. The
+response must not imply scoring has already completed. Until worker runtime
+exists, the first implementation executes the mock provider immediately in the
+service layer and clients should poll `GET /api/v1/tasks/{task_id}` before
+reading scores.
+
+Request fields:
+
+- none required in the first implementation
+
+System-generated fields:
+
+- `task_type = lead_scoring`
+- `related_entity_type = lead`
+- `related_entity_id = lead_id`
+- `provider_name = mock_llm`
+
+Response:
+
+```json
+{
+  "data": {
+    "task_id": "task_789",
+    "status": "pending",
+    "task_type": "lead_scoring",
+    "lead_id": "lead_123"
+  },
+  "message": "Lead scoring task created successfully."
+}
+```
+
+Lead Scoring task rules:
+
+1. The Lead must exist.
+2. The Lead must belong to a `confirmed` Campaign.
+3. Leads under archived Campaigns must not start new scoring tasks.
+4. The Lead must have `discovery_status = discovered`.
+5. The Lead must have `validation_status = valid`.
+6. A completed factual `lead_intelligence` record with evidence must exist.
+7. Existing `pending`, `running`, or `completed` Lead Scoring tasks block a
+   duplicate task for the same Lead.
+8. Existing Lead Score records block a new first-slice scoring task for the
+   same Lead.
+9. `failed` or `cancelled` Lead Scoring tasks may be retried only while the
+   Lead is still `validation_status = valid` and no score exists.
+10. A provider or system failure marks the task `failed` and must not create a
+    Lead Score.
+11. A successful score creates one `lead_scores` record and completes the task.
+12. Lead Scoring must not change `leads.review_status`.
+13. Lead Scoring must not create contacts, outreach drafts, Gmail drafts, or
+    email sends.
+
+Lead Score fields:
+
+- `id`
+- `lead_id`
+- `campaign_id`
+- `task_run_id`
+- `fit_score`
+- `recommendation`
+- `matching_reasons`
+- `risk_notes`
+- `uncertainty_notes`
+- `evidence`
+- `suggested_outreach_angle`
+- `model_name`
+- `created_at`
+- `updated_at`
+
+Lead Score rules:
+
+1. `fit_score` is an integer from `0` through `100`.
+2. `recommendation` values are `recommended`, `maybe`, `not_recommended`, and
+   `needs_manual_review`.
+3. The first implementation uses this rubric:
+   - `80-100`: `recommended`
+   - `60-79`: `maybe`
+   - `40-59`: `needs_manual_review`
+   - `0-39`: `not_recommended`
+4. `matching_reasons` must explain fit; a score alone is invalid.
+5. `risk_notes` and `uncertainty_notes` must be explicit when evidence is weak,
+   missing, indirect, or incomplete.
+6. `evidence` must be traceable to provider-returned website intelligence and
+   should include `source_url` and `snippet` when available.
+7. The system must not invent website evidence.
+8. High or medium scores without evidence are invalid provider output and must
+   fail the task.
+9. `recommendation` is an AI recommendation only. It must not be treated as
+   human approval or rejection.
+
+`GET /api/v1/leads/{lead_id}/scoring/tasks`
+
+Returns Lead Scoring task runs for the Lead.
+
+`GET /api/v1/leads/{lead_id}/scores`
+
+Returns AI Lead Score records for the Lead. If scoring has not completed, the
+response returns an empty collection and must not fabricate a score.
+
+Lead Scoring error handling:
+
+- Missing Lead: HTTP `404` with `lead_not_found`.
+- Lead Campaign missing: HTTP `404` with `campaign_not_found`.
+- Lead Campaign not confirmed: HTTP `409` with `campaign_not_confirmed`.
+- Lead Campaign archived: HTTP `409` with `campaign_archived`.
+- Lead not valid: HTTP `409` with `lead_not_validated`.
+- Missing factual intelligence / evidence: HTTP `409` with
+  `lead_intelligence_required`.
+- Existing score: HTTP `409` with `lead_already_scored`.
+- Existing `pending`, `running`, or `completed` Lead Scoring task: HTTP `409`
+  with `lead_scoring_already_exists`.
+- Provider failure or invalid provider output: mark the task `failed` and
+  expose `error_message` on the task response.
+- Invalid request shape: HTTP `422` with validation details.
+
 ## Lead Recommendation and Review Status Contract
 
 AI recommendation and human review status are separate concepts.
