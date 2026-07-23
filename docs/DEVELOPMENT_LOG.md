@@ -35,8 +35,113 @@ state.
 | Phase 3: Campaign | Backend and supported frontend lifecycle completed | Campaign backend supports the minimum Phase 3 contract: `draft`, `confirmed`, and `archived`; confirmed same-company Product Card validation; `product_card_snapshot`; archive; duplicate-as-draft; routes; migration; and tests. Frontend Phase 3 Campaign UI is implemented for the supported lifecycle. |
 | Phase 4: Lead Discovery | Backend implemented and frontend UI live-smoke verified | Phase 4 now has models, schemas, repositories, services, routes, migration, `MockSearchProvider`, focused tests, local PostgreSQL / live API smoke proof, and a Frontend Phase 4 UI that passed local PostgreSQL live-backend browser smoke for confirmed Campaign -> Lead Discovery task -> mock search results -> saved candidate leads. It does not call real search APIs, self-build full-web search, perform real website crawling, score leads, approve leads, find contacts, or create outreach/Gmail drafts. |
 | Phase 5: Lead Validation + Intelligence | Backend first slice and frontend UI live-smoke verified | Phase 5 now has `lead_validation` task runs, `input_url`, `lead_intelligence`, `MockCrawlerProvider`, service/repository/routes, migration, focused tests, independent local PostgreSQL / live FastAPI smoke proof, a build-verified Frontend Phase 5 UI, and local PostgreSQL live-backend browser smoke proof for the supported UI workflow. It remains mock-crawler-only and does not perform AI scoring, human review, contact discovery, Outreach Draft, Gmail Draft, LinkedIn crawling, or real crawler integration. |
-| Phase 6: Lead Scoring | Backend first slice implemented | Phase 6 now has `lead_scoring` task runs, `lead_scores`, `MockLeadScoringProvider`, service/repository/routes, migration, and focused tests. It remains mock-LLM-only and does not perform human review, contact discovery, Outreach Draft, Gmail Draft, email sending, LinkedIn automation, or real LLM integration. PostgreSQL migration/API smoke is pending because Docker daemon was unavailable during implementation. |
+| Phase 6: Lead Scoring | Backend first slice implemented and PostgreSQL smoke-verified | Phase 6 now has `lead_scoring` task runs, `lead_scores`, `MockLeadScoringProvider`, service/repository/routes, migration, focused tests, and local PostgreSQL migration/API smoke proof. It remains mock-LLM-only and does not perform human review, contact discovery, Outreach Draft, Gmail Draft, email sending, LinkedIn automation, or real LLM integration. |
 | Frontend business workflow | Partially implemented | Frontend Phase 1 Company / Sources / Knowledge UI, Product Card UI, Campaign UI, Frontend Phase 4 Lead Discovery UI, and Frontend Phase 5 Lead Validation + Intelligence UI are implemented for their supported lifecycles. Product Card, Campaign, Frontend Phase 1, Phase 4, Frontend Phase 5, and an integrated Phase 1 through Phase 5 workflow are locally smoke-verified against the live backend. |
+
+## 2026-07-23 - Backend Phase 6 PostgreSQL Migration/API Smoke
+
+Type: Local PostgreSQL migration/API smoke verification and progress
+documentation update.
+
+Completed:
+
+- Started Docker Desktop and confirmed Docker daemon availability.
+- Started a disposable PostgreSQL 16 container named
+  `ai-b2b-sales-phase6-smoke-postgres-20260723` on `localhost:55438`.
+- Ran the full Alembic migration chain against the smoke database and reached
+  `20260720_0008 (head)`.
+- Verified the migrated PostgreSQL schema includes the `lead_scores` table.
+- Verified the `task_runs.task_type` check constraint includes
+  `lead_scoring`.
+- Started a real Uvicorn TCP API inside the smoke runner and used `httpx` for
+  live HTTP requests.
+- Created upstream data through public APIs: company, text source, confirmed
+  knowledge, confirmed manual Product Card, confirmed Campaign with Product
+  Card snapshot, Lead Discovery, Lead Validation, and Lead Intelligence.
+- Started Phase 6 Lead Scoring through
+  `POST /api/v1/leads/{lead_id}/scoring`.
+- Verified the scoring task completed with `task_type = lead_scoring`,
+  `related_entity_type = lead`, `provider_name = mock_llm`, no `search_query`,
+  and no `input_url`.
+- Verified `GET /api/v1/leads/{lead_id}/scoring/tasks` returned one scoring
+  task.
+- Verified `GET /api/v1/leads/{lead_id}/scores` returned one persisted score:
+  `fit_score = 95`, `recommendation = recommended`,
+  `model_name = mock_lead_scoring_v1`, and one evidence item.
+- Verified duplicate scoring returned HTTP `409` with
+  `lead_already_scored`.
+- Verified the Lead stayed `validation_status = valid` and
+  `review_status = unreviewed`.
+- Updated `docs/DEVELOPMENT_PROGRESS.md` and this detailed log.
+
+Files modified:
+
+- `docs/DEVELOPMENT_PROGRESS.md`
+- `docs/DEVELOPMENT_LOG.md`
+
+Verification:
+
+- `docker ps`
+  - Confirmed Docker daemon was available after starting Docker Desktop.
+- `docker run --name ai-b2b-sales-phase6-smoke-postgres-20260723 --rm -e POSTGRES_USER=phase6_smoke -e POSTGRES_PASSWORD=phase6_smoke_password -e POSTGRES_DB=ai_b2b_sales_phase6_smoke -p 55438:5432 -d postgres:16-alpine`
+  - Started disposable PostgreSQL 16 smoke database.
+- `docker exec ai-b2b-sales-phase6-smoke-postgres-20260723 pg_isready -U phase6_smoke -d ai_b2b_sales_phase6_smoke`
+  - PostgreSQL accepted connections.
+- `.\\.venv\\Scripts\\python.exe -m alembic upgrade head`
+  - Passed against the PostgreSQL smoke database.
+- `.\\.venv\\Scripts\\python.exe -m alembic current`
+  - Passed: `20260720_0008 (head)`.
+- `docker exec ai-b2b-sales-phase6-smoke-postgres-20260723 psql ... "\\dt"`
+  - Confirmed migrated tables, including `lead_scores`.
+- `docker exec ai-b2b-sales-phase6-smoke-postgres-20260723 psql ... "SELECT conname, pg_get_constraintdef(oid) ..."`
+  - Confirmed `task_runs` allows `lead_scoring`.
+- Inline Python smoke runner using Uvicorn + `httpx`
+  - Passed the live HTTP API flow from upstream data creation through scoring.
+- Final PostgreSQL count check:
+  - `lead_scoring_tasks = 1`
+  - `lead_scores = 1`
+  - `valid_unreviewed_leads = 1`
+
+API contract alignment:
+
+- The smoke used the documented Phase 6 endpoints:
+  `POST /api/v1/leads/{lead_id}/scoring`,
+  `GET /api/v1/leads/{lead_id}/scoring/tasks`,
+  `GET /api/v1/leads/{lead_id}/scores`, and
+  `GET /api/v1/tasks/{task_id}`.
+- Lead Scoring required a confirmed Campaign, a valid Lead, completed
+  `lead_intelligence` evidence, and a confirmed-time Product Card snapshot.
+- Lead Scoring wrote one evidence-backed `lead_scores` record only after task
+  execution and provider output validation.
+- AI recommendation remained separate from human `review_status`.
+- Duplicate first-slice scoring was blocked by the documented 409 error.
+
+Stitch design alignment:
+
+- No frontend UI was implemented or changed in this task. Frontend Phase 6
+  remains future work pending Stitch design context.
+
+User-facing Chinese text verification:
+
+- No frontend user-facing text was added or changed in this task.
+
+Known limits:
+
+- This is local development proof only, not staging or production proof.
+- The smoke used deterministic/mock providers only:
+  `MockSearchProvider`, `MockCrawlerProvider`, and
+  `MockLeadScoringProvider`.
+- No real search API, real crawler, real LLM, human Lead Review, contact
+  discovery, Outreach Draft, Gmail Draft, email sending, LinkedIn automation,
+  or CRM automation was performed.
+- No RQ worker runtime exists yet; mock provider tasks still complete
+  synchronously in service logic.
+
+Next recommended step:
+
+- Prepare Stitch design context before implementing Frontend Phase 6 Lead
+  Scoring UI, or start Backend Phase 7 Lead Review contract planning if the
+  next priority is backend workflow progression.
 
 ## 2026-07-20 - Backend Phase 6 Lead Scoring First Slice
 
