@@ -52,8 +52,9 @@ Phase 5 API surfaces. Frontend build verification and local PostgreSQL
 live-backend browser smoke have passed.
 Backend Phase 6 Lead Scoring first slice is implemented with
 `MockLeadScoringProvider`, `lead_scoring` task runs, `lead_scores`, API
-contract, migration, and focused tests. Frontend Phase 6 Lead Scoring UI remains
-future work until the required Stitch design context is available.
+contract, migration, focused tests, and local PostgreSQL migration/API smoke
+proof. Frontend Phase 6 Lead Scoring Stitch design context is now prepared;
+frontend implementation remains future work.
 
 Frontend Phase 1 Company / Sources / Knowledge UI is now implemented from the
 Stitch Phase 1 final corrected screens and the Backend Phase 1B API contract.
@@ -110,7 +111,7 @@ The completed verification covered:
 | Frontend Phase 3 | Backend Phase 3 Campaign; minimum backend vertical slice completed. | Campaign create, draft edit/delete, confirm, archive, duplicate as draft, list/detail, archived filter, and criteria review UI. | Implemented for the supported Campaign lifecycle using the backend Campaign contract and Stitch Campaign visual context. | Implemented for the supported Campaign UI lifecycle. | Local PostgreSQL live-backend browser smoke passed for direct route reachability, create, confirm, and filters. Future Campaign UI changes must remain contract-backed and must not introduce Lead Discovery actions inside the Phase 3 Campaign UI. |
 | Frontend Phase 4 | Backend Phase 4 Lead Discovery | Lead discovery task initiation and discovery result UI. | Implemented Lead Discovery UI from verified mock-provider-backed backend APIs and Stitch design context. | Implemented; live-backend browser smoke passed. | Depends on backend task and lead APIs, not frontend-only fake data. Must not imply validation, scoring, contacts, outreach, Gmail, real search, or real crawling. |
 | Frontend Phase 5 | Backend Phase 5 Lead Validation + Intelligence | Lead validation, intelligence, evidence, and content sufficiency states. | Implemented inside the confirmed Campaign Lead Discovery workspace from corrected Stitch screens and backend Phase 5 APIs. | Implemented; frontend build and local PostgreSQL live-backend browser smoke passed. | Backend first slice is implemented with mock crawler data; UI shows uncertainty and incomplete data honestly and keeps scoring/review/contacts/outreach/Gmail out of scope. |
-| Frontend Phase 6 | Backend Phase 6 Lead Scoring | Lead score, recommendation, matching reasons, risk notes, uncertainty, and evidence UI. | Implement scoring UI after Stitch design context is available and use only the implemented Phase 6 scoring APIs. | Future. | Backend Phase 6 first slice is implemented with mock LLM scoring. AI recommendation must stay separate from human review status. |
+| Frontend Phase 6 | Backend Phase 6 Lead Scoring | Lead score, recommendation, matching reasons, risk notes, uncertainty, and evidence UI. | Implement scoring UI from the prepared Stitch context and only the implemented Phase 6 scoring APIs. | Stitch context prepared; implementation future. | Backend Phase 6 first slice is implemented with mock LLM scoring and PostgreSQL smoke proof. AI recommendation must stay separate from human review status. |
 | Frontend Phase 7 | Backend Phase 7 Lead Review | Lead review pages and human decision controls. | Implement user review UI after review API contract exists. | Future. | User review remains required before outreach. |
 | Frontend Phase 8 | Backend Phase 8 Contacts | Contact records, contact status, selected valid email contact, and manual reference review UI. | Implement contact selection UI after contact contract exists. | Future. | Manual references cannot be draft recipients. |
 | Frontend Phase 9 | Backend Phase 9 Outreach Draft + Gmail Draft | Outreach draft review, Gmail Draft status, and draft-creation controls. | Implement outreach draft UI after draft-only Gmail contract exists. | Future. | User manually reviews and sends from Gmail. |
@@ -481,6 +482,79 @@ Status:
   candidate Leads, Lead Validation start, `lead_intelligence` display,
   repeated validation `409`, `insufficient_content`, and provider-failure task
   state.
+
+### Frontend Phase 6: Lead Scoring
+
+Backend alignment:
+
+- Backend Phase 6 Lead Scoring.
+- Implemented API surfaces:
+  - `POST /api/v1/leads/{lead_id}/scoring`
+  - `GET /api/v1/leads/{lead_id}/scoring/tasks`
+  - `GET /api/v1/leads/{lead_id}/scores`
+  - `GET /api/v1/tasks/{task_id}`
+
+Prepared Stitch design context:
+
+- Stitch project: `AI 获客任务管理系统`
+- Stitch project ID: `16911709330338888545`
+- Design system: `Deep Logic Design System`
+- Design system asset: `assets/9b9ad80336b641239ed2e61c556f7aa5`
+- Prepared screens:
+  - `客户匹配评分 - 入口与待评分线索`
+    (`ff49b1814c9a4b399600ff540c246ab0`)
+  - `客户匹配评分 - 评分任务运行中`
+    (`98c3ff2bc4cd4b608a8bca02d6204784`)
+  - `客户匹配评分 - 评分完成与证据详情`
+    (`562b1438749241189b8a511ab57d3c6d`)
+  - `客户匹配评分 - 空状态与异常状态`
+    (`5da801e93887409090f95f0ca413ad26`)
+
+Human / Stitch design scope:
+
+- Lead Scoring entry from valid Leads.
+- Scoring task running and task history states.
+- Completed score display with fit score, AI recommendation, matching reasons,
+  risk notes, uncertainty notes, evidence, and suggested outreach angle.
+- Empty, missing-intelligence, invalid-status, duplicate, archived-Campaign,
+  existing-score, existing-task, provider-failure, and retryable-failure states.
+- Clear visual separation between AI recommendation and human
+  `review_status`.
+
+Codex implementation scope:
+
+- Future implementation must stay inside the confirmed Campaign Lead Discovery
+  / Lead Validation workspace unless the backend contract changes.
+- Use backend task and score APIs only; do not use frontend-only fake scoring
+  data.
+- Show Lead Scoring task status from `task_runs`.
+- Show Lead Score records only from backend `lead_scores` responses.
+- Keep all user-facing text Chinese.
+- Correct Stitch sample-only static values during implementation by binding UI
+  display to real backend response fields.
+
+Out of scope for Frontend Phase 6:
+
+- Human lead approval, rejection, or manual review decision controls.
+- Contact discovery, selected email contact, Outreach Draft, Gmail Draft,
+  email sending, auto-send, follow-up sequence, or CRM pipeline actions.
+- Real LLM scoring claims while the backend uses `MockLeadScoringProvider`.
+- LinkedIn crawling, LinkedIn automation, or LinkedIn-derived Gmail Draft
+  eligibility.
+
+Dependencies:
+
+- Phase 6 API contract and data model.
+- Phase 6 validation and scoring rules.
+- `docs/UI_REQUIREMENTS.md`.
+- Prepared Stitch Phase 6 Lead Scoring screens listed above.
+
+Status:
+
+- Backend first slice is implemented with `MockLeadScoringProvider`.
+- Local PostgreSQL migration/API smoke passed for Backend Phase 6.
+- Stitch design context is prepared.
+- Frontend implementation has not started.
 
 ## Handoff Requirements
 
